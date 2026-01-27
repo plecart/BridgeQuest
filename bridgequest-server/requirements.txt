@@ -1,0 +1,28 @@
+# Django
+Django>=5.0,<6.0
+djangorestframework>=3.14.0
+
+# Base de données (SQLite par défaut en développement)
+# PostgreSQL pour la production (à ajouter plus tard)
+# psycopg2-binary>=2.9.0
+
+# Authentification SSO
+django-allauth>=0.57.0
+
+# WebSocket (pour la synchronisation temps réel)
+channels>=4.0.0
+channels-redis>=4.1.0
+
+# Utilitaires
+python-decouple>=3.8  # Gestion des variables d'environnement
+django-cors-headers>=4.3.0  # CORS pour l'API
+
+# Tests
+pytest>=7.4.0
+pytest-django>=4.7.0
+pytest-cov>=4.1.0
+
+# Code quality
+black>=23.0.0
+flake8>=6.1.0
+isort>=5.12.0

@@ -1,8 +1,5 @@
-# Fichiers de documentation à la racine
-Bridge Quest.docx
-Bridge Quest.md
-PLAN_ACTION.md
-CONVENTION_COMMITS.md
+# Documentation du projet
+bridgequest-doc/
 
 # Python / Django
 __pycache__/
