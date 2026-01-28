@@ -1,17 +1,16 @@
 """
-URL configuration for bridgequest project.
+Configuration des URLs principales pour Bridge Quest.
 
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/5.2/topics/http/urls/
+Les URLs sont organisées par module via include().
 """
 from django.contrib import admin
 from django.urls import path, include
 
 urlpatterns = [
-    # Admin Django
+    # Interface d'administration Django
     path('admin/', admin.site.urls),
     
-    # API REST
+    # API REST - Organisation par module
     path('api/auth/', include('accounts.urls')),
     path('api/games/', include('games.urls')),
     path('api/interactions/', include('interactions.urls')),

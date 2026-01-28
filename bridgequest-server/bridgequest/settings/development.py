@@ -20,7 +20,8 @@ REST_FRAMEWORK.update({
 })
 
 # CORS - Plus permissif en développement
-CORS_ALLOW_ALL_ORIGINS = True  # À utiliser uniquement en développement !
+# ATTENTION: Ne jamais utiliser en production !
+CORS_ALLOW_ALL_ORIGINS = True
 
 # Logging pour le développement
 LOGGING = {

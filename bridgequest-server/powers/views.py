@@ -1,3 +1,5 @@
-from django.shortcuts import render
+"""
+Fichier de base pour les vues du module Powers.
 
-# Create your views here.
+Les vues sont organisées dans le dossier views/.
+"""

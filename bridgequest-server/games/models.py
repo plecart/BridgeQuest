@@ -1,3 +1,5 @@
-from django.db import models
+"""
+Fichier de base pour les modèles du module Games.
 
-# Create your models here.
+Les modèles sont organisés dans le dossier models/.
+"""

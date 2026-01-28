@@ -1,4 +1,4 @@
-.PHONY: help server migrate install test clean
+.PHONY: help server migrate install test clean makemessages makemessages-fr makemessages-en compilemessages i18n
 
 # Variables
 SERVER_DIR = bridgequest-server
@@ -66,3 +66,22 @@ clean-db: ## Supprime la base de données SQLite (ATTENTION: supprime toutes les
 
 reset-db: clean-db migrate ## Réinitialise la base de données (supprime et recrée)
 	@echo "$(GREEN)Base de données réinitialisée$(NC)"
+
+makemessages: ## Génère les fichiers de traduction pour toutes les langues
+	@echo "$(GREEN)Génération des fichiers de traduction...$(NC)"
+	cd $(SERVER_DIR) && $(PYTHON) manage.py makemessages -a
+
+makemessages-fr: ## Génère les fichiers de traduction pour le français
+	@echo "$(GREEN)Génération des fichiers de traduction français...$(NC)"
+	cd $(SERVER_DIR) && $(PYTHON) manage.py makemessages -l fr
+
+makemessages-en: ## Génère les fichiers de traduction pour l'anglais
+	@echo "$(GREEN)Génération des fichiers de traduction anglais...$(NC)"
+	cd $(SERVER_DIR) && $(PYTHON) manage.py makemessages -l en
+
+compilemessages: ## Compile les fichiers de traduction (.po -> .mo)
+	@echo "$(GREEN)Compilation des traductions...$(NC)"
+	cd $(SERVER_DIR) && $(PYTHON) manage.py compilemessages
+
+i18n: makemessages compilemessages ## Génère et compile toutes les traductions
+	@echo "$(GREEN)Traductions générées et compilées$(NC)"
