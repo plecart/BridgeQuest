@@ -8,6 +8,8 @@ djangorestframework>=3.14.0
 
 # Authentification SSO
 django-allauth>=0.57.0
+PyJWT>=2.8.0  # Requis pour django-allauth avec Google OAuth
+cryptography>=41.0.0  # Requis pour django-allauth avec Google OAuth
 
 # WebSocket (pour la synchronisation temps réel)
 channels>=4.0.0
