@@ -43,9 +43,13 @@ createsuperuser: ## Crée un superutilisateur Django
 	@echo "$(GREEN)Création d'un superutilisateur...$(NC)"
 	cd $(SERVER_DIR) && $(PYTHON) manage.py createsuperuser
 
-test: ## Lance les tests
+test: ## Lance les tests avec logging optimisé
 	@echo "$(GREEN)Lancement des tests...$(NC)"
-	cd $(SERVER_DIR) && $(PYTHON) manage.py test
+	cd $(SERVER_DIR) && DJANGO_SETTINGS_MODULE=bridgequest.settings.testing $(PYTHON) manage.py test --verbosity=2
+
+test-quiet: ## Lance les tests sans verbosité
+	@echo "$(GREEN)Lancement des tests (mode silencieux)...$(NC)"
+	cd $(SERVER_DIR) && DJANGO_SETTINGS_MODULE=bridgequest.settings.testing $(PYTHON) manage.py test --verbosity=0
 
 check: ## Vérifie la configuration Django
 	@echo "$(GREEN)Vérification de la configuration...$(NC)"

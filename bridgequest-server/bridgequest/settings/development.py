@@ -29,8 +29,9 @@ LOGGING = {
     'disable_existing_loggers': False,
     'formatters': {
         'verbose': {
-            'format': '{levelname} {asctime} {module} {message}',
+            'format': '{levelname:8} {asctime} [{module:15}] {message}',
             'style': '{',
+            'datefmt': '%H:%M:%S',
         },
     },
     'handlers': {
@@ -45,6 +46,16 @@ LOGGING = {
     },
     'loggers': {
         'django': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'django.request': {
+            'handlers': ['console'],
+            'level': 'ERROR',  # Ignorer les warnings HTTP 4xx (Forbidden, Not Found) en développement
+            'propagate': False,
+        },
+        'django.server': {
             'handlers': ['console'],
             'level': 'INFO',
             'propagate': False,
