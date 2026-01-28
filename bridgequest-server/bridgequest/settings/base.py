@@ -26,13 +26,13 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     
-    # Local apps (à ajouter au fur et à mesure)
-    # 'accounts',
-    # 'games',
-    # 'interactions',
-    # 'locations',
-    # 'powers',
-    # 'logs',
+    # Local apps
+    'accounts',
+    'games',
+    'interactions',
+    'locations',
+    'powers',
+    'logs',
 ]
 
 MIDDLEWARE = [
@@ -116,7 +116,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.SessionAuthentication',
-        # 'rest_framework.authentication.TokenAuthentication',  # À ajouter plus tard
     ],
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
