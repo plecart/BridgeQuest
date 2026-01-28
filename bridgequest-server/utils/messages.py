@@ -35,6 +35,7 @@ class Messages:
     
     # Auth messages
     LOGOUT_SUCCESS = "auth.logout.success"
+    SSO_LOGIN_SUCCESS = "auth.sso.login.success"
 
 
 class ModelMessages:
@@ -68,6 +69,9 @@ class ErrorMessages:
     AUTH_TOKEN_INVALID = "error.auth.token_invalid"
     AUTH_TOKEN_EXPIRED = "error.auth.token_expired"
     AUTH_SSO_FAILED = "error.auth.sso_failed"
+    AUTH_SSO_PROVIDER_INVALID = "error.auth.sso.provider_invalid"
+    AUTH_SSO_TOKEN_REQUIRED = "error.auth.sso.token_required"
+    AUTH_SSO_TOKEN_VALIDATION_FAILED = "error.auth.sso.token_validation_failed"
     
     # User errors
     USER_NOT_FOUND = "error.user.not_found"
