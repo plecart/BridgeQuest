@@ -1,0 +1,71 @@
+name: bridgequest
+description: Bridge Quest - Application mobile de réalité alternée
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  
+  # Internationalisation
+  flutter_localizations:
+    sdk: flutter
+  intl: ^0.19.0
+  
+  # State Management
+  provider: ^6.1.1
+  
+  # HTTP
+  dio: ^5.4.0
+  
+  # Stockage sécurisé
+  flutter_secure_storage: ^9.0.0
+  
+  # SSO
+  google_sign_in: ^6.1.5
+  sign_in_with_apple: ^5.0.0
+  
+  # WebSocket
+  web_socket_channel: ^2.4.0
+  
+  # Géolocalisation
+  geolocator: ^10.1.0
+  permission_handler: ^11.1.0
+  
+  # QR Code
+  qr_flutter: ^4.1.0
+  mobile_scanner: ^5.0.0
+  
+  # Utilitaires
+  logger: ^2.0.2
+  equatable: ^2.0.5
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  
+  # Tests
+  mockito: ^5.4.4
+  build_runner: ^2.4.7
+  
+  # Linting
+  flutter_lints: ^3.0.1
+
+flutter:
+  generate: true
+  
+  # Assets
+  assets:
+    - assets/images/
+    - assets/icons/
+  
+  # Fonts
+  fonts:
+    - family: Roboto
+      fonts:
+        - asset: fonts/Roboto-Regular.ttf
+        - asset: fonts/Roboto-Bold.ttf
+          weight: 700

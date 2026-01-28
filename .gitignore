@@ -13,7 +13,8 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
+# lib/ uniquement pour Python (pas pour Flutter)
+bridgequest-server/lib/
 lib64/
 parts/
 sdist/
@@ -63,6 +64,13 @@ venv.bak/
 *.ipr
 *.iws
 .idea/
+# Fichiers générés Flutter
+*.g.dart
+*.freezed.dart
+*.mocks.dart
+# Coverage
+coverage/
+test/.test_coverage.dart
 
 # Android
 *.apk

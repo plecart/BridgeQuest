@@ -1,0 +1,12 @@
+{
+  "@@locale": "en",
+  "appName": "Bridge Quest",
+  "authLoginTitle": "Login",
+  "authLoginSubtitle": "Sign in to get started",
+  "authLoginButtonGoogle": "Sign in with Google",
+  "authLoginButtonApple": "Sign in with Apple",
+  "errorAuthSsoFailed": "SSO authentication failed",
+  "errorAuthTokenInvalid": "Invalid authentication token",
+  "errorGeneric": "An error occurred",
+  "errorNetwork": "Network connection error"
+}

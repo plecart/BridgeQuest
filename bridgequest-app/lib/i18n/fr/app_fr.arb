@@ -1,0 +1,39 @@
+{
+  "@@locale": "fr",
+  "appName": "Bridge Quest",
+  "@appName": {
+    "description": "Nom de l'application"
+  },
+  "authLoginTitle": "Connexion",
+  "@authLoginTitle": {
+    "description": "Titre de la page de connexion"
+  },
+  "authLoginSubtitle": "Connectez-vous pour commencer",
+  "@authLoginSubtitle": {
+    "description": "Sous-titre de la page de connexion"
+  },
+  "authLoginButtonGoogle": "Se connecter avec Google",
+  "@authLoginButtonGoogle": {
+    "description": "Bouton de connexion Google"
+  },
+  "authLoginButtonApple": "Se connecter avec Apple",
+  "@authLoginButtonApple": {
+    "description": "Bouton de connexion Apple"
+  },
+  "errorAuthSsoFailed": "Échec de l'authentification SSO",
+  "@errorAuthSsoFailed": {
+    "description": "Message d'erreur pour l'échec de l'authentification SSO"
+  },
+  "errorAuthTokenInvalid": "Token d'authentification invalide",
+  "@errorAuthTokenInvalid": {
+    "description": "Message d'erreur pour un token invalide"
+  },
+  "errorGeneric": "Une erreur est survenue",
+  "@errorGeneric": {
+    "description": "Message d'erreur générique"
+  },
+  "errorNetwork": "Erreur de connexion réseau",
+  "@errorNetwork": {
+    "description": "Message d'erreur réseau"
+  }
+}
