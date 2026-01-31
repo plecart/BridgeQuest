@@ -1,12 +1,37 @@
+import 'dart:io';
+import '../utils/logger.dart';
+
 /// Configuration de l'API
 class ApiConfig {
   ApiConfig._();
 
   /// URL de base de l'API backend
-  static const String baseUrl = String.fromEnvironment(
-    'API_BASE_URL',
-    defaultValue: 'http://localhost:8000',
-  );
+  /// 
+  /// Sur Android, utilise 10.0.2.2 au lieu de localhost pour accéder à la machine hôte.
+  /// Cette adresse IP spéciale permet à l'émulateur Android d'accéder à localhost de la machine hôte.
+  static String get baseUrl {
+    final envUrl = const String.fromEnvironment(
+      'API_BASE_URL',
+      defaultValue: '',
+    );
+    
+    if (envUrl.isNotEmpty) {
+      AppLogger.debug('API Base URL (env): $envUrl');
+      return envUrl;
+    }
+    
+    // Pour Android, utiliser 10.0.2.2 au lieu de localhost
+    if (Platform.isAndroid) {
+      const url = 'http://10.0.2.2:8000';
+      AppLogger.debug('API Base URL (Android): $url');
+      return url;
+    }
+    
+    // Pour iOS/autres plateformes, utiliser localhost
+    const url = 'http://localhost:8000';
+    AppLogger.debug('API Base URL (default): $url');
+    return url;
+  }
 
   /// Timeout pour les requêtes HTTP (en secondes)
   static const int timeoutSeconds = 30;

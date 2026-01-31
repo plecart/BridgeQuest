@@ -34,3 +34,9 @@ class ValidationException extends AppException {
   ValidationException(String message, {String? code})
       : super(message, code: code);
 }
+
+/// Exception de configuration
+class ConfigurationException extends AppException {
+  ConfigurationException(String message, {String? code})
+      : super(message, code: code);
+}
