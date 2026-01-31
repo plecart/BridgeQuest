@@ -6,7 +6,7 @@ pour l'authentification SSO depuis l'application mobile Flutter.
 """
 from rest_framework import serializers
 from django.utils.translation import gettext_lazy as _
-from utils.messages import ErrorMessages
+from utils.messages import ErrorMessages, Messages
 
 
 class SSOLoginSerializer(serializers.Serializer):
@@ -17,18 +17,19 @@ class SSOLoginSerializer(serializers.Serializer):
     (Google Sign-In, Apple Sign-In) pour validation et création de compte.
     """
     
+    # Les valeurs des choix sont des identifiants techniques, pas des textes traduits
     PROVIDER_CHOICES = [
-        ('google', 'Google'),
-        ('apple', 'Apple'),
+        ('google', 'google'),  # Valeur technique, l'affichage sera traduit ailleurs
+        ('apple', 'apple'),
     ]
     
     provider = serializers.ChoiceField(
         choices=PROVIDER_CHOICES,
-        help_text=_("Fournisseur SSO (google ou apple)")
+        help_text=_(Messages.SSO_PROVIDER_HELP_TEXT)
     )
     
     token = serializers.CharField(
-        help_text=_("Token ID (JWT) obtenu du fournisseur SSO"),
+        help_text=_(Messages.SSO_TOKEN_HELP_TEXT),
         required=True
     )
     

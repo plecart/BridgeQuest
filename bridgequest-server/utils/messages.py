@@ -36,6 +36,14 @@ class Messages:
     # Auth messages
     LOGOUT_SUCCESS = "auth.logout.success"
     SSO_LOGIN_SUCCESS = "auth.sso.login.success"
+    
+    # Admin fieldsets
+    ADMIN_PERSONAL_INFO = "admin.user.personal_info"
+    ADMIN_IMPORTANT_DATES = "admin.user.important_dates"
+    
+    # SSO Serializer
+    SSO_PROVIDER_HELP_TEXT = "serializer.sso.provider.help_text"
+    SSO_TOKEN_HELP_TEXT = "serializer.sso.token.help_text"
 
 
 class ModelMessages:

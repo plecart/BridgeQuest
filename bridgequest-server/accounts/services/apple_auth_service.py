@@ -12,8 +12,10 @@ from django.utils.translation import gettext_lazy as _
 from utils.exceptions import BridgeQuestException
 from utils.messages import ErrorMessages
 
-# URL pour obtenir les clés publiques Apple
+# Constantes de configuration
 APPLE_PUBLIC_KEYS_URL = 'https://appleid.apple.com/auth/keys'
+APPLE_ISSUER = 'https://appleid.apple.com'
+REQUEST_TIMEOUT_SECONDS = 10
 
 
 def get_apple_public_keys():
@@ -27,7 +29,7 @@ def get_apple_public_keys():
         BridgeQuestException: Si la récupération échoue
     """
     try:
-        response = requests.get(APPLE_PUBLIC_KEYS_URL, timeout=10)
+        response = requests.get(APPLE_PUBLIC_KEYS_URL, timeout=REQUEST_TIMEOUT_SECONDS)
         if response.status_code != 200:
             raise BridgeQuestException(_(ErrorMessages.AUTH_SSO_TOKEN_VALIDATION_FAILED))
         return response.json()
@@ -40,21 +42,21 @@ def validate_apple_token(token):
     Valide un token ID Apple et retourne les informations de l'utilisateur.
     
     Note: Apple Sign-In peut ne pas fournir l'email dans le token
-    si l'utilisateur a déjà autorisé l'app. Dans ce cas, l'email
-    doit être récupéré lors de la première connexion.
+    si l'utilisateur a déjà autorisé l'app. Dans ce cas, une exception
+    est levée car l'email est requis pour créer un compte.
     
     Args:
         token: Le token ID (JWT) obtenu via Apple Sign-In SDK
         
     Returns:
         dict: Dictionnaire contenant les informations de l'utilisateur Apple :
-            - email: Email de l'utilisateur (peut être None)
+            - email: Email de l'utilisateur (requis)
             - sub: ID unique Apple de l'utilisateur
-            - given_name: Prénom (peut être None)
-            - family_name: Nom de famille (peut être None)
+            - given_name: Prénom (peut être vide)
+            - family_name: Nom de famille (peut être vide)
             
     Raises:
-        BridgeQuestException: Si la validation échoue
+        BridgeQuestException: Si la validation échoue ou si l'email est manquant
     """
     if not token:
         raise BridgeQuestException(_(ErrorMessages.AUTH_SSO_TOKEN_REQUIRED))
@@ -82,8 +84,15 @@ def validate_apple_token(token):
         
         # Retourner les données SSO normalisées
         # Note: email peut être None si l'utilisateur a déjà autorisé l'app
+        # Dans ce cas, on doit utiliser le sub comme identifiant unique
+        email = decoded_token.get('email')
+        if not email:
+            # Si l'email n'est pas fourni, on ne peut pas créer de compte
+            # L'utilisateur doit se connecter avec un compte existant
+            raise BridgeQuestException(_(ErrorMessages.USER_EMAIL_REQUIRED))
+        
         return {
-            'email': decoded_token.get('email'),
+            'email': email,
             'given_name': decoded_token.get('given_name', ''),
             'family_name': decoded_token.get('family_name', ''),
             'sub': sub,
@@ -135,53 +144,7 @@ def _decode_apple_token(token, public_key):
     """
     decode_kwargs = {
         'algorithms': ['RS256'],
-        'issuer': 'https://appleid.apple.com'
-    }
-    
-    # Ajouter l'audience seulement si configuré
-    if hasattr(settings, 'APPLE_CLIENT_ID') and settings.APPLE_CLIENT_ID:
-        decode_kwargs['audience'] = settings.APPLE_CLIENT_ID
-    
-    return jwt.decode(token, public_key, **decode_kwargs)
-
-
-def _find_apple_public_key(apple_keys, unverified_header):
-    """
-    Trouve la clé publique Apple correspondante au header du token.
-    
-    Args:
-        apple_keys: Dictionnaire contenant les clés publiques Apple
-        unverified_header: Header du token JWT non vérifié
-        
-    Returns:
-        RSAAlgorithm: La clé publique trouvée ou None
-    """
-    kid = unverified_header.get('kid')
-    
-    for key in apple_keys.get('keys', []):
-        if key['kid'] == kid:
-            return RSAAlgorithm.from_jwk(key)
-    
-    return None
-
-
-def _decode_apple_token(token, public_key):
-    """
-    Décode et valide un token Apple avec la clé publique.
-    
-    Args:
-        token: Le token JWT à décoder
-        public_key: La clé publique RSA pour valider le token
-        
-    Returns:
-        dict: Le token décodé
-        
-    Raises:
-        jwt.InvalidTokenError: Si le token est invalide
-    """
-    decode_kwargs = {
-        'algorithms': ['RS256'],
-        'issuer': 'https://appleid.apple.com'
+        'issuer': APPLE_ISSUER
     }
     
     # Ajouter l'audience seulement si configuré

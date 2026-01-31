@@ -9,8 +9,9 @@ from django.utils.translation import gettext_lazy as _
 from utils.exceptions import BridgeQuestException
 from utils.messages import ErrorMessages
 
-# URL de validation des tokens Google
+# Constantes de configuration
 GOOGLE_TOKEN_INFO_URL = 'https://oauth2.googleapis.com/tokeninfo'
+REQUEST_TIMEOUT_SECONDS = 10
 
 
 def validate_google_token(token):
@@ -39,7 +40,7 @@ def validate_google_token(token):
         response = requests.get(
             GOOGLE_TOKEN_INFO_URL,
             params={'id_token': token},
-            timeout=10
+            timeout=REQUEST_TIMEOUT_SECONDS
         )
         
         if response.status_code != 200:
