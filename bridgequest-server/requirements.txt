@@ -6,10 +6,9 @@ djangorestframework>=3.14.0
 # PostgreSQL pour la production (à ajouter plus tard)
 # psycopg2-binary>=2.9.0
 
-# Authentification SSO
-django-allauth>=0.57.0
-PyJWT>=2.8.0  # Requis pour django-allauth avec Google OAuth et validation Apple
-cryptography>=41.0.0  # Requis pour django-allauth avec Google OAuth et validation Apple
+# Authentification SSO mobile
+PyJWT>=2.8.0  # Requis pour validation des tokens Apple
+cryptography>=41.0.0  # Requis pour validation des tokens Apple
 requests>=2.31.0  # Requis pour validation des tokens Google/Apple
 
 # WebSocket (pour la synchronisation temps réel)
