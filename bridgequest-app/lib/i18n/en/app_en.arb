@@ -1,12 +1,95 @@
 {
   "@@locale": "en",
   "appName": "Bridge Quest",
+  "@appName": {
+    "description": "Application name"
+  },
   "authLoginTitle": "Login",
+  "@authLoginTitle": {
+    "description": "Login page title"
+  },
   "authLoginSubtitle": "Sign in to get started",
+  "@authLoginSubtitle": {
+    "description": "Login page subtitle"
+  },
   "authLoginButtonGoogle": "Sign in with Google",
+  "@authLoginButtonGoogle": {
+    "description": "Google sign-in button"
+  },
   "authLoginButtonApple": "Sign in with Apple",
+  "@authLoginButtonApple": {
+    "description": "Apple sign-in button"
+  },
   "errorAuthSsoFailed": "SSO authentication failed",
+  "@errorAuthSsoFailed": {
+    "description": "Error message for SSO authentication failure"
+  },
   "errorAuthTokenInvalid": "Invalid authentication token",
+  "@errorAuthTokenInvalid": {
+    "description": "Error message for invalid token"
+  },
   "errorGeneric": "An error occurred",
-  "errorNetwork": "Network connection error"
+  "@errorGeneric": {
+    "description": "Generic error message"
+  },
+  "errorNetwork": "Network connection error",
+  "@errorNetwork": {
+    "description": "Network error message"
+  },
+  "errorUnexpected": "Unexpected error",
+  "@errorUnexpected": {
+    "description": "Unexpected error message"
+  },
+  "errorResponseInvalidFormat": "Invalid response format",
+  "@errorResponseInvalidFormat": {
+    "description": "Error message for invalid response format"
+  },
+  "errorResponseUnstructuredData": "Invalid response format: unstructured data",
+  "@errorResponseUnstructuredData": {
+    "description": "Error message for unstructured data"
+  },
+  "errorResponseUserMissing": "Invalid response format: user missing",
+  "@errorResponseUserMissing": {
+    "description": "Error message for missing user in response"
+  },
+  "errorResponseUserNotObject": "Invalid response format: user is not an object",
+  "@errorResponseUserNotObject": {
+    "description": "Error message for user that is not an object"
+  },
+  "errorGoogleSignIn": "Error during Google sign-in",
+  "@errorGoogleSignIn": {
+    "description": "Error message for Google sign-in"
+  },
+  "errorAppleSignIn": "Error during Apple sign-in",
+  "@errorAppleSignIn": {
+    "description": "Error message for Apple sign-in"
+  },
+  "errorApiTimeout": "Connection timeout",
+  "@errorApiTimeout": {
+    "description": "Error message for connection timeout"
+  },
+  "errorApiUnknown": "Unknown network error",
+  "@errorApiUnknown": {
+    "description": "Error message for unknown network error"
+  },
+  "errorApiGeneric": "API error",
+  "@errorApiGeneric": {
+    "description": "Generic API error message"
+  },
+  "errorGoogleTokenUnavailable": "Google token unavailable",
+  "@errorGoogleTokenUnavailable": {
+    "description": "Error message when Google token is not available"
+  },
+  "errorAppleTokenUnavailable": "Apple token unavailable",
+  "@errorAppleTokenUnavailable": {
+    "description": "Error message when Apple token is not available"
+  },
+  "errorAppleSignInCancelled": "Apple sign-in cancelled",
+  "@errorAppleSignInCancelled": {
+    "description": "Error message when user cancels Apple sign-in"
+  },
+  "errorConfigGoogleClientIdMissing": "Google configuration missing",
+  "@errorConfigGoogleClientIdMissing": {
+    "description": "Error message when Google Client ID is not configured"
+  }
 }

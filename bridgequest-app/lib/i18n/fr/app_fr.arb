@@ -35,5 +35,61 @@
   "errorNetwork": "Erreur de connexion réseau",
   "@errorNetwork": {
     "description": "Message d'erreur réseau"
+  },
+  "errorUnexpected": "Erreur inattendue",
+  "@errorUnexpected": {
+    "description": "Message d'erreur inattendue"
+  },
+  "errorResponseInvalidFormat": "Format de réponse invalide",
+  "@errorResponseInvalidFormat": {
+    "description": "Message d'erreur pour un format de réponse invalide"
+  },
+  "errorResponseUnstructuredData": "Format de réponse invalide: données non structurées",
+  "@errorResponseUnstructuredData": {
+    "description": "Message d'erreur pour des données non structurées"
+  },
+  "errorResponseUserMissing": "Format de réponse invalide: utilisateur manquant",
+  "@errorResponseUserMissing": {
+    "description": "Message d'erreur pour un utilisateur manquant dans la réponse"
+  },
+  "errorResponseUserNotObject": "Format de réponse invalide: utilisateur n'est pas un objet",
+  "@errorResponseUserNotObject": {
+    "description": "Message d'erreur pour un utilisateur qui n'est pas un objet"
+  },
+  "errorGoogleSignIn": "Erreur lors de la connexion Google",
+  "@errorGoogleSignIn": {
+    "description": "Message d'erreur pour la connexion Google"
+  },
+  "errorAppleSignIn": "Erreur lors de la connexion Apple",
+  "@errorAppleSignIn": {
+    "description": "Message d'erreur pour la connexion Apple"
+  },
+  "errorApiTimeout": "Timeout de connexion",
+  "@errorApiTimeout": {
+    "description": "Message d'erreur pour un timeout de connexion"
+  },
+  "errorApiUnknown": "Erreur réseau inconnue",
+  "@errorApiUnknown": {
+    "description": "Message d'erreur pour une erreur réseau inconnue"
+  },
+  "errorApiGeneric": "Erreur API",
+  "@errorApiGeneric": {
+    "description": "Message d'erreur API générique"
+  },
+  "errorGoogleTokenUnavailable": "Token Google non disponible",
+  "@errorGoogleTokenUnavailable": {
+    "description": "Message d'erreur quand le token Google n'est pas disponible"
+  },
+  "errorAppleTokenUnavailable": "Token Apple non disponible",
+  "@errorAppleTokenUnavailable": {
+    "description": "Message d'erreur quand le token Apple n'est pas disponible"
+  },
+  "errorAppleSignInCancelled": "Connexion Apple annulée",
+  "@errorAppleSignInCancelled": {
+    "description": "Message d'erreur quand l'utilisateur annule la connexion Apple"
+  },
+  "errorConfigGoogleClientIdMissing": "Configuration Google manquante",
+  "@errorConfigGoogleClientIdMissing": {
+    "description": "Message d'erreur quand le Client ID Google n'est pas configuré"
   }
 }
