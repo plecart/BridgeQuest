@@ -83,15 +83,15 @@ class AuthProvider extends ChangeNotifier {
   }
 
   /// Définit un message d'erreur à partir d'une exception
+  /// 
+  /// Stocke le code de traduction (pas le message traduit) pour permettre
+  /// la traduction dans la couche de présentation selon la locale.
   void _setErrorFromException(dynamic exception) {
-    if (exception is AuthException) {
-      _errorMessage = exception.message;
-    } else if (exception is NetworkException) {
-      _errorMessage = exception.message;
-    } else if (exception is ApiException) {
-      _errorMessage = exception.message;
+    if (exception is AppException) {
+      // Stocker le code de traduction si disponible, sinon le message
+      _errorMessage = exception.code ?? exception.message;
     } else {
-      _errorMessage = 'Une erreur est survenue';
+      _errorMessage = 'error.generic';
     }
     notifyListeners();
   }

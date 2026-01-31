@@ -16,37 +16,54 @@ class LoginViewModel {
         _googleSignInService = googleSignInService ?? GoogleSignInService(),
         _appleSignInService = appleSignInService ?? AppleSignInService();
 
+  bool _isLoggingIn = false;
+
   /// Connexion via Google Sign-In
+  /// 
+  /// Retourne null si l'utilisateur annule la connexion.
+  /// Throws [AuthException] si une erreur survient.
   Future<void> loginWithGoogle() async {
+    await _loginWithSSO(
+      provider: 'google',
+      getToken: () => _googleSignInService.getToken(),
+    );
+  }
+
+  /// Connexion via Apple Sign-In
+  /// 
+  /// Throws [AuthException] si une erreur survient.
+  Future<void> loginWithApple() async {
+    await _loginWithSSO(
+      provider: 'apple',
+      getToken: () => _appleSignInService.getToken(),
+    );
+  }
+
+  /// Logique commune de connexion SSO
+  /// 
+  /// [provider] : Le fournisseur SSO ('google' ou 'apple')
+  /// [getToken] : Fonction pour obtenir le token du fournisseur
+  Future<void> _loginWithSSO({
+    required String provider,
+    required Future<String?> Function() getToken,
+  }) async {
+    if (_isLoggingIn) {
+      return;
+    }
+
+    _isLoggingIn = true;
     try {
-      final token = await _googleSignInService.getToken();
+      final token = await getToken();
       if (token == null) {
-        // L'utilisateur a annulé la connexion
         return;
       }
 
       await _authProvider.loginWithSSO(
-        provider: 'google',
+        provider: provider,
         token: token,
       );
-    } catch (e) {
-      // L'erreur est gérée par le AuthProvider
-      rethrow;
-    }
-  }
-
-  /// Connexion via Apple Sign-In
-  Future<void> loginWithApple() async {
-    try {
-      final token = await _appleSignInService.getToken();
-
-      await _authProvider.loginWithSSO(
-        provider: 'apple',
-        token: token,
-      );
-    } catch (e) {
-      // L'erreur est gérée par le AuthProvider
-      rethrow;
+    } finally {
+      _isLoggingIn = false;
     }
   }
 }

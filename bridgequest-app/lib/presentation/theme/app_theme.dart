@@ -30,7 +30,8 @@ class AppTheme {
     );
   }
 
-  /// Thème sombre (pour plus tard)
+  /// Thème sombre (non utilisé actuellement, préparé pour le futur)
+  @Deprecated('Non utilisé actuellement')
   static ThemeData get darkTheme {
     return ThemeData(
       useMaterial3: true,
