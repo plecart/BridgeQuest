@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'secure_storage_service.dart';
 import '../../core/config/api_config.dart';
 import '../../core/exceptions/app_exceptions.dart';
+import '../../core/utils/logger.dart';
 
 /// Service pour les appels API REST
 class ApiService {
@@ -45,35 +46,46 @@ class ApiService {
     return handler.next(options);
   }
 
-  /// Gère les erreurs HTTP
+  /// Gère les erreurs HTTP dans les intercepteurs
   void _handleError(
     DioException error,
     ErrorInterceptorHandler handler,
   ) {
-    // Les erreurs 401 seront gérées par le AuthProvider
-    // via la vérification du token dans les réponses
-    return handler.next(error);
+    // Les erreurs sont gérées dans les méthodes get/post via _handleDioError
+    // L'intercepteur laisse passer l'erreur pour traitement ultérieur
+    handler.next(error);
   }
 
   /// Requête GET
+  /// 
+  /// [path] : Chemin de l'endpoint (relatif à baseUrl)
+  /// [queryParameters] : Paramètres de requête optionnels
+  /// 
+  /// Throws [AppException] si une erreur survient.
   Future<Response> get(
     String path, {
     Map<String, dynamic>? queryParameters,
   }) async {
-    try {
-      return await _dio.get(path, queryParameters: queryParameters);
-    } on DioException catch (e) {
-      throw _handleDioError(e);
-    }
+    return _executeRequest(() => _dio.get(path, queryParameters: queryParameters));
   }
 
   /// Requête POST
+  /// 
+  /// [path] : Chemin de l'endpoint (relatif à baseUrl)
+  /// [data] : Données à envoyer dans le body
+  /// 
+  /// Throws [AppException] si une erreur survient.
   Future<Response> post(
     String path, {
     Map<String, dynamic>? data,
   }) async {
+    return _executeRequest(() => _dio.post(path, data: data));
+  }
+
+  /// Exécute une requête HTTP et gère les erreurs
+  Future<Response> _executeRequest(Future<Response> Function() request) async {
     try {
-      return await _dio.post(path, data: data);
+      return await request();
     } on DioException catch (e) {
       throw _handleDioError(e);
     }
@@ -81,20 +93,47 @@ class ApiService {
 
   /// Convertit une erreur Dio en exception personnalisée
   AppException _handleDioError(DioException error) {
+    if (error.type == DioExceptionType.connectionTimeout ||
+        error.type == DioExceptionType.receiveTimeout ||
+        error.type == DioExceptionType.sendTimeout) {
+      return NetworkException(
+        'Timeout de connexion',
+        code: 'error.api.timeout',
+      );
+    }
+
+    if (error.type == DioExceptionType.connectionError) {
+      return NetworkException(
+        'Erreur de connexion réseau',
+        code: 'error.network',
+      );
+    }
+
     if (error.response != null) {
       return _createApiException(error);
     }
-    return NetworkException('Erreur de connexion réseau');
+
+    return NetworkException(
+      'Erreur réseau inconnue',
+      code: 'error.api.unknown',
+    );
   }
 
   /// Crée une exception API à partir d'une erreur Dio
   ApiException _createApiException(DioException error) {
     final statusCode = error.response!.statusCode;
     final errorData = error.response!.data;
+    
+    AppLogger.error(
+      'Erreur API - Status: $statusCode',
+      errorData,
+    );
+    
     final errorMessage = _extractErrorMessage(errorData);
 
     return ApiException(
       errorMessage,
+      code: 'error.api.generic',
       statusCode: statusCode,
     );
   }
@@ -102,7 +141,13 @@ class ApiService {
   /// Extrait le message d'erreur de la réponse
   String _extractErrorMessage(dynamic errorData) {
     if (errorData is Map<String, dynamic>) {
-      return errorData['error']?.toString() ?? 'Erreur API';
+      return errorData['error']?.toString() ?? 
+             errorData['message']?.toString() ?? 
+             errorData['detail']?.toString() ??
+             'Erreur API';
+    }
+    if (errorData is String) {
+      return errorData;
     }
     return 'Erreur API';
   }
