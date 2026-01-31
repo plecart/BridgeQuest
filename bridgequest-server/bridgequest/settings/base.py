@@ -21,15 +21,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django.contrib.sites',  # Requis pour django-allauth
     
     # Third-party apps
     'rest_framework',
     'corsheaders',
-    'allauth',
-    'allauth.account',
-    'allauth.socialaccount',
-    'allauth.socialaccount.providers.google',
     
     # Local apps
     'accounts',
@@ -50,7 +45,6 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'allauth.account.middleware.AccountMiddleware',  # Requis pour django-allauth
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -148,39 +142,7 @@ CORS_ALLOWED_ORIGINS = config(
 
 CORS_ALLOW_CREDENTIALS = True
 
-# Django Allauth Configuration
-SITE_ID = 1
-
+# Authentification
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
-    'allauth.account.auth_backends.AuthenticationBackend',
 ]
-
-# Account settings (nouvelle API django-allauth)
-ACCOUNT_LOGIN_METHODS = {'email'}  # Utiliser email pour se connecter
-ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*', 'password2*']  # Champs requis à l'inscription
-ACCOUNT_EMAIL_VERIFICATION = 'none'  # Pour MVP, pas de vérification email
-ACCOUNT_UNIQUE_EMAIL = True
-
-# Paramètres dépréciés (conservés pour compatibilité si nécessaire)
-# ACCOUNT_AUTHENTICATION_METHOD = 'email'  # Déprécié, utiliser ACCOUNT_LOGIN_METHODS
-# ACCOUNT_EMAIL_REQUIRED = True  # Déprécié, utiliser ACCOUNT_SIGNUP_FIELDS
-# ACCOUNT_USERNAME_REQUIRED = False  # Déprécié, utiliser ACCOUNT_SIGNUP_FIELDS
-
-# Social Account settings
-SOCIALACCOUNT_PROVIDERS = {
-    'google': {
-        'APP': {
-            'client_id': config('GOOGLE_CLIENT_ID', default=''),
-            'secret': config('GOOGLE_CLIENT_SECRET', default=''),
-            'key': ''
-        },
-        'SCOPE': [
-            'profile',
-            'email',
-        ],
-        'AUTH_PARAMS': {
-            'access_type': 'online',
-        }
-    }
-}
