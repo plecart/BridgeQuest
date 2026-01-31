@@ -3,10 +3,8 @@ Tests pour les services du module Accounts.
 """
 from django.test import TestCase
 from django.contrib.auth import get_user_model
-from unittest.mock import Mock, patch
-from accounts.services.auth_service import get_or_create_user_from_social_account, get_user_by_email
+from accounts.services.auth_service import get_user_by_email, create_or_get_user_from_sso_data
 from utils.exceptions import BridgeQuestException
-from utils.messages import ErrorMessages
 
 User = get_user_model()
 
@@ -24,23 +22,6 @@ class AuthServiceTestCase(TestCase):
             first_name='Test',
             last_name='User'
         )
-    
-    def _create_mock_social_account(self, user=None, extra_data=None):
-        """
-        Helper pour créer un mock SocialAccount.
-        
-        Args:
-            user: L'utilisateur associé (optionnel)
-            extra_data: Les données extra du compte social
-            
-        Returns:
-            Mock: Un mock SocialAccount
-        """
-        mock_account = Mock()
-        mock_account.user = user
-        mock_account.extra_data = extra_data or {}
-        mock_account.save = Mock()
-        return mock_account
     
     def test_get_user_by_email_success(self):
         """Test de récupération d'un utilisateur par email."""
@@ -63,88 +44,71 @@ class AuthServiceTestCase(TestCase):
         with self.assertRaises(BridgeQuestException):
             get_user_by_email(None)
     
-    @patch('accounts.services.auth_service.SocialAccount')
-    def test_get_or_create_user_from_social_account_existing_user(self, mock_social_account_class):
-        """Test de récupération d'un utilisateur existant depuis un compte social."""
-        # Arrange
-        mock_social_account = self._create_mock_social_account(
-            user=self.user,
-            extra_data={
-                'email': self.user_email,
-                'given_name': 'Test',
-                'family_name': 'User',
-                'picture': 'https://example.com/avatar.jpg'
-            }
-        )
+    def test_create_or_get_user_from_sso_data_new_user(self):
+        """Test de création d'un nouvel utilisateur depuis des données SSO."""
+        sso_data = {
+            'email': 'newuser@example.com',
+            'given_name': 'New',
+            'family_name': 'User',
+            'picture': 'https://example.com/avatar.jpg'
+        }
         
-        # Act
-        user = get_or_create_user_from_social_account(mock_social_account)
+        user = create_or_get_user_from_sso_data(sso_data, 'google')
         
-        # Assert
-        self.assertEqual(user, self.user)
-        mock_social_account.save.assert_not_called()
-    
-    @patch('accounts.services.auth_service.SocialAccount')
-    def test_get_or_create_user_from_social_account_new_user(self, mock_social_account_class):
-        """Test de création d'un nouvel utilisateur depuis un compte social."""
-        # Arrange
-        new_email = 'newuser@example.com'
-        mock_social_account = self._create_mock_social_account(
-            user=None,
-            extra_data={
-                'email': new_email,
-                'given_name': 'New',
-                'family_name': 'User',
-                'picture': 'https://example.com/newavatar.jpg'
-            }
-        )
-        
-        # Act
-        user = get_or_create_user_from_social_account(mock_social_account)
-        
-        # Assert
         self.assertIsNotNone(user)
-        self.assertEqual(user.email, new_email)
+        self.assertEqual(user.email, 'newuser@example.com')
         self.assertEqual(user.first_name, 'New')
         self.assertEqual(user.last_name, 'User')
-        self.assertEqual(user.avatar, 'https://example.com/newavatar.jpg')
-        mock_social_account.save.assert_called_once()
+        self.assertEqual(user.avatar, 'https://example.com/avatar.jpg')
     
-    @patch('accounts.services.auth_service.SocialAccount')
-    def test_get_or_create_user_from_social_account_no_email_raises_exception(self, mock_social_account_class):
-        """Test qu'un compte social sans email lève une exception."""
-        # Arrange
-        mock_social_account = self._create_mock_social_account(
-            user=None,
-            extra_data={}
-        )
+    def test_create_or_get_user_from_sso_data_existing_user(self):
+        """Test de récupération d'un utilisateur existant depuis des données SSO."""
+        sso_data = {
+            'email': self.user_email,
+            'given_name': 'Updated',
+            'family_name': 'Name',
+            'picture': 'https://example.com/newavatar.jpg'
+        }
         
-        # Act & Assert
+        user = create_or_get_user_from_sso_data(sso_data, 'google')
+        
+        self.assertEqual(user.id, self.user.id)
+        # Les informations existantes ne doivent pas être écrasées
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.first_name, 'Test')
+        self.assertEqual(self.user.last_name, 'User')
+    
+    def test_create_or_get_user_from_sso_data_no_email_raises_exception(self):
+        """Test qu'un SSO sans email lève une exception."""
+        sso_data = {
+            'given_name': 'Test',
+            'family_name': 'User'
+        }
+        
         with self.assertRaises(BridgeQuestException):
-            get_or_create_user_from_social_account(mock_social_account)
+            create_or_get_user_from_sso_data(sso_data, 'google')
     
-    @patch('accounts.services.auth_service.SocialAccount')
-    def test_get_or_create_user_from_social_account_existing_email_links_account(self, mock_social_account_class):
-        """Test qu'un email existant lie le compte social à l'utilisateur."""
-        # Arrange
-        existing_email = 'existing@example.com'
-        existing_user = User.objects.create_user(
-            username='existing',
-            email=existing_email
+    def test_create_or_get_user_from_sso_data_updates_empty_fields(self):
+        """Test que les champs vides sont mis à jour."""
+        user = User.objects.create_user(
+            username='incomplete',
+            email='incomplete@example.com',
+            first_name='',
+            last_name='',
+            avatar=''
         )
         
-        mock_social_account = self._create_mock_social_account(
-            user=None,
-            extra_data={
-                'email': existing_email,
-                'given_name': 'Existing',
-                'family_name': 'User'
-            }
-        )
+        sso_data = {
+            'email': 'incomplete@example.com',
+            'given_name': 'Complete',
+            'family_name': 'User',
+            'picture': 'https://example.com/avatar.jpg'
+        }
         
-        # Act
-        user = get_or_create_user_from_social_account(mock_social_account)
+        updated_user = create_or_get_user_from_sso_data(sso_data, 'google')
         
-        # Assert
-        self.assertEqual(user, existing_user)
-        mock_social_account.save.assert_called_once()
+        self.assertEqual(updated_user.id, user.id)
+        user.refresh_from_db()
+        self.assertEqual(user.first_name, 'Complete')
+        self.assertEqual(user.last_name, 'User')
+        self.assertEqual(user.avatar, 'https://example.com/avatar.jpg')

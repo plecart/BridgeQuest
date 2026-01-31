@@ -1,43 +1,96 @@
-# Bridge Quest - Application Mobile Flutter
+# Bridge Quest - Application Flutter
 
-Application mobile Flutter pour Bridge Quest, un jeu de réalité alternée.
+Application mobile Flutter pour Bridge Quest.
 
-## Structure du Projet
+## Prérequis
 
-Le projet suit l'architecture définie dans `bridgequest-doc/CODING_STANDARDS_FLUTTER.md` :
-
-- `lib/core/` : Configuration et utilitaires de base
-- `lib/data/` : Couche de données (models, repositories, services)
-- `lib/presentation/` : Interface utilisateur (pages, widgets, theme)
-- `lib/i18n/` : Internationalisation
-- `lib/providers/` : State management (Provider)
+- Flutter SDK (version 3.0 ou supérieure)
+- Dart SDK (inclus avec Flutter)
+- Android Studio / Xcode (pour le développement mobile)
 
 ## Installation
 
+### Sur Linux/macOS
+
 ```bash
+# Installer Flutter
+# Voir: https://docs.flutter.dev/get-started/install
+
 # Installer les dépendances
-flutter pub get
-
-# Générer les fichiers de localisation
-flutter gen-l10n
-
-# Lancer l'application
-flutter run
+make install
 ```
 
-## Standards de Code
+### Sur Windows / WSL
 
-Tous les standards sont définis dans `bridgequest-doc/CODING_STANDARDS_FLUTTER.md`.
+Si vous utilisez WSL et que Flutter est installé sur Windows :
+
+```bash
+# Option 1: Spécifier le chemin complet
+make install FLUTTER_PATH=/mnt/c/Users/VOTRE_USER/Downloads/flutter/bin/flutter.bat
+
+# Option 2: Ajouter Flutter au PATH WSL
+export PATH="$PATH:/mnt/c/Users/VOTRE_USER/Downloads/flutter/bin"
+make install
+
+# Option 3: Installer Flutter directement dans WSL (recommandé)
+# Voir: https://docs.flutter.dev/get-started/install/linux
+```
+
+## Commandes disponibles
+
+```bash
+make help              # Affiche toutes les commandes disponibles
+make install           # Installe les dépendances
+make run               # Lance l'application
+make test              # Lance les tests
+make analyze           # Analyse le code
+make format            # Formate le code
+make clean             # Nettoie les fichiers générés
+```
+
+## Structure du projet
+
+```
+lib/
+├── core/              # Configuration et utilitaires
+│   ├── config/        # Configuration (API, app)
+│   └── exceptions/    # Exceptions personnalisées
+├── data/              # Couche de données
+│   ├── models/        # Modèles de données
+│   ├── repositories/  # Repositories
+│   └── services/      # Services (API, storage, SSO)
+├── presentation/      # Interface utilisateur
+│   ├── pages/         # Pages de l'application
+│   ├── widgets/       # Widgets réutilisables
+│   └── theme/         # Thème de l'application
+└── providers/         # State management (Provider)
+```
+
+## Développement
+
+L'application suit les standards définis dans `bridgequest-doc/CODING_STANDARDS_FLUTTER.md`.
+
+### Internationalisation
+
+Les textes sont gérés via les fichiers `.arb` dans `lib/i18n/`.
+
+```bash
+make i18n  # Génère les fichiers de localisation
+```
 
 ## Tests
 
 ```bash
-# Tests unitaires
-flutter test test/unit/
+make test          # Tous les tests
+make test-unit      # Tests unitaires uniquement
+make test-widget    # Tests de widgets uniquement
+```
 
-# Tests de widgets
-flutter test test/widget/
+## Build
 
-# Tous les tests
-flutter test
+```bash
+make build-android          # Build Android (debug)
+make build-android-release  # Build Android (release)
+make build-ios              # Build iOS (debug)
+make build-ios-release      # Build iOS (release)
 ```
