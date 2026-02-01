@@ -6,7 +6,7 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import Group
 from django.utils.translation import gettext_lazy as _
 from accounts.models.user import User
-from utils.messages import ModelMessages, Messages
+from utils.messages import Messages
 
 # Désinscrire le modèle Group de l'admin (non utilisé dans ce projet)
 admin.site.unregister(Group)

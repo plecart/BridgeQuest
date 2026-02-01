@@ -3,8 +3,9 @@ Base settings for Bridge Quest project.
 
 These settings are shared across all environments (development, production, etc.)
 """
-
+from datetime import timedelta
 from pathlib import Path
+
 from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -148,9 +149,19 @@ AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
 ]
 
-# Simple JWT Configuration
-from datetime import timedelta
+# SSO Configuration
+# Apple Sign-In - Client ID (Bundle ID de l'app iOS)
+APPLE_CLIENT_ID = config('APPLE_CLIENT_ID', default='')
 
+# Google Sign-In - Liste des Client IDs autorisés (Web, iOS, Android)
+# Plusieurs IDs car Google génère un ID différent par plateforme
+GOOGLE_CLIENT_IDS = config(
+    'GOOGLE_CLIENT_IDS',
+    default='',
+    cast=lambda v: [s.strip() for s in v.split(',') if s.strip()] if v else []
+)
+
+# Simple JWT Configuration
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(hours=1),  # Token d'accès valide 1 heure
     'REFRESH_TOKEN_LIFETIME': timedelta(days=30),  # Refresh token valide 30 jours

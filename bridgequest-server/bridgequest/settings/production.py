@@ -3,8 +3,9 @@ Production settings for Bridge Quest project.
 
 These settings are used for production deployment.
 """
-
-from .base import *
+# L'import * est intentionnel pour hériter de tous les settings de base
+# C'est la pratique standard Django pour les fichiers de settings
+from .base import *  # noqa: F401, F403
 from decouple import config
 
 # SECURITY WARNING: don't run with debug turned on in production!

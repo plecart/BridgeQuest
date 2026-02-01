@@ -18,25 +18,6 @@ APPLE_ISSUER = 'https://appleid.apple.com'
 REQUEST_TIMEOUT_SECONDS = 10
 
 
-def get_apple_public_keys():
-    """
-    Récupère les clés publiques Apple pour valider les tokens.
-    
-    Returns:
-        dict: Dictionnaire des clés publiques Apple
-        
-    Raises:
-        BridgeQuestException: Si la récupération échoue
-    """
-    try:
-        response = requests.get(APPLE_PUBLIC_KEYS_URL, timeout=REQUEST_TIMEOUT_SECONDS)
-        if response.status_code != 200:
-            raise BridgeQuestException(_(ErrorMessages.AUTH_SSO_TOKEN_VALIDATION_FAILED))
-        return response.json()
-    except requests.RequestException as e:
-        raise BridgeQuestException(_(ErrorMessages.AUTH_SSO_TOKEN_VALIDATION_FAILED)) from e
-
-
 def validate_apple_token(token):
     """
     Valide un token ID Apple et retourne les informations de l'utilisateur.
@@ -58,57 +39,68 @@ def validate_apple_token(token):
     Raises:
         BridgeQuestException: Si la validation échoue ou si l'email est manquant
     """
-    if not token:
-        raise BridgeQuestException(_(ErrorMessages.AUTH_SSO_TOKEN_REQUIRED))
+    _validate_token_not_empty(token)
     
     try:
-        # Décoder le token sans vérification pour obtenir le header
-        unverified_header = jwt.get_unverified_header(token)
-        
-        # Récupérer les clés publiques Apple
-        apple_keys = get_apple_public_keys()
-        
-        # Trouver la clé publique correspondante
-        public_key = _find_apple_public_key(apple_keys, unverified_header)
-        
-        if not public_key:
-            raise BridgeQuestException(_(ErrorMessages.AUTH_SSO_TOKEN_VALIDATION_FAILED))
-        
-        # Valider et décoder le token
-        decoded_token = _decode_apple_token(token, public_key)
-        
-        # Extraire et valider les informations utilisateur
-        sub = decoded_token.get('sub')
-        if not sub:
-            raise BridgeQuestException(_(ErrorMessages.AUTH_SSO_TOKEN_VALIDATION_FAILED))
-        
-        # Retourner les données SSO normalisées
-        # Note: email peut être None si l'utilisateur a déjà autorisé l'app
-        # Dans ce cas, on doit utiliser le sub comme identifiant unique
-        email = decoded_token.get('email')
-        if not email:
-            # Si l'email n'est pas fourni, on ne peut pas créer de compte
-            # L'utilisateur doit se connecter avec un compte existant
-            raise BridgeQuestException(_(ErrorMessages.USER_EMAIL_REQUIRED))
-        
-        return {
-            'email': email,
-            'given_name': decoded_token.get('given_name', ''),
-            'family_name': decoded_token.get('family_name', ''),
-            'sub': sub,
-        }
-        
+        decoded_token = _decode_and_verify_token(token)
+        return _extract_user_data(decoded_token)
     except jwt.InvalidTokenError as e:
         raise BridgeQuestException(_(ErrorMessages.AUTH_SSO_TOKEN_VALIDATION_FAILED)) from e
     except BridgeQuestException:
-        # Re-lancer les exceptions métier telles quelles
         raise
     except Exception as e:
-        # Encapsuler les autres exceptions
         raise BridgeQuestException(_(ErrorMessages.AUTH_SSO_FAILED)) from e
 
 
-def _find_apple_public_key(apple_keys, unverified_header):
+def _validate_token_not_empty(token):
+    """Vérifie que le token n'est pas vide."""
+    if not token:
+        raise BridgeQuestException(_(ErrorMessages.AUTH_SSO_TOKEN_REQUIRED))
+
+
+def _decode_and_verify_token(token):
+    """
+    Décode et vérifie un token Apple.
+    
+    Args:
+        token: Le token JWT à décoder
+        
+    Returns:
+        dict: Le token décodé et vérifié
+        
+    Raises:
+        BridgeQuestException: Si la validation échoue
+    """
+    unverified_header = jwt.get_unverified_header(token)
+    apple_keys = _fetch_apple_public_keys()
+    public_key = _find_matching_public_key(apple_keys, unverified_header)
+    
+    if not public_key:
+        raise BridgeQuestException(_(ErrorMessages.AUTH_SSO_TOKEN_VALIDATION_FAILED))
+    
+    return _decode_token_with_key(token, public_key)
+
+
+def _fetch_apple_public_keys():
+    """
+    Récupère les clés publiques Apple pour valider les tokens.
+    
+    Returns:
+        dict: Dictionnaire des clés publiques Apple
+        
+    Raises:
+        BridgeQuestException: Si la récupération échoue
+    """
+    try:
+        response = requests.get(APPLE_PUBLIC_KEYS_URL, timeout=REQUEST_TIMEOUT_SECONDS)
+        if response.status_code != 200:
+            raise BridgeQuestException(_(ErrorMessages.AUTH_SSO_TOKEN_VALIDATION_FAILED))
+        return response.json()
+    except requests.RequestException as e:
+        raise BridgeQuestException(_(ErrorMessages.AUTH_SSO_TOKEN_VALIDATION_FAILED)) from e
+
+
+def _find_matching_public_key(apple_keys, unverified_header):
     """
     Trouve la clé publique Apple correspondante au header du token.
     
@@ -117,7 +109,7 @@ def _find_apple_public_key(apple_keys, unverified_header):
         unverified_header: Header du token JWT non vérifié
         
     Returns:
-        RSAAlgorithm: La clé publique trouvée ou None
+        RSAPublicKey: La clé publique trouvée ou None
     """
     kid = unverified_header.get('kid')
     
@@ -128,7 +120,23 @@ def _find_apple_public_key(apple_keys, unverified_header):
     return None
 
 
-def _decode_apple_token(token, public_key):
+def _get_apple_client_id():
+    """
+    Récupère le Client ID Apple depuis la configuration.
+    
+    Returns:
+        str: Le Client ID Apple
+        
+    Raises:
+        BridgeQuestException: Si la configuration est manquante
+    """
+    apple_client_id = getattr(settings, 'APPLE_CLIENT_ID', None)
+    if not apple_client_id:
+        raise BridgeQuestException(_(ErrorMessages.AUTH_SSO_CONFIG_ERROR))
+    return apple_client_id
+
+
+def _decode_token_with_key(token, public_key):
     """
     Décode et valide un token Apple avec la clé publique.
     
@@ -142,13 +150,41 @@ def _decode_apple_token(token, public_key):
     Raises:
         jwt.InvalidTokenError: Si le token est invalide
     """
-    decode_kwargs = {
-        'algorithms': ['RS256'],
-        'issuer': APPLE_ISSUER
+    apple_client_id = _get_apple_client_id()
+    
+    return jwt.decode(
+        token,
+        public_key,
+        algorithms=['RS256'],
+        issuer=APPLE_ISSUER,
+        audience=apple_client_id
+    )
+
+
+def _extract_user_data(decoded_token):
+    """
+    Extrait et normalise les données utilisateur depuis le token décodé.
+    
+    Args:
+        decoded_token: Token JWT décodé
+        
+    Returns:
+        dict: Données utilisateur normalisées
+        
+    Raises:
+        BridgeQuestException: Si les données requises sont manquantes
+    """
+    sub = decoded_token.get('sub')
+    if not sub:
+        raise BridgeQuestException(_(ErrorMessages.AUTH_SSO_TOKEN_VALIDATION_FAILED))
+    
+    email = decoded_token.get('email')
+    if not email:
+        raise BridgeQuestException(_(ErrorMessages.USER_EMAIL_REQUIRED))
+    
+    return {
+        'email': email,
+        'given_name': decoded_token.get('given_name', ''),
+        'family_name': decoded_token.get('family_name', ''),
+        'sub': sub,
     }
-    
-    # Ajouter l'audience seulement si configuré
-    if hasattr(settings, 'APPLE_CLIENT_ID') and settings.APPLE_CLIENT_ID:
-        decode_kwargs['audience'] = settings.APPLE_CLIENT_ID
-    
-    return jwt.decode(token, public_key, **decode_kwargs)

@@ -4,7 +4,9 @@ Settings spécifiques pour les tests.
 Ces settings sont utilisés uniquement lors de l'exécution des tests.
 Ils optimisent les performances et réduisent le bruit dans la sortie des tests.
 """
-from .base import *
+# L'import * est intentionnel pour hériter de tous les settings de base
+# C'est la pratique standard Django pour les fichiers de settings
+from .base import *  # noqa: F401, F403
 
 
 class DisableMigrations:

@@ -80,6 +80,7 @@ class ErrorMessages:
     AUTH_SSO_PROVIDER_INVALID = "error.auth.sso.provider_invalid"
     AUTH_SSO_TOKEN_REQUIRED = "error.auth.sso.token_required"
     AUTH_SSO_TOKEN_VALIDATION_FAILED = "error.auth.sso.token_validation_failed"
+    AUTH_SSO_CONFIG_ERROR = "error.auth.sso.config_error"
     
     # User errors
     USER_NOT_FOUND = "error.user.not_found"

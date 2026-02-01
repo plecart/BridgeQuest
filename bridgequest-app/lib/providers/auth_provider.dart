@@ -37,7 +37,8 @@ class AuthProvider extends ChangeNotifier {
       notifyListeners();
     } catch (e) {
       _setErrorFromException(e);
-      rethrow;
+      // Ne pas relancer l'exception - l'erreur est déjà stockée dans _errorMessage
+      // et les listeners sont notifiés via _setErrorFromException
     } finally {
       _setLoading(false);
     }

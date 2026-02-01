@@ -3,19 +3,26 @@ import '../../data/models/user.dart';
 import '../../core/utils/user_helpers.dart';
 import '../theme/app_text_styles.dart';
 
-/// Widget réutilisable pour afficher l'avatar d'un utilisateur
+/// Widget réutilisable pour afficher l'avatar d'un utilisateur.
 /// 
 /// Affiche l'image de profil si disponible, sinon affiche les initiales
-/// dans un cercle coloré.
-class UserAvatar extends StatelessWidget {
-  /// L'utilisateur dont on affiche l'avatar
+/// dans un cercle coloré. Gère automatiquement les erreurs de chargement
+/// d'image en basculant sur l'avatar par défaut.
+class UserAvatar extends StatefulWidget {
+  /// L'utilisateur dont on affiche l'avatar.
   final User user;
   
-  /// Le rayon de l'avatar
+  /// Le rayon de l'avatar (défaut: 30).
   final double radius;
   
-  /// La couleur de fond pour l'avatar par défaut
+  /// La couleur de fond pour l'avatar par défaut.
   final Color? backgroundColor;
+
+  /// Couleur de fond par défaut si non spécifiée.
+  static const Color defaultBackgroundColor = Colors.blue;
+  
+  /// Ratio du rayon pour calculer la taille de police des initiales.
+  static const double _initialsTextRatio = 0.5;
 
   const UserAvatar({
     super.key,
@@ -25,35 +32,67 @@ class UserAvatar extends StatelessWidget {
   });
 
   @override
+  State<UserAvatar> createState() => _UserAvatarState();
+}
+
+class _UserAvatarState extends State<UserAvatar> {
+  bool _hasImageError = false;
+
+  @override
+  void didUpdateWidget(UserAvatar oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (_avatarChanged(oldWidget)) {
+      _resetImageError();
+    }
+  }
+
+  bool _avatarChanged(UserAvatar oldWidget) {
+    return oldWidget.user.avatar != widget.user.avatar;
+  }
+
+  void _resetImageError() {
+    _hasImageError = false;
+  }
+
+  @override
   Widget build(BuildContext context) {
-    if (UserHelpers.hasAvatar(user)) {
+    if (_shouldShowNetworkAvatar()) {
       return _buildNetworkAvatar();
     }
     return _buildDefaultAvatar();
   }
 
-  /// Construit l'avatar avec l'image réseau
+  bool _shouldShowNetworkAvatar() {
+    return UserHelpers.hasAvatar(widget.user) && !_hasImageError;
+  }
+
+  Color get _effectiveBackgroundColor {
+    return widget.backgroundColor ?? UserAvatar.defaultBackgroundColor;
+  }
+
   Widget _buildNetworkAvatar() {
     return CircleAvatar(
-      radius: radius,
-      backgroundImage: NetworkImage(user.avatar!),
-      onBackgroundImageError: (_, __) {
-        // En cas d'erreur, l'avatar par défaut sera affiché
-      },
-      child: _buildDefaultAvatar(),
+      radius: widget.radius,
+      backgroundImage: NetworkImage(widget.user.avatar!),
+      backgroundColor: _effectiveBackgroundColor,
+      onBackgroundImageError: (_, __) => _handleImageError(),
     );
   }
 
-  /// Construit l'avatar par défaut avec les initiales
+  void _handleImageError() {
+    setState(() {
+      _hasImageError = true;
+    });
+  }
+
   Widget _buildDefaultAvatar() {
-    final initials = UserHelpers.getInitials(user);
     return CircleAvatar(
-      radius: radius,
-      backgroundColor: backgroundColor ?? Colors.blue,
+      radius: widget.radius,
+      backgroundColor: _effectiveBackgroundColor,
       child: Text(
-        initials,
+        UserHelpers.getInitials(widget.user),
         style: AppTextStyles.avatarInitials.copyWith(
-          fontSize: radius * 0.5,
+          fontSize: widget.radius * UserAvatar._initialsTextRatio,
         ),
       ),
     );

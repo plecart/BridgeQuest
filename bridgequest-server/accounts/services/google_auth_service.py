@@ -5,6 +5,7 @@ Ce service valide les tokens ID obtenus via Google Sign-In SDK
 depuis l'application mobile Flutter.
 """
 import requests
+from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 from utils.exceptions import BridgeQuestException
 from utils.messages import ErrorMessages
@@ -30,13 +31,51 @@ def validate_google_token(token):
             - sub: ID unique Google de l'utilisateur
             
     Raises:
-        BridgeQuestException: Si la validation échoue
+        BridgeQuestException: Si la validation échoue ou si la configuration est manquante
     """
+    _validate_token_not_empty(token)
+    google_client_ids = _get_google_client_ids()
+    token_info = _fetch_token_info(token)
+    _validate_token_audience(token_info, google_client_ids)
+    return _extract_user_data(token_info)
+
+
+def _validate_token_not_empty(token):
+    """Vérifie que le token n'est pas vide."""
     if not token:
         raise BridgeQuestException(_(ErrorMessages.AUTH_SSO_TOKEN_REQUIRED))
+
+
+def _get_google_client_ids():
+    """
+    Récupère la liste des Client IDs Google autorisés depuis la configuration.
     
+    Returns:
+        list: Liste des Client IDs autorisés
+        
+    Raises:
+        BridgeQuestException: Si la configuration est manquante
+    """
+    google_client_ids = getattr(settings, 'GOOGLE_CLIENT_IDS', None)
+    if not google_client_ids:
+        raise BridgeQuestException(_(ErrorMessages.AUTH_SSO_CONFIG_ERROR))
+    return google_client_ids
+
+
+def _fetch_token_info(token):
+    """
+    Récupère les informations du token depuis l'API Google.
+    
+    Args:
+        token: Le token ID à valider
+        
+    Returns:
+        dict: Informations du token retournées par Google
+        
+    Raises:
+        BridgeQuestException: Si l'appel API échoue
+    """
     try:
-        # Valider le token avec Google
         response = requests.get(
             GOOGLE_TOKEN_INFO_URL,
             params={'id_token': token},
@@ -48,28 +87,52 @@ def validate_google_token(token):
         
         token_info = response.json()
         
-        # Vérifier que le token est valide
         if 'error' in token_info:
             raise BridgeQuestException(_(ErrorMessages.AUTH_SSO_TOKEN_VALIDATION_FAILED))
         
-        # Extraire les informations utilisateur
-        email = token_info.get('email')
-        if not email:
-            raise BridgeQuestException(_(ErrorMessages.USER_EMAIL_REQUIRED))
-        
-        return {
-            'email': email,
-            'given_name': token_info.get('given_name', ''),
-            'family_name': token_info.get('family_name', ''),
-            'picture': token_info.get('picture', ''),
-            'sub': token_info.get('sub', ''),
-        }
+        return token_info
         
     except requests.RequestException as e:
         raise BridgeQuestException(_(ErrorMessages.AUTH_SSO_TOKEN_VALIDATION_FAILED)) from e
-    except BridgeQuestException:
-        # Re-lancer les exceptions métier telles quelles
-        raise
-    except Exception as e:
-        # Encapsuler les autres exceptions
-        raise BridgeQuestException(_(ErrorMessages.AUTH_SSO_FAILED)) from e
+
+
+def _validate_token_audience(token_info, google_client_ids):
+    """
+    Vérifie que l'audience du token correspond à un Client ID autorisé.
+    
+    Args:
+        token_info: Informations du token retournées par Google
+        google_client_ids: Liste des Client IDs autorisés
+        
+    Raises:
+        BridgeQuestException: Si l'audience ne correspond pas
+    """
+    token_audience = token_info.get('aud')
+    if not token_audience or token_audience not in google_client_ids:
+        raise BridgeQuestException(_(ErrorMessages.AUTH_SSO_TOKEN_VALIDATION_FAILED))
+
+
+def _extract_user_data(token_info):
+    """
+    Extrait et normalise les données utilisateur depuis les informations du token.
+    
+    Args:
+        token_info: Informations du token retournées par Google
+        
+    Returns:
+        dict: Données utilisateur normalisées
+        
+    Raises:
+        BridgeQuestException: Si l'email est manquant
+    """
+    email = token_info.get('email')
+    if not email:
+        raise BridgeQuestException(_(ErrorMessages.USER_EMAIL_REQUIRED))
+    
+    return {
+        'email': email,
+        'given_name': token_info.get('given_name', ''),
+        'family_name': token_info.get('family_name', ''),
+        'picture': token_info.get('picture', ''),
+        'sub': token_info.get('sub', ''),
+    }
