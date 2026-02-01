@@ -19,7 +19,8 @@ class AppLocalization {
   /// Construit la liste des locales supportées
   static List<Locale> buildSupportedLocales() {
     return const [
-      Locale('fr', ''),
+      Locale('fr'),
+      Locale('en'),
     ];
   }
 }

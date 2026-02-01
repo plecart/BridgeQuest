@@ -5,7 +5,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'core/config/app_config.dart';
 import 'core/config/app_providers.dart';
 import 'core/config/app_localization.dart';
-import 'presentation/pages/auth/login_page.dart';
+import 'presentation/widgets/auth_wrapper.dart';
 import 'presentation/theme/app_theme.dart';
 
 Future<void> main() async {
@@ -31,7 +31,7 @@ class BridgeQuestApp extends StatelessWidget {
         theme: AppTheme.lightTheme,
         localizationsDelegates: AppLocalization.buildDelegates(),
         supportedLocales: AppLocalization.buildSupportedLocales(),
-        home: const LoginPage(),
+        home: const AuthWrapper(),
       ),
     );
   }

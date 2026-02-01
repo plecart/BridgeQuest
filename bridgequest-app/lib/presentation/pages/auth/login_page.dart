@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../i18n/app_localizations.dart';
 import '../../../providers/auth_provider.dart';
+import '../../../core/utils/error_translator.dart';
 import '../../widgets/loading_button.dart';
 import '../../widgets/error_message.dart';
 import '../../../data/services/google_sign_in_service.dart';
@@ -55,7 +56,9 @@ class _LoginPageState extends State<LoginPage> {
               _buildLoginButtons(context, l10n, authProvider),
               if (authProvider.isLoading) _buildLoadingIndicator(),
               if (authProvider.errorMessage != null)
-                ErrorMessage(message: _translateErrorCode(authProvider.errorMessage!, l10n)),
+                ErrorMessage(
+                  message: ErrorTranslator.translate(authProvider.errorMessage!, l10n),
+                ),
             ],
           ),
         ),
@@ -115,56 +118,5 @@ class _LoginPageState extends State<LoginPage> {
       padding: EdgeInsets.only(top: 24),
       child: CircularProgressIndicator(),
     );
-  }
-
-  /// Traduit un code d'erreur en message localisé
-  /// 
-  /// [errorCode] : Le code d'erreur (ex: 'error.generic', 'error.network')
-  /// [l10n] : Les localisations de l'application
-  /// 
-  /// Retourne le message traduit ou le code si aucune traduction n'est trouvée.
-  String _translateErrorCode(String errorCode, AppLocalizations l10n) {
-    // Mapper les codes d'erreur aux clés de traduction ARB (camelCase)
-    switch (errorCode) {
-      case 'error.generic':
-        return l10n.errorGeneric;
-      case 'error.network':
-        return l10n.errorNetwork;
-      case 'error.unexpected':
-        return l10n.errorUnexpected;
-      case 'error.auth.ssoFailed':
-        return l10n.errorAuthSsoFailed;
-      case 'error.auth.tokenInvalid':
-        return l10n.errorAuthTokenInvalid;
-      case 'error.response.invalidFormat':
-        return l10n.errorResponseInvalidFormat;
-      case 'error.response.unstructuredData':
-        return l10n.errorResponseUnstructuredData;
-      case 'error.response.userMissing':
-        return l10n.errorResponseUserMissing;
-      case 'error.response.userNotObject':
-        return l10n.errorResponseUserNotObject;
-      case 'error.google.signIn':
-        return l10n.errorGoogleSignIn;
-      case 'error.google.tokenUnavailable':
-        return l10n.errorGoogleTokenUnavailable;
-      case 'error.apple.signIn':
-        return l10n.errorAppleSignIn;
-      case 'error.apple.tokenUnavailable':
-        return l10n.errorAppleTokenUnavailable;
-      case 'error.apple.signInCancelled':
-        return l10n.errorAppleSignInCancelled;
-      case 'error.api.timeout':
-        return l10n.errorApiTimeout;
-      case 'error.api.unknown':
-        return l10n.errorApiUnknown;
-      case 'error.api.generic':
-        return l10n.errorApiGeneric;
-      case 'error.config.googleClientIdMissing':
-        return l10n.errorConfigGoogleClientIdMissing;
-      default:
-        // Si le code n'est pas reconnu, retourner un message générique
-        return errorCode.startsWith('error.') ? l10n.errorGeneric : errorCode;
-    }
   }
 }

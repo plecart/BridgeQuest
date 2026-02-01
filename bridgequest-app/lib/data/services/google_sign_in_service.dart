@@ -1,23 +1,27 @@
 import 'package:google_sign_in/google_sign_in.dart';
 import '../../core/config/app_config.dart';
 import '../../core/exceptions/app_exceptions.dart';
-import '../../core/utils/logger.dart';
 
 /// Service pour l'authentification Google Sign-In
+/// 
+/// L'initialisation de GoogleSignIn est lazy pour éviter de bloquer le thread principal
+/// au démarrage de l'application.
 class GoogleSignInService {
-  final GoogleSignIn _googleSignIn;
+  GoogleSignIn? _googleSignIn;
 
-  GoogleSignInService({GoogleSignIn? googleSignIn})
-      : _googleSignIn = googleSignIn ??
-            GoogleSignIn(
-              scopes: ['email', 'profile'],
-              // IMPORTANT: Pour Android, serverClientId doit être un Client ID Web
-              // Le Client ID Android est utilisé automatiquement par le plugin
-              serverClientId: AppConfig.googleSignInWebClientId,
-            ) {
-    AppLogger.debug(
-      'Google Sign-In initialisé avec Client ID Web',
+  GoogleSignInService({GoogleSignIn? googleSignIn}) : _googleSignIn = googleSignIn;
+
+  /// Retourne l'instance GoogleSignIn, en la créant si nécessaire
+  /// 
+  /// L'initialisation est lazy pour améliorer les performances au démarrage.
+  GoogleSignIn get _googleSignInInstance {
+    _googleSignIn ??= GoogleSignIn(
+      scopes: ['email', 'profile'],
+      // IMPORTANT: Pour Android, serverClientId doit être un Client ID Web
+      // Le Client ID Android est utilisé automatiquement par le plugin
+      serverClientId: AppConfig.googleSignInWebClientId,
     );
+    return _googleSignIn!;
   }
 
   /// Obtient le token ID Google
@@ -27,7 +31,7 @@ class GoogleSignInService {
   /// Throws [AuthException] si une erreur survient.
   Future<String?> getToken() async {
     try {
-      final account = await _googleSignIn.signIn();
+      final account = await _googleSignInInstance.signIn();
       if (account == null) {
         return null;
       }

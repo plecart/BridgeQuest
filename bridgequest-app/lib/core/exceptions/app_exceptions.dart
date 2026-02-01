@@ -11,32 +11,27 @@ abstract class AppException implements Exception {
 
 /// Exception d'authentification
 class AuthException extends AppException {
-  AuthException(String message, {String? code})
-      : super(message, code: code);
+  AuthException(super.message, {super.code});
 }
 
 /// Exception réseau
 class NetworkException extends AppException {
-  NetworkException(String message, {String? code})
-      : super(message, code: code);
+  NetworkException(super.message, {super.code});
 }
 
 /// Exception API
 class ApiException extends AppException {
   final int? statusCode;
 
-  ApiException(String message, {String? code, this.statusCode})
-      : super(message, code: code);
+  ApiException(super.message, {super.code, this.statusCode});
 }
 
 /// Exception de validation
 class ValidationException extends AppException {
-  ValidationException(String message, {String? code})
-      : super(message, code: code);
+  ValidationException(super.message, {super.code});
 }
 
 /// Exception de configuration
 class ConfigurationException extends AppException {
-  ConfigurationException(String message, {String? code})
-      : super(message, code: code);
+  ConfigurationException(super.message, {super.code});
 }

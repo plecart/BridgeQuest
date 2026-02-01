@@ -80,4 +80,10 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get errorConfigGoogleClientIdMissing =>
       'Configuration Google manquante';
+
+  @override
+  String get homeTitle => 'Accueil';
+
+  @override
+  String get homeLogoutButton => 'Déconnexion';
 }

@@ -91,5 +91,13 @@
   "errorConfigGoogleClientIdMissing": "Configuration Google manquante",
   "@errorConfigGoogleClientIdMissing": {
     "description": "Message d'erreur quand le Client ID Google n'est pas configuré"
+  },
+  "homeTitle": "Accueil",
+  "@homeTitle": {
+    "description": "Titre de la page d'accueil"
+  },
+  "homeLogoutButton": "Déconnexion",
+  "@homeLogoutButton": {
+    "description": "Bouton de déconnexion"
   }
 }

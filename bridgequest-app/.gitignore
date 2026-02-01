@@ -46,3 +46,6 @@ app.*.map.json
 
 # Variables d'environnement
 .env
+
+# Fichiers de localisation générés automatiquement (ne jamais modifier manuellement)
+lib/i18n/app_localizations*.dart

@@ -5,6 +5,9 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/intl.dart' as intl;
 
+import 'app_localizations_en.dart';
+import 'app_localizations_fr.dart';
+
 // ignore_for_file: type=lint
 
 /// Callers can lookup localized strings with an instance of AppLocalizations
@@ -90,7 +93,10 @@ abstract class AppLocalizations {
   ];
 
   /// A list of this localizations delegate's supported locales.
-  static const List<Locale> supportedLocales = <Locale>[];
+  static const List<Locale> supportedLocales = <Locale>[
+    Locale('en'),
+    Locale('fr')
+  ];
 
   /// Nom de l'application
   ///
@@ -229,6 +235,18 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Configuration Google manquante'**
   String get errorConfigGoogleClientIdMissing;
+
+  /// Titre de la page d'accueil
+  ///
+  /// In fr, this message translates to:
+  /// **'Accueil'**
+  String get homeTitle;
+
+  /// Bouton de déconnexion
+  ///
+  /// In fr, this message translates to:
+  /// **'Déconnexion'**
+  String get homeLogoutButton;
 }
 
 class _AppLocalizationsDelegate
@@ -241,13 +259,22 @@ class _AppLocalizationsDelegate
   }
 
   @override
-  bool isSupported(Locale locale) => <String>[].contains(locale.languageCode);
+  bool isSupported(Locale locale) =>
+      <String>['en', 'fr'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
 }
 
 AppLocalizations lookupAppLocalizations(Locale locale) {
+  // Lookup logic when only language code is specified.
+  switch (locale.languageCode) {
+    case 'en':
+      return AppLocalizationsEn();
+    case 'fr':
+      return AppLocalizationsFr();
+  }
+
   throw FlutterError(
       'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
       'an issue with the localizations generation tool. Please file an issue '

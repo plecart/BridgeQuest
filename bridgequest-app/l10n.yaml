@@ -1,4 +1,5 @@
 arb-dir: lib/i18n
-template-arb-file: fr/app_fr.arb
+template-arb-file: app_fr.arb
+output-dir: lib/i18n
 output-localization-file: app_localizations.dart
 output-class: AppLocalizations

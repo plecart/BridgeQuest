@@ -45,7 +45,11 @@ venv.bak/
 .venv
 
 # IDE
-.vscode/
+# Ignorer les fichiers personnels VS Code mais garder la configuration partagée
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/launch.json
 .idea/
 *.swp
 *.swo

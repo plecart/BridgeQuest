@@ -10,7 +10,8 @@ class ApiConfig {
   /// Sur Android, utilise 10.0.2.2 au lieu de localhost pour accéder à la machine hôte.
   /// Cette adresse IP spéciale permet à l'émulateur Android d'accéder à localhost de la machine hôte.
   static String get baseUrl {
-    final envUrl = const String.fromEnvironment(
+    // envUrl ne peut pas être const car String.fromEnvironment n'est pas évalué à la compilation
+    final envUrl = const String.fromEnvironment( // ignore: prefer_const_declarations
       'API_BASE_URL',
       defaultValue: '',
     );
@@ -38,6 +39,7 @@ class ApiConfig {
 
   /// Endpoints de l'API
   static const String authSSOLogin = '/api/auth/sso/login/';
+  static const String authTokenRefresh = '/api/auth/token/refresh/';
   static const String authMe = '/api/auth/me/';
   static const String authLogout = '/api/auth/logout/';
 }
