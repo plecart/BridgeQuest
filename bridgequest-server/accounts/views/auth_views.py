@@ -7,13 +7,14 @@ from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
-from django.contrib.auth import logout, login, get_user_model
+from django.contrib.auth import get_user_model
 from django.utils.translation import gettext_lazy as _
 from accounts.serializers.user_serializers import UserSerializer, UserPublicSerializer
 from accounts.serializers.sso_serializers import SSOLoginSerializer
 from accounts.services.google_auth_service import validate_google_token
 from accounts.services.apple_auth_service import validate_apple_token
 from accounts.services.auth_service import create_or_get_user_from_sso_data
+from accounts.services.jwt_service import generate_tokens_for_user
 from utils.messages import ErrorMessages, Messages
 from utils.exceptions import BridgeQuestException
 
@@ -42,35 +43,36 @@ def _validate_sso_token(provider, token):
         raise BridgeQuestException(_(ErrorMessages.AUTH_SSO_PROVIDER_INVALID))
 
 
-def _authenticate_user(request, user):
+def _build_login_response(user, tokens):
     """
-    Authentifie un utilisateur en créant une session Django.
+    Construit la réponse de connexion avec les informations utilisateur et les tokens JWT.
     
     Args:
-        request: La requête HTTP
-        user: L'utilisateur à authentifier
+        user: L'instance User authentifiée
+        tokens: Dictionnaire contenant 'access' et 'refresh' tokens
         
-    Note:
-        Si login() échoue (par exemple dans les tests avec APIClient),
-        on continue quand même car l'authentification peut être gérée
-        différemment selon le contexte.
+    Returns:
+        dict: Données de réponse formatées
     """
-    try:
-        login(request, user)
-    except Exception:
-        # login() peut échouer dans certains contextes (tests, API REST)
-        # L'authentification sera gérée via le token de session dans les requêtes suivantes
-        pass
+    user_serializer = UserSerializer(user)
+    return {
+        'user': user_serializer.data,
+        'access': tokens['access'],
+        'refresh': tokens['refresh'],
+        'message': _(Messages.SSO_LOGIN_SUCCESS)
+    }
 
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def sso_login_view(request):
     """
-    Endpoint pour l'authentification SSO mobile.
+    Endpoint pour l'authentification SSO mobile avec OAuth2/JWT.
     
     L'application Flutter envoie le token SSO obtenu via les SDKs natifs
     (Google Sign-In, Apple Sign-In) pour validation et création de compte.
+    Le serveur retourne des tokens JWT (access_token et refresh_token) pour
+    l'authentification OAuth2 pure.
     
     Body:
         {
@@ -79,50 +81,74 @@ def sso_login_view(request):
         }
         
     Returns:
-        Response: Informations de l'utilisateur et message de succès
+        Response: Informations de l'utilisateur, access_token et refresh_token
+        
+    Example Response:
+        {
+            "user": {...},
+            "access": "eyJ0eXAiOiJKV1QiLCJhbGc...",
+            "refresh": "eyJ0eXAiOiJKV1QiLCJhbGc...",
+            "message": "Connexion réussie"
+        }
     """
     serializer = SSOLoginSerializer(data=request.data)
     
     if not serializer.is_valid():
-        return Response(
-            serializer.errors,
-            status=status.HTTP_400_BAD_REQUEST
-        )
+        return _build_validation_error_response(serializer.errors)
     
     provider = serializer.validated_data['provider']
     token = serializer.validated_data['token']
     
     try:
-        # Valider le token selon le provider
         sso_data = _validate_sso_token(provider, token)
-        
-        # Créer ou récupérer l'utilisateur
         user = create_or_get_user_from_sso_data(sso_data, provider)
-        
-        # Authentifier l'utilisateur
-        _authenticate_user(request, user)
-        
-        # Retourner les informations utilisateur
-        user_serializer = UserSerializer(user)
+        tokens = generate_tokens_for_user(user)
         
         return Response(
-            {
-                'user': user_serializer.data,
-                'message': _(Messages.SSO_LOGIN_SUCCESS)
-            },
+            _build_login_response(user, tokens),
             status=status.HTTP_200_OK
         )
         
     except BridgeQuestException as e:
-        return Response(
-            {'error': str(e)},
-            status=status.HTTP_400_BAD_REQUEST
-        )
+        return _build_error_response(str(e), status.HTTP_400_BAD_REQUEST)
     except Exception as e:
-        return Response(
-            {'error': _(ErrorMessages.AUTH_SSO_FAILED)},
-            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        return _build_error_response(
+            _(ErrorMessages.AUTH_SSO_FAILED),
+            status.HTTP_500_INTERNAL_SERVER_ERROR
         )
+
+
+def _build_error_response(error_message, status_code):
+    """
+    Construit une réponse d'erreur standardisée.
+    
+    Args:
+        error_message: Le message d'erreur à retourner
+        status_code: Le code de statut HTTP
+        
+    Returns:
+        Response: Réponse d'erreur formatée
+    """
+    return Response(
+        {'error': error_message},
+        status=status_code
+    )
+
+
+def _build_validation_error_response(errors):
+    """
+    Construit une réponse d'erreur de validation.
+    
+    Args:
+        errors: Les erreurs de validation du serializer
+        
+    Returns:
+        Response: Réponse d'erreur de validation formatée
+    """
+    return Response(
+        errors,
+        status=status.HTTP_400_BAD_REQUEST
+    )
 
 
 @api_view(['GET'])
@@ -144,10 +170,16 @@ def logout_view(request):
     """
     Endpoint pour déconnecter l'utilisateur.
     
+    Avec l'authentification JWT, la déconnexion est principalement gérée côté client
+    (suppression des tokens). Ce endpoint existe pour la compatibilité et peut être
+    utilisé pour blacklister un refresh token si nécessaire à l'avenir.
+    
     Returns:
         Response: Message de confirmation
     """
-    logout(request)
+    # Avec JWT stateless, la déconnexion est gérée côté client
+    # Les tokens sont supprimés par l'application Flutter
+    # Si besoin de blacklist à l'avenir, utiliser rest_framework_simplejwt.token_blacklist
     return Response(
         {'message': _(Messages.LOGOUT_SUCCESS)},
         status=status.HTTP_200_OK
@@ -171,7 +203,7 @@ def user_profile_view(request, user_id):
         serializer = UserPublicSerializer(user)
         return Response(serializer.data, status=status.HTTP_200_OK)
     except User.DoesNotExist:
-        return Response(
-            {'error': _(ErrorMessages.USER_NOT_FOUND)},
-            status=status.HTTP_404_NOT_FOUND
+        return _build_error_response(
+            _(ErrorMessages.USER_NOT_FOUND),
+            status.HTTP_404_NOT_FOUND
         )

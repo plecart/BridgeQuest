@@ -2,6 +2,7 @@
 URLs pour le module Accounts.
 """
 from django.urls import path
+from rest_framework_simplejwt.views import TokenRefreshView
 from accounts.views.auth_views import (
     sso_login_view,
     current_user_view,
@@ -14,6 +15,9 @@ app_name = 'accounts'
 urlpatterns = [
     # Authentification SSO mobile
     path('sso/login/', sso_login_view, name='sso-login'),
+    
+    # OAuth2/JWT - Refresh token
+    path('token/refresh/', TokenRefreshView.as_view(), name='token-refresh'),
     
     # Authentification
     path('me/', current_user_view, name='current-user'),

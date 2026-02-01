@@ -1,0 +1,167 @@
+{
+  // ============================================
+  // CONFIGURATION PYTHON
+  // ============================================
+  "python.defaultInterpreterPath": "${workspaceFolder}/venv/bin/python",
+  "python.terminal.activateEnvironment": true,
+  "python.languageServer": "Pylance",
+  
+  // Analyse de code Python (Pylance)
+  "python.analysis.typeCheckingMode": "basic",
+  "python.analysis.autoImportCompletions": true,
+  "python.analysis.completeFunctionParens": true,
+  "python.analysis.diagnosticMode": "workspace",
+  
+  // Formatage avec Black (ligne 100 selon CODING_STANDARDS.md)
+  "python.formatting.provider": "black",
+  "python.formatting.blackArgs": [
+    "--line-length=100",
+    "--target-version=py311"
+  ],
+  
+  // Organisation des imports avec isort (compatible Black)
+  "python.sortImports.args": [
+    "--profile=black",
+    "--line-length=100"
+  ],
+  
+  // Linting avec Flake8 (selon standards)
+  "python.linting.enabled": true,
+  "python.linting.flake8Enabled": true,
+  "python.linting.flake8Args": [
+    "--max-line-length=100",
+    "--extend-ignore=E203,W503"
+  ],
+  "python.linting.pylintEnabled": false,
+  
+  // Tests avec pytest (configuration dans pytest.ini)
+  "python.testing.pytestEnabled": true,
+  "python.testing.unittestEnabled": false,
+  "python.testing.pytestArgs": [
+    "bridgequest-server"
+  ],
+  "python.testing.autoTestDiscoverOnSaveEnabled": true,
+  
+  // ============================================
+  // CONFIGURATION ÉDITEUR GLOBALE
+  // ============================================
+  "editor.formatOnSave": true,
+  "editor.formatOnType": true,
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": "explicit",
+    "source.fixAll": "explicit"
+  },
+  "editor.bracketPairColorization.enabled": true,
+  "editor.guides.bracketPairs": true,
+  "editor.minimap.enabled": true,
+  "editor.suggestSelection": "first",
+  "editor.wordWrap": "on",
+  
+  // ============================================
+  // CONFIGURATION PAR TYPE DE FICHIER
+  // ============================================
+  
+  // Python (selon CODING_STANDARDS.md)
+  "[python]": {
+    "editor.defaultFormatter": "ms-python.black-formatter",
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": "explicit"
+    },
+    "editor.rulers": [100],
+    "editor.tabSize": 4,
+    "editor.insertSpaces": true,
+    "editor.trimAutoWhitespace": true
+  },
+  
+  // Templates Django
+  "[django-html]": {
+    "editor.defaultFormatter": "batisteo.vscode-django",
+    "editor.formatOnSave": true
+  },
+  "[jinja-html]": {
+    "editor.defaultFormatter": "batisteo.vscode-django",
+    "editor.formatOnSave": true
+  },
+  
+  // JSON (settings Django, etc.)
+  "[json]": {
+    "editor.defaultFormatter": "vscode.json-language-features",
+    "editor.formatOnSave": true
+  },
+  
+  // ============================================
+  // GESTION DES FICHIERS
+  // ============================================
+  "files.trimTrailingWhitespace": true,
+  "files.insertFinalNewline": true,
+  "files.trimFinalNewlines": true,
+  
+  // Exclusions de l'explorateur (selon standards Django)
+  "files.exclude": {
+    "**/__pycache__": true,
+    "**/*.pyc": true,
+    "**/*.pyo": true,
+    "**/*.pyd": true,
+    "**/.Python": true,
+    "**/venv": true,
+    "**/env": true,
+    "**/.venv": true,
+    "**/migrations": false,
+    "**/db.sqlite3": true,
+    "**/.pytest_cache": true,
+    "**/.mypy_cache": true,
+    "**/.coverage": true,
+    "**/htmlcov": true,
+    "**/.tox": true
+  },
+  
+  // Exclusions de la recherche
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/venv": true,
+    "**/env": true,
+    "**/.venv": true,
+    "**/__pycache__": true,
+    "**/.pytest_cache": true,
+    "**/.mypy_cache": true
+  },
+  
+  // Associations de fichiers Django
+  "files.associations": {
+    "**/*.html": "django-html",
+    "**/templates/**/*.html": "django-html",
+    "**/templates/**": "django-txt",
+    "**/requirements{/**,*.txt}": "pip-requirements"
+  },
+  
+  // ============================================
+  // TERMINAL INTÉGRÉ
+  // ============================================
+  "terminal.integrated.env.linux": {
+    "PYTHONPATH": "${workspaceFolder}"
+  },
+  "terminal.integrated.env.osx": {
+    "PYTHONPATH": "${workspaceFolder}"
+  },
+  "terminal.integrated.env.windows": {
+    "PYTHONPATH": "${workspaceFolder}"
+  },
+  
+  // ============================================
+  // EXTENSIONS SPÉCIFIQUES
+  // ============================================
+  
+  // AutoDocstring (format Google selon CODING_STANDARDS.md)
+  "autoDocstring.docstringFormat": "google",
+  "autoDocstring.startOnNewLine": true,
+  "autoDocstring.includeExtendedSummary": true,
+  "autoDocstring.generateDocstringOnEnter": true,
+  
+  // Error Lens (affichage des erreurs inline)
+  "errorLens.enabled": true,
+  "errorLens.followCursor": "activeLine",
+  
+  // Git
+  "git.ignoreLimitWarning": true
+}

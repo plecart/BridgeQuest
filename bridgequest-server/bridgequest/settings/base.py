@@ -118,7 +118,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Django REST Framework
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.SessionAuthentication',  # Gardé pour compatibilité admin Django
     ],
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
@@ -146,3 +147,22 @@ CORS_ALLOW_CREDENTIALS = True
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
 ]
+
+# Simple JWT Configuration
+from datetime import timedelta
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(hours=1),  # Token d'accès valide 1 heure
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=30),  # Refresh token valide 30 jours
+    'ROTATE_REFRESH_TOKENS': True,  # Générer un nouveau refresh token à chaque refresh
+    'BLACKLIST_AFTER_ROTATION': True,  # Blacklister l'ancien refresh token après rotation
+    'UPDATE_LAST_LOGIN': True,  # Mettre à jour last_login à chaque authentification
+    'ALGORITHM': 'HS256',  # Algorithme de signature
+    'SIGNING_KEY': SECRET_KEY,  # Clé de signature (utilise SECRET_KEY Django)
+    'AUTH_HEADER_TYPES': ('Bearer',),  # Format du header Authorization
+    'AUTH_HEADER_NAME': 'HTTP_AUTHORIZATION',  # Nom du header HTTP
+    'USER_ID_FIELD': 'id',  # Champ utilisé comme identifiant utilisateur dans le token
+    'USER_ID_CLAIM': 'user_id',  # Claim JWT contenant l'ID utilisateur
+    'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
+    'TOKEN_TYPE_CLAIM': 'token_type',
+}
