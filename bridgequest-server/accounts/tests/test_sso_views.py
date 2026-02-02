@@ -1,12 +1,12 @@
 """
 Tests pour les vues SSO mobile du module Accounts.
 """
-from django.test import TestCase
-from django.contrib.auth import get_user_model
-from django.utils.translation import gettext_lazy as _
-from rest_framework.test import APIClient
-from rest_framework import status
 from unittest.mock import patch
+
+from django.contrib.auth import get_user_model
+from django.test import TestCase
+from rest_framework import status
+from rest_framework.test import APIClient
 
 from utils.exceptions import BridgeQuestException
 from utils.messages import ErrorMessages
@@ -51,14 +51,13 @@ class SSOViewsTestCase(TestCase):
                 },
                 format='json'
             )
-            
-            # Debug: afficher l'erreur si 500
-            if response.status_code == 500:
-                print(f"Error response: {response.data}")
-            
+
             # Assert
-            self.assertEqual(response.status_code, status.HTTP_200_OK, 
-                           f"Expected 200, got {response.status_code}. Response: {response.data}")
+            self.assertEqual(
+                response.status_code,
+                status.HTTP_200_OK,
+                msg=f"Expected 200, got {response.status_code}. Response: {response.data}",
+            )
             self.assertIn('user', response.data)
             self.assertIn('message', response.data)
             self.assertEqual(response.data['user']['email'], self.sso_email)
@@ -177,7 +176,7 @@ class SSOViewsTestCase(TestCase):
         """Test de connexion SSO avec un token invalide."""
         # Arrange
         with patch('accounts.views.auth_views.validate_google_token') as mock_validate:
-            mock_validate.side_effect = BridgeQuestException(_(ErrorMessages.AUTH_SSO_TOKEN_VALIDATION_FAILED))
+            mock_validate.side_effect = BridgeQuestException(ErrorMessages.AUTH_SSO_TOKEN_VALIDATION_FAILED)
             
             # Act
             response = self.client.post(

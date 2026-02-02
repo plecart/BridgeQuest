@@ -2,7 +2,37 @@
 Base settings for Bridge Quest project.
 
 These settings are shared across all environments (development, production, etc.)
+Symbols below are exported for ``from .base import *`` in environment modules.
 """
+__all__ = [
+    'BASE_DIR',
+    'SECRET_KEY',
+    'INSTALLED_APPS',
+    'AUTH_USER_MODEL',
+    'MIDDLEWARE',
+    'ROOT_URLCONF',
+    'TEMPLATES',
+    'WSGI_APPLICATION',
+    'DATABASES',
+    'AUTH_PASSWORD_VALIDATORS',
+    'LANGUAGE_CODE',
+    'TIME_ZONE',
+    'USE_I18N',
+    'USE_TZ',
+    'STATIC_URL',
+    'STATIC_ROOT',
+    'MEDIA_URL',
+    'MEDIA_ROOT',
+    'DEFAULT_AUTO_FIELD',
+    'REST_FRAMEWORK',
+    'CORS_ALLOWED_ORIGINS',
+    'CORS_ALLOW_CREDENTIALS',
+    'AUTHENTICATION_BACKENDS',
+    'APPLE_CLIENT_ID',
+    'GOOGLE_CLIENT_IDS',
+    'SIMPLE_JWT',
+]
+
 from datetime import timedelta
 from pathlib import Path
 
@@ -25,6 +55,7 @@ INSTALLED_APPS = [
     
     # Third-party apps
     'rest_framework',
+    'rest_framework_simplejwt.token_blacklist',  # requis si SIMPLE_JWT['BLACKLIST_AFTER_ROTATION']
     'corsheaders',
     
     # Local apps
