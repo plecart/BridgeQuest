@@ -1,4 +1,4 @@
-.PHONY: help install run test clean i18n analyze format format-check check build-android build-android-release build-ios build-ios-release deps-outdated deps-upgrade setup run-ios
+.PHONY: help install run test test-unit test-widget clean i18n analyze format format-check check build-android build-android-release build-ios build-ios-release deps-outdated deps-upgrade setup run-ios
 
 # ============================================================================
 # Variables
@@ -98,6 +98,16 @@ test: ## Lance tous les tests Flutter
 	$(call msg-start,Lancement des tests Flutter)
 	$(FLUTTER) test
 	$(call msg-done,Tests terminés)
+
+test-unit: ## Lance les tests unitaires uniquement (tag: unit)
+	$(call msg-start,Lancement des tests unitaires)
+	$(FLUTTER) test --tags=unit
+	$(call msg-done,Tests unitaires terminés)
+
+test-widget: ## Lance les tests de widgets uniquement (tag: widget)
+	$(call msg-start,Lancement des tests de widgets)
+	$(FLUTTER) test --tags=widget
+	$(call msg-done,Tests de widgets terminés)
 
 # ============================================================================
 # Build

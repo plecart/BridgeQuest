@@ -68,7 +68,13 @@ lib/
 
 ## Authentification API
 
-L'application utilise une **authentification OAuth2/JWT** : les tokens sont envoyés via l'en-tête `Authorization` (Bearer). Aucune authentification par cookies ni `dio_cookie_manager` n'est utilisée. Voir `lib/data/services/api_service.dart` et `lib/data/services/token_manager.dart`.
+L'application utilise une **authentification token-based OAuth2/JWT** (pas d'authentification par cookies ni `dio_cookie_manager`) :
+
+- Les tokens (access + refresh) sont stockés via [TokenManager] et `flutter_secure_storage`.
+- Les requêtes API envoient le token dans l'en-tête `Authorization: Bearer <token>`.
+- [ApiService] gère l'ajout du token, le refresh sur 401 et les réessais.
+
+Voir `lib/data/services/api_service.dart` et `lib/data/services/token_manager.dart`.
 
 ## Développement
 

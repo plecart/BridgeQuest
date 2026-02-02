@@ -8,6 +8,9 @@ import '../../core/utils/logger.dart';
 
 /// Repository pour l'authentification OAuth2/JWT
 class AuthRepository {
+  static const _errorCodeNotAuthenticated = 'error.auth.notAuthenticated';
+  static const _errorCodeGeneric = 'error.generic';
+
   final ApiService _apiService;
   final TokenManager _tokenManager;
 
@@ -84,15 +87,14 @@ class AuthRepository {
   }
 
   /// Récupère l'utilisateur actuel
-  /// 
+  ///
   /// Throws [AuthException] si l'utilisateur n'est pas authentifié ou si une erreur survient.
-  /// Les erreurs 401/403 (non authentifié) sont gérées silencieusement car c'est un cas normal
-  /// au démarrage de l'application.
+  /// Les erreurs 401/403 (non authentifié) sont gérées silencieusement (cas normal au démarrage).
   Future<User> getCurrentUser() async {
     try {
       final response = await _apiService.get(ApiConfig.authMe);
       final responseData = _normalizeResponseData(response.data);
-      return User.fromJson(responseData);
+      return _parseUserFromFlatResponse(responseData);
     } on ApiException catch (e) {
       return _handleApiExceptionForCurrentUser(e);
     } catch (e) {
@@ -100,18 +102,18 @@ class AuthRepository {
     }
   }
 
-  /// Gère les exceptions API lors de la récupération de l'utilisateur
-  /// 
-  /// Les erreurs 401/403 sont normales si l'utilisateur n'est pas connecté.
+  /// Gère les exceptions API lors de la récupération de l'utilisateur.
+  ///
+  /// 401/403 : code dérivé de [ApiException.statusCode] (ApiService met toujours [ApiException.code] à une valeur générique).
   Never _handleApiExceptionForCurrentUser(ApiException e) {
     if (_isAuthenticationError(e)) {
-      throw _authError(e.code ?? 'error.auth.notAuthenticated');
+      throw _authError(_errorCodeNotAuthenticated);
     }
     AppLogger.error(
       AppLocalizationsHolder.current?.logErrorApiUserFetch ?? 'logErrorApiUserFetch',
       e,
     );
-    throw _authError(e.code ?? 'error.generic');
+    throw _authError(e.code ?? _errorCodeGeneric);
   }
 
   /// Gère les erreurs inattendues lors de la récupération de l'utilisateur
@@ -165,7 +167,7 @@ class AuthRepository {
         l10n?.logErrorApiContext(errorContext) ?? 'logErrorApiContext',
         e,
       );
-      throw _authError(e.code ?? 'error.generic');
+      throw _authError(e.code ?? _errorCodeGeneric);
     } catch (e) {
       if (e is AppException) rethrow;
       final l10n = AppLocalizationsHolder.current;
@@ -193,12 +195,14 @@ class AuthRepository {
     throw AuthException(code, code: code);
   }
 
-  /// Parse l'utilisateur depuis la réponse API
-  /// 
-  /// Throws [AuthException] si le format de réponse est invalide.
+  /// Parse l'utilisateur depuis une réponse API au format plat (ex. endpoint current user).
+  User _parseUserFromFlatResponse(Map<String, dynamic> data) {
+    return _parseUserFromData(data);
+  }
+
+  /// Parse l'utilisateur depuis une réponse API encapsulée (ex. login : { "user": {...} }).
   User _parseUserFromResponse(Map<String, dynamic> data) {
-    final userData = _extractUserData(data);
-    return _parseUserFromData(userData);
+    return _parseUserFromData(_extractUserData(data));
   }
 
   /// Extrait les données utilisateur depuis la réponse API

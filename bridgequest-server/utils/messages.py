@@ -46,6 +46,9 @@ class Messages:
     SSO_PROVIDER_HELP_TEXT = "serializer.sso.provider.help_text"
     SSO_TOKEN_HELP_TEXT = "serializer.sso.token.help_text"
 
+    # Log messages (i18n pour cohérence et support multilingue)
+    LOG_AUTH_SSO_UNEXPECTED = "log.auth.sso_unexpected"
+
 
 class ModelMessages:
     """Clés de traduction pour les modèles."""

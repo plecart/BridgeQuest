@@ -22,3 +22,8 @@ msgstr ""
 #: utils/messages.py - Messages.ADMIN_PERMISSIONS
 msgid "admin.user.permissions"
 msgstr "Permissions"
+
+#: accounts/views/auth_views.py
+#: utils/messages.py - Messages.LOG_AUTH_SSO_UNEXPECTED
+msgid "log.auth.sso_unexpected"
+msgstr "Erreur inattendue lors de l'authentification SSO (provider=%s)"

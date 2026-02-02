@@ -68,7 +68,7 @@ class ApiService {
     return error.response?.statusCode == 401;
   }
 
-  /// Réessaie une requête après avoir rafraîchi le token
+  /// Réessaie une requête après avoir rafraîchi le token (auth JWT Bearer, pas de cookies).
   /// 
   /// Retourne true si la requête a été réessayée avec succès, false sinon.
   Future<bool> _retryRequestAfterRefresh(
