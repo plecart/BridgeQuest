@@ -140,6 +140,18 @@ abstract class AppLocalizations {
   /// **'Token d\'authentification invalide'**
   String get errorAuthTokenInvalid;
 
+  /// Message d'erreur quand les tokens sont absents de la réponse API
+  ///
+  /// In fr, this message translates to:
+  /// **'Tokens JWT manquants dans la réponse'**
+  String get errorAuthTokensMissing;
+
+  /// Message d'erreur quand l'utilisateur n'est pas authentifié
+  ///
+  /// In fr, this message translates to:
+  /// **'Authentification requise'**
+  String get errorAuthNotAuthenticated;
+
   /// Message d'erreur générique
   ///
   /// In fr, this message translates to:
@@ -247,6 +259,84 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Déconnexion'**
   String get homeLogoutButton;
+
+  /// Message de log debug pour tentative SSO
+  ///
+  /// In fr, this message translates to:
+  /// **'Tentative de connexion SSO avec provider: {provider}'**
+  String logDebugSsoAttempt(String provider);
+
+  /// Message de log debug utilisateur connecté
+  ///
+  /// In fr, this message translates to:
+  /// **'Utilisateur authentifié: {email}'**
+  String logDebugUserAuthenticated(String email);
+
+  /// Contexte d'erreur pour les logs (connexion SSO)
+  ///
+  /// In fr, this message translates to:
+  /// **'connexion SSO'**
+  String get logContextSsoLogin;
+
+  /// Message de log erreur API récupération utilisateur
+  ///
+  /// In fr, this message translates to:
+  /// **'Erreur API lors de la récupération de l\'utilisateur'**
+  String get logErrorApiUserFetch;
+
+  /// Message de log erreur inattendue récupération utilisateur
+  ///
+  /// In fr, this message translates to:
+  /// **'Erreur inattendue lors de la récupération de l\'utilisateur'**
+  String get logErrorUnexpectedUserFetch;
+
+  /// Message de log debug erreur déconnexion ignorée
+  ///
+  /// In fr, this message translates to:
+  /// **'Erreur ignorée lors de la déconnexion: {error}'**
+  String logDebugLogoutError(String error);
+
+  /// Message de log erreur API avec contexte
+  ///
+  /// In fr, this message translates to:
+  /// **'Erreur API lors de la {context}'**
+  String logErrorApiContext(String context);
+
+  /// Message de log erreur inattendue avec contexte
+  ///
+  /// In fr, this message translates to:
+  /// **'Erreur inattendue lors de la {context}'**
+  String logErrorUnexpectedContext(String context);
+
+  /// Message de log erreur parsing utilisateur
+  ///
+  /// In fr, this message translates to:
+  /// **'Erreur lors du parsing de l\'utilisateur'**
+  String get logErrorUserParse;
+
+  /// Message de log erreur API avec code status
+  ///
+  /// In fr, this message translates to:
+  /// **'Erreur API - Status: {statusCode}'**
+  String logErrorApiStatus(int statusCode);
+
+  /// Message de log URL API depuis env
+  ///
+  /// In fr, this message translates to:
+  /// **'API Base URL (env): {url}'**
+  String logDebugApiUrlEnv(String url);
+
+  /// Message de log URL API Android
+  ///
+  /// In fr, this message translates to:
+  /// **'API Base URL (Android): {url}'**
+  String logDebugApiUrlAndroid(String url);
+
+  /// Message de log URL API par défaut
+  ///
+  /// In fr, this message translates to:
+  /// **'API Base URL (default): {url}'**
+  String logDebugApiUrlDefault(String url);
 }
 
 class _AppLocalizationsDelegate

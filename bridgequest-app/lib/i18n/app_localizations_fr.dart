@@ -30,6 +30,12 @@ class AppLocalizationsFr extends AppLocalizations {
   String get errorAuthTokenInvalid => 'Token d\'authentification invalide';
 
   @override
+  String get errorAuthTokensMissing => 'Tokens JWT manquants dans la réponse';
+
+  @override
+  String get errorAuthNotAuthenticated => 'Authentification requise';
+
+  @override
   String get errorGeneric => 'Une erreur est survenue';
 
   @override
@@ -86,4 +92,63 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get homeLogoutButton => 'Déconnexion';
+
+  @override
+  String logDebugSsoAttempt(String provider) {
+    return 'Tentative de connexion SSO avec provider: $provider';
+  }
+
+  @override
+  String logDebugUserAuthenticated(String email) {
+    return 'Utilisateur authentifié: $email';
+  }
+
+  @override
+  String get logContextSsoLogin => 'connexion SSO';
+
+  @override
+  String get logErrorApiUserFetch =>
+      'Erreur API lors de la récupération de l\'utilisateur';
+
+  @override
+  String get logErrorUnexpectedUserFetch =>
+      'Erreur inattendue lors de la récupération de l\'utilisateur';
+
+  @override
+  String logDebugLogoutError(String error) {
+    return 'Erreur ignorée lors de la déconnexion: $error';
+  }
+
+  @override
+  String logErrorApiContext(String context) {
+    return 'Erreur API lors de la $context';
+  }
+
+  @override
+  String logErrorUnexpectedContext(String context) {
+    return 'Erreur inattendue lors de la $context';
+  }
+
+  @override
+  String get logErrorUserParse => 'Erreur lors du parsing de l\'utilisateur';
+
+  @override
+  String logErrorApiStatus(int statusCode) {
+    return 'Erreur API - Status: $statusCode';
+  }
+
+  @override
+  String logDebugApiUrlEnv(String url) {
+    return 'API Base URL (env): $url';
+  }
+
+  @override
+  String logDebugApiUrlAndroid(String url) {
+    return 'API Base URL (Android): $url';
+  }
+
+  @override
+  String logDebugApiUrlDefault(String url) {
+    return 'API Base URL (default): $url';
+  }
 }

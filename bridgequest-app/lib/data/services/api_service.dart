@@ -1,5 +1,7 @@
 import 'package:dio/dio.dart';
+
 import '../../core/config/api_config.dart';
+import '../../core/config/app_localizations_holder.dart';
 import '../../core/exceptions/app_exceptions.dart';
 import '../../core/utils/logger.dart';
 import 'token_manager.dart';
@@ -245,28 +247,19 @@ class ApiService {
     return error.type == DioExceptionType.connectionError;
   }
 
-  /// Crée une exception de timeout
+  /// Crée une exception de timeout (message = code pour l10n via [ErrorTranslator])
   NetworkException _createTimeoutException() {
-    return NetworkException(
-      'Timeout de connexion',
-      code: 'error.api.timeout',
-    );
+    return NetworkException('error.api.timeout', code: 'error.api.timeout');
   }
 
   /// Crée une exception de connexion
   NetworkException _createConnectionException() {
-    return NetworkException(
-      'Erreur de connexion réseau',
-      code: 'error.network',
-    );
+    return NetworkException('error.network', code: 'error.network');
   }
 
   /// Crée une exception réseau inconnue
   NetworkException _createUnknownNetworkException() {
-    return NetworkException(
-      'Erreur réseau inconnue',
-      code: 'error.api.unknown',
-    );
+    return NetworkException('error.api.unknown', code: 'error.api.unknown');
   }
 
   /// Crée une exception API à partir d'une erreur Dio
@@ -293,8 +286,9 @@ class ApiService {
   /// lors de la vérification de l'état d'authentification.
   void _logApiErrorIfNeeded(int statusCode, dynamic errorData) {
     if (statusCode != 401 && statusCode != 403) {
+      final l10n = AppLocalizationsHolder.current;
       AppLogger.error(
-        'Erreur API - Status: $statusCode',
+        l10n?.logErrorApiStatus(statusCode) ?? 'logErrorApiStatus($statusCode)',
         errorData,
       );
     }
@@ -313,16 +307,16 @@ class ApiService {
     if (errorData is String) {
       return errorData;
     }
-    return 'Erreur API';
+    return 'error.api.generic';
   }
 
   /// Extrait le message d'erreur depuis une Map
-  /// 
-  /// Cherche dans l'ordre : 'error', 'message', 'detail', sinon retourne un message par défaut.
+  ///
+  /// Cherche dans l'ordre : 'error', 'message', 'detail'. Sinon retourne le code l10n.
   String _extractErrorMessageFromMap(Map<String, dynamic> errorData) {
-    return errorData['error']?.toString() ?? 
-           errorData['message']?.toString() ?? 
-           errorData['detail']?.toString() ??
-           'Erreur API';
+    return errorData['error']?.toString() ??
+        errorData['message']?.toString() ??
+        errorData['detail']?.toString() ??
+        'error.api.generic';
   }
 }

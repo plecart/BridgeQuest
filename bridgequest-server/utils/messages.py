@@ -40,6 +40,7 @@ class Messages:
     # Admin fieldsets
     ADMIN_PERSONAL_INFO = "admin.user.personal_info"
     ADMIN_IMPORTANT_DATES = "admin.user.important_dates"
+    ADMIN_PERMISSIONS = "admin.user.permissions"
     
     # SSO Serializer
     SSO_PROVIDER_HELP_TEXT = "serializer.sso.provider.help_text"

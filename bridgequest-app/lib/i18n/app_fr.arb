@@ -28,6 +28,14 @@
   "@errorAuthTokenInvalid": {
     "description": "Message d'erreur pour un token invalide"
   },
+  "errorAuthTokensMissing": "Tokens JWT manquants dans la réponse",
+  "@errorAuthTokensMissing": {
+    "description": "Message d'erreur quand les tokens sont absents de la réponse API"
+  },
+  "errorAuthNotAuthenticated": "Authentification requise",
+  "@errorAuthNotAuthenticated": {
+    "description": "Message d'erreur quand l'utilisateur n'est pas authentifié"
+  },
   "errorGeneric": "Une erreur est survenue",
   "@errorGeneric": {
     "description": "Message d'erreur générique"
@@ -99,5 +107,102 @@
   "homeLogoutButton": "Déconnexion",
   "@homeLogoutButton": {
     "description": "Bouton de déconnexion"
+  },
+  "logDebugSsoAttempt": "Tentative de connexion SSO avec provider: {provider}",
+  "@logDebugSsoAttempt": {
+    "description": "Message de log debug pour tentative SSO",
+    "placeholders": {
+      "provider": {
+        "type": "String"
+      }
+    }
+  },
+  "logDebugUserAuthenticated": "Utilisateur authentifié: {email}",
+  "@logDebugUserAuthenticated": {
+    "description": "Message de log debug utilisateur connecté",
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "logContextSsoLogin": "connexion SSO",
+  "@logContextSsoLogin": {
+    "description": "Contexte d'erreur pour les logs (connexion SSO)"
+  },
+  "logErrorApiUserFetch": "Erreur API lors de la récupération de l'utilisateur",
+  "@logErrorApiUserFetch": {
+    "description": "Message de log erreur API récupération utilisateur"
+  },
+  "logErrorUnexpectedUserFetch": "Erreur inattendue lors de la récupération de l'utilisateur",
+  "@logErrorUnexpectedUserFetch": {
+    "description": "Message de log erreur inattendue récupération utilisateur"
+  },
+  "logDebugLogoutError": "Erreur ignorée lors de la déconnexion: {error}",
+  "@logDebugLogoutError": {
+    "description": "Message de log debug erreur déconnexion ignorée",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "logErrorApiContext": "Erreur API lors de la {context}",
+  "@logErrorApiContext": {
+    "description": "Message de log erreur API avec contexte",
+    "placeholders": {
+      "context": {
+        "type": "String"
+      }
+    }
+  },
+  "logErrorUnexpectedContext": "Erreur inattendue lors de la {context}",
+  "@logErrorUnexpectedContext": {
+    "description": "Message de log erreur inattendue avec contexte",
+    "placeholders": {
+      "context": {
+        "type": "String"
+      }
+    }
+  },
+  "logErrorUserParse": "Erreur lors du parsing de l'utilisateur",
+  "@logErrorUserParse": {
+    "description": "Message de log erreur parsing utilisateur"
+  },
+  "logErrorApiStatus": "Erreur API - Status: {statusCode}",
+  "@logErrorApiStatus": {
+    "description": "Message de log erreur API avec code status",
+    "placeholders": {
+      "statusCode": {
+        "type": "int"
+      }
+    }
+  },
+  "logDebugApiUrlEnv": "API Base URL (env): {url}",
+  "@logDebugApiUrlEnv": {
+    "description": "Message de log URL API depuis env",
+    "placeholders": {
+      "url": {
+        "type": "String"
+      }
+    }
+  },
+  "logDebugApiUrlAndroid": "API Base URL (Android): {url}",
+  "@logDebugApiUrlAndroid": {
+    "description": "Message de log URL API Android",
+    "placeholders": {
+      "url": {
+        "type": "String"
+      }
+    }
+  },
+  "logDebugApiUrlDefault": "API Base URL (default): {url}",
+  "@logDebugApiUrlDefault": {
+    "description": "Message de log URL API par défaut",
+    "placeholders": {
+      "url": {
+        "type": "String"
+      }
+    }
   }
 }

@@ -19,5 +19,6 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: accounts/admin.py:33
-msgid "Permissions"
-msgstr ""
+#: utils/messages.py - Messages.ADMIN_PERMISSIONS
+msgid "admin.user.permissions"
+msgstr "Permissions"

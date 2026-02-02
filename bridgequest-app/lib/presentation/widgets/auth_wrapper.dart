@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
+import '../../core/config/app_localizations_holder.dart';
+import '../../i18n/app_localizations.dart';
 import '../../providers/auth_provider.dart';
 import '../pages/auth/login_page.dart';
 import '../pages/menu/home_page.dart';
@@ -61,6 +64,11 @@ class _AuthWrapperState extends State<AuthWrapper> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    if (l10n != null) {
+      AppLocalizationsHolder.setCurrent(l10n);
+    }
+
     if (_isInitializing) {
       return const Scaffold(
         body: Center(child: CircularProgressIndicator()),
