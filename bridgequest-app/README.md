@@ -66,6 +66,10 @@ lib/
 └── providers/         # State management (Provider)
 ```
 
+## Authentification API
+
+L'application utilise une **authentification OAuth2/JWT** : les tokens sont envoyés via l'en-tête `Authorization` (Bearer). Aucune authentification par cookies ni `dio_cookie_manager` n'est utilisée. Voir `lib/data/services/api_service.dart` et `lib/data/services/token_manager.dart`.
+
 ## Développement
 
 L'application suit les standards définis dans `bridgequest-doc/CODING_STANDARDS_FLUTTER.md`.

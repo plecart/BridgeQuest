@@ -2,9 +2,13 @@
 Validation SSO partagée pour Bridge Quest.
 
 Fonctions de validation communes aux services Google et Apple Sign-In.
+Constantes partagées pour les appels HTTP (ex. timeout).
 """
 from utils.exceptions import BridgeQuestException
 from utils.messages import ErrorMessages
+
+# Timeout (secondes) pour les appels HTTP vers les APIs SSO (Google tokeninfo, Apple keys)
+REQUEST_TIMEOUT_SECONDS = 10
 
 
 def require_non_empty_sso_token(token):

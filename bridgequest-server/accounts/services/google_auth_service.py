@@ -9,11 +9,10 @@ from django.conf import settings
 
 from utils.exceptions import BridgeQuestException
 from utils.messages import ErrorMessages
-from utils.sso_validation import require_non_empty_sso_token
+from utils.sso_validation import REQUEST_TIMEOUT_SECONDS, require_non_empty_sso_token
 
 # Constantes de configuration
 GOOGLE_TOKEN_INFO_URL = 'https://oauth2.googleapis.com/tokeninfo'
-REQUEST_TIMEOUT_SECONDS = 10
 
 
 def validate_google_token(token):

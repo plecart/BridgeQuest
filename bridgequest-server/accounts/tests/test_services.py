@@ -14,6 +14,7 @@ from accounts.services.auth_service import (
     get_user_by_email,
 )
 from utils.exceptions import BridgeQuestException
+from utils.sso_validation import REQUEST_TIMEOUT_SECONDS
 
 User = get_user_model()
 
@@ -216,7 +217,7 @@ class GoogleAuthServiceTestCase(TestCase):
         mock_get.assert_called_once_with(
             google_auth_service.GOOGLE_TOKEN_INFO_URL,
             params={'id_token': self.valid_token},
-            timeout=google_auth_service.REQUEST_TIMEOUT_SECONDS,
+            timeout=REQUEST_TIMEOUT_SECONDS,
         )
 
     @patch('accounts.services.google_auth_service.requests.get')
@@ -418,7 +419,7 @@ class AppleAuthServiceTestCase(TestCase):
         self.assertEqual(result, self.valid_apple_keys)
         mock_get.assert_called_once_with(
             apple_auth_service.APPLE_PUBLIC_KEYS_URL,
-            timeout=apple_auth_service.REQUEST_TIMEOUT_SECONDS,
+            timeout=REQUEST_TIMEOUT_SECONDS,
         )
 
     @patch('accounts.services.apple_auth_service.requests.get')
@@ -448,7 +449,8 @@ class AppleAuthServiceTestCase(TestCase):
         result = apple_auth_service._find_matching_public_key(apple_keys, unverified_header)
 
         self.assertEqual(result, mock_key)
-        mock_from_jwk.assert_called_once_with({'kid': 'APPLE_KEY_ID'})
+        # PyJWT RSAAlgorithm.from_jwk attend une chaîne JSON, pas un dict
+        mock_from_jwk.assert_called_once_with('{"kid": "APPLE_KEY_ID"}')
 
     def test_find_matching_public_key_no_match_returns_none(self):
         """Test qu'aucune clé correspondante ne retourne None."""

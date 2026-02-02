@@ -247,20 +247,22 @@ class ApiService {
     return error.type == DioExceptionType.connectionError;
   }
 
-  /// Crée une exception de timeout (message = code pour l10n via [ErrorTranslator])
-  NetworkException _createTimeoutException() {
-    return NetworkException('error.api.timeout', code: 'error.api.timeout');
+  /// Crée une exception réseau avec un code l10n (message = code pour [ErrorTranslator])
+  NetworkException _createNetworkException(String code) {
+    return NetworkException(code, code: code);
   }
+
+  /// Crée une exception de timeout
+  NetworkException _createTimeoutException() =>
+      _createNetworkException('error.api.timeout');
 
   /// Crée une exception de connexion
-  NetworkException _createConnectionException() {
-    return NetworkException('error.network', code: 'error.network');
-  }
+  NetworkException _createConnectionException() =>
+      _createNetworkException('error.network');
 
   /// Crée une exception réseau inconnue
-  NetworkException _createUnknownNetworkException() {
-    return NetworkException('error.api.unknown', code: 'error.api.unknown');
-  }
+  NetworkException _createUnknownNetworkException() =>
+      _createNetworkException('error.api.unknown');
 
   /// Crée une exception API à partir d'une erreur Dio
   /// 

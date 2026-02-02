@@ -4,6 +4,7 @@ Service de validation des tokens Apple Sign-In pour Bridge Quest.
 Ce service valide les tokens ID obtenus via Apple Sign-In SDK
 depuis l'application mobile Flutter.
 """
+import json
 import jwt
 from jwt.algorithms import RSAAlgorithm
 import requests
@@ -11,12 +12,11 @@ from django.conf import settings
 
 from utils.exceptions import BridgeQuestException
 from utils.messages import ErrorMessages
-from utils.sso_validation import require_non_empty_sso_token
+from utils.sso_validation import REQUEST_TIMEOUT_SECONDS, require_non_empty_sso_token
 
 # Constantes de configuration
 APPLE_PUBLIC_KEYS_URL = 'https://appleid.apple.com/auth/keys'
 APPLE_ISSUER = 'https://appleid.apple.com'
-REQUEST_TIMEOUT_SECONDS = 10
 
 
 def validate_apple_token(token):
@@ -107,11 +107,12 @@ def _find_matching_public_key(apple_keys, unverified_header):
         RSAPublicKey: La clé publique trouvée ou None
     """
     kid = unverified_header.get('kid')
-    
+
     for key in apple_keys.get('keys', []):
         if key['kid'] == kid:
-            return RSAAlgorithm.from_jwk(key)
-    
+            # PyJWT RSAAlgorithm.from_jwk attend une chaîne JSON, pas un dict
+            return RSAAlgorithm.from_jwk(json.dumps(key))
+
     return None
 
 
