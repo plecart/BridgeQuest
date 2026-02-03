@@ -7,16 +7,80 @@ import jwt
 import requests
 from django.contrib.auth import get_user_model
 from django.test import TestCase
+from rest_framework_simplejwt.tokens import AccessToken
 
 from accounts.services import apple_auth_service, google_auth_service
 from accounts.services.auth_service import (
     create_or_get_user_from_sso_data,
     get_user_by_email,
 )
+from accounts.services.jwt_service import generate_tokens_for_user
 from utils.exceptions import BridgeQuestException
 from utils.sso_validation import REQUEST_TIMEOUT_SECONDS
 
 User = get_user_model()
+
+
+class JwtServiceTestCase(TestCase):
+    """Tests pour le service de génération des tokens JWT."""
+
+    JWT_SEGMENTS_COUNT = 3  # header.payload.signature
+
+    def setUp(self):
+        """Configuration initiale pour les tests."""
+        self.user = User.objects.create_user(
+            username='jwtuser',
+            email='jwt@example.com',
+            first_name='Jwt',
+            last_name='User',
+        )
+
+    def _assert_jwt_format(self, token):
+        """Vérifie qu'un token a le format JWT (3 segments base64 séparés par des points)."""
+        parts = token.split('.')
+        self.assertEqual(
+            len(parts),
+            self.JWT_SEGMENTS_COUNT,
+            "Un JWT doit contenir header.payload.signature",
+        )
+
+    def test_generate_tokens_for_user_returns_access_and_refresh(self):
+        """Test que le dictionnaire retourné contient les clés access et refresh."""
+        tokens = generate_tokens_for_user(self.user)
+        self.assertIn('access', tokens)
+        self.assertIn('refresh', tokens)
+        self.assertIsInstance(tokens['access'], str)
+        self.assertIsInstance(tokens['refresh'], str)
+        self.assertGreater(len(tokens['access']), 0)
+        self.assertGreater(len(tokens['refresh']), 0)
+
+    def test_generate_tokens_for_user_access_format_jwt(self):
+        """Test que le token access a le format JWT (3 segments base64)."""
+        tokens = generate_tokens_for_user(self.user)
+        self._assert_jwt_format(tokens['access'])
+
+    def test_generate_tokens_for_user_refresh_format_jwt(self):
+        """Test que le token refresh a le format JWT (3 segments base64)."""
+        tokens = generate_tokens_for_user(self.user)
+        self._assert_jwt_format(tokens['refresh'])
+
+    def test_generate_tokens_for_user_access_token_compatible_simple_jwt(self):
+        """Test que le token access est compatible SIMPLE_JWT (payload contient user_id)."""
+        tokens = generate_tokens_for_user(self.user)
+        access = AccessToken(tokens['access'])
+        # Simple JWT peut sérialiser user_id en int ou str selon la config
+        self.assertEqual(int(access['user_id']), self.user.id)
+
+    def test_generate_tokens_for_user_different_users_different_tokens(self):
+        """Test que deux utilisateurs différents reçoivent des tokens différents."""
+        other_user = User.objects.create_user(
+            username='otherjwt',
+            email='otherjwt@example.com',
+        )
+        tokens_user = generate_tokens_for_user(self.user)
+        tokens_other = generate_tokens_for_user(other_user)
+        self.assertNotEqual(tokens_user['access'], tokens_other['access'])
+        self.assertNotEqual(tokens_user['refresh'], tokens_other['refresh'])
 
 
 class AuthServiceTestCase(TestCase):
