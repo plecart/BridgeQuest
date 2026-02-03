@@ -13,7 +13,8 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
+# lib/ uniquement pour Python (pas pour Flutter)
+bridgequest-server/lib/
 lib64/
 parts/
 sdist/
@@ -44,7 +45,11 @@ venv.bak/
 .venv
 
 # IDE
-.vscode/
+# Ignorer les fichiers personnels VS Code mais garder la configuration partagée
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/launch.json
 .idea/
 *.swp
 *.swo
@@ -63,6 +68,13 @@ venv.bak/
 *.ipr
 *.iws
 .idea/
+# Fichiers générés Flutter
+*.g.dart
+*.freezed.dart
+*.mocks.dart
+# Coverage
+coverage/
+test/.test_coverage.dart
 
 # Android
 *.apk

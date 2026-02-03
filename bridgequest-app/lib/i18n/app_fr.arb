@@ -1,0 +1,208 @@
+{
+  "@@locale": "fr",
+  "appName": "Bridge Quest",
+  "@appName": {
+    "description": "Nom de l'application"
+  },
+  "authLoginTitle": "Connexion",
+  "@authLoginTitle": {
+    "description": "Titre de la page de connexion"
+  },
+  "authLoginSubtitle": "Connectez-vous pour commencer",
+  "@authLoginSubtitle": {
+    "description": "Sous-titre de la page de connexion"
+  },
+  "authLoginButtonGoogle": "Se connecter avec Google",
+  "@authLoginButtonGoogle": {
+    "description": "Bouton de connexion Google"
+  },
+  "authLoginButtonApple": "Se connecter avec Apple",
+  "@authLoginButtonApple": {
+    "description": "Bouton de connexion Apple"
+  },
+  "errorAuthSsoFailed": "Échec de l'authentification SSO",
+  "@errorAuthSsoFailed": {
+    "description": "Message d'erreur pour l'échec de l'authentification SSO"
+  },
+  "errorAuthTokenInvalid": "Token d'authentification invalide",
+  "@errorAuthTokenInvalid": {
+    "description": "Message d'erreur pour un token invalide"
+  },
+  "errorAuthTokensMissing": "Tokens JWT manquants dans la réponse",
+  "@errorAuthTokensMissing": {
+    "description": "Message d'erreur quand les tokens sont absents de la réponse API"
+  },
+  "errorAuthNotAuthenticated": "Authentification requise",
+  "@errorAuthNotAuthenticated": {
+    "description": "Message d'erreur quand l'utilisateur n'est pas authentifié"
+  },
+  "errorGeneric": "Une erreur est survenue",
+  "@errorGeneric": {
+    "description": "Message d'erreur générique"
+  },
+  "errorNetwork": "Erreur de connexion réseau",
+  "@errorNetwork": {
+    "description": "Message d'erreur réseau"
+  },
+  "errorUnexpected": "Erreur inattendue",
+  "@errorUnexpected": {
+    "description": "Message d'erreur inattendue"
+  },
+  "errorResponseInvalidFormat": "Format de réponse invalide",
+  "@errorResponseInvalidFormat": {
+    "description": "Message d'erreur pour un format de réponse invalide"
+  },
+  "errorResponseUnstructuredData": "Format de réponse invalide: données non structurées",
+  "@errorResponseUnstructuredData": {
+    "description": "Message d'erreur pour des données non structurées"
+  },
+  "errorResponseUserMissing": "Format de réponse invalide: utilisateur manquant",
+  "@errorResponseUserMissing": {
+    "description": "Message d'erreur pour un utilisateur manquant dans la réponse"
+  },
+  "errorResponseUserNotObject": "Format de réponse invalide: utilisateur n'est pas un objet",
+  "@errorResponseUserNotObject": {
+    "description": "Message d'erreur pour un utilisateur qui n'est pas un objet"
+  },
+  "errorGoogleSignIn": "Erreur lors de la connexion Google",
+  "@errorGoogleSignIn": {
+    "description": "Message d'erreur pour la connexion Google"
+  },
+  "errorAppleSignIn": "Erreur lors de la connexion Apple",
+  "@errorAppleSignIn": {
+    "description": "Message d'erreur pour la connexion Apple"
+  },
+  "errorApiTimeout": "Timeout de connexion",
+  "@errorApiTimeout": {
+    "description": "Message d'erreur pour un timeout de connexion"
+  },
+  "errorApiUnknown": "Erreur réseau inconnue",
+  "@errorApiUnknown": {
+    "description": "Message d'erreur pour une erreur réseau inconnue"
+  },
+  "errorApiGeneric": "Erreur API",
+  "@errorApiGeneric": {
+    "description": "Message d'erreur API générique"
+  },
+  "errorGoogleTokenUnavailable": "Token Google non disponible",
+  "@errorGoogleTokenUnavailable": {
+    "description": "Message d'erreur quand le token Google n'est pas disponible"
+  },
+  "errorAppleTokenUnavailable": "Token Apple non disponible",
+  "@errorAppleTokenUnavailable": {
+    "description": "Message d'erreur quand le token Apple n'est pas disponible"
+  },
+  "errorAppleSignInCancelled": "Connexion Apple annulée",
+  "@errorAppleSignInCancelled": {
+    "description": "Message d'erreur quand l'utilisateur annule la connexion Apple"
+  },
+  "errorConfigGoogleClientIdMissing": "Configuration Google manquante",
+  "@errorConfigGoogleClientIdMissing": {
+    "description": "Message d'erreur quand le Client ID Google n'est pas configuré"
+  },
+  "homeTitle": "Accueil",
+  "@homeTitle": {
+    "description": "Titre de la page d'accueil"
+  },
+  "homeLogoutButton": "Déconnexion",
+  "@homeLogoutButton": {
+    "description": "Bouton de déconnexion"
+  },
+  "logDebugSsoAttempt": "Tentative de connexion SSO avec provider: {provider}",
+  "@logDebugSsoAttempt": {
+    "description": "Message de log debug pour tentative SSO",
+    "placeholders": {
+      "provider": {
+        "type": "String"
+      }
+    }
+  },
+  "logDebugUserAuthenticated": "Utilisateur authentifié: {email}",
+  "@logDebugUserAuthenticated": {
+    "description": "Message de log debug utilisateur connecté",
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "logContextSsoLogin": "connexion SSO",
+  "@logContextSsoLogin": {
+    "description": "Contexte d'erreur pour les logs (connexion SSO)"
+  },
+  "logErrorApiUserFetch": "Erreur API lors de la récupération de l'utilisateur",
+  "@logErrorApiUserFetch": {
+    "description": "Message de log erreur API récupération utilisateur"
+  },
+  "logErrorUnexpectedUserFetch": "Erreur inattendue lors de la récupération de l'utilisateur",
+  "@logErrorUnexpectedUserFetch": {
+    "description": "Message de log erreur inattendue récupération utilisateur"
+  },
+  "logDebugLogoutError": "Erreur ignorée lors de la déconnexion: {error}",
+  "@logDebugLogoutError": {
+    "description": "Message de log debug erreur déconnexion ignorée",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "logErrorApiContext": "Erreur API lors de la {context}",
+  "@logErrorApiContext": {
+    "description": "Message de log erreur API avec contexte",
+    "placeholders": {
+      "context": {
+        "type": "String"
+      }
+    }
+  },
+  "logErrorUnexpectedContext": "Erreur inattendue lors de la {context}",
+  "@logErrorUnexpectedContext": {
+    "description": "Message de log erreur inattendue avec contexte",
+    "placeholders": {
+      "context": {
+        "type": "String"
+      }
+    }
+  },
+  "logErrorUserParse": "Erreur lors du parsing de l'utilisateur",
+  "@logErrorUserParse": {
+    "description": "Message de log erreur parsing utilisateur"
+  },
+  "logErrorApiStatus": "Erreur API - Status: {statusCode}",
+  "@logErrorApiStatus": {
+    "description": "Message de log erreur API avec code status",
+    "placeholders": {
+      "statusCode": {
+        "type": "int"
+      }
+    }
+  },
+  "logDebugApiUrlEnv": "API Base URL (env): {url}",
+  "@logDebugApiUrlEnv": {
+    "description": "Message de log URL API depuis env",
+    "placeholders": {
+      "url": {
+        "type": "String"
+      }
+    }
+  },
+  "logDebugApiUrlAndroid": "API Base URL (Android): {url}",
+  "@logDebugApiUrlAndroid": {
+    "description": "Message de log URL API Android",
+    "placeholders": {
+      "url": {
+        "type": "String"
+      }
+    }
+  },
+  "logDebugApiUrlDefault": "API Base URL (default): {url}",
+  "@logDebugApiUrlDefault": {
+    "description": "Message de log URL API par défaut",
+    "placeholders": {
+      "url": {
+        "type": "String"
+      }
+    }
+  }
+}

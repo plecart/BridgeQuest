@@ -1,0 +1,87 @@
+{
+  // ============================================
+  // CONFIGURATION DART/FLUTTER
+  // ============================================
+  "dart.enableSdkFormatter": true,
+  "dart.lineLength": 100,
+  "dart.insertArgumentPlaceholders": false,
+  "dart.showTodos": true,
+  "dart.enableSnippets": true,
+  "dart.flutterCreateAndroidLanguage": "kotlin",
+  "dart.flutterCreateIOSLanguage": "swift",
+  
+  // Analyse de code Dart (selon CODING_STANDARDS_FLUTTER.md)
+  "dart.analysisExcludedFolders": [
+    "**/build",
+    "**/.dart_tool"
+  ],
+  "dart.previewFlutterUiGuides": true,
+  "dart.previewFlutterUiGuidesCustomTracking": true,
+  
+  // ============================================
+  // CONFIGURATION ÉDITEUR GLOBALE
+  // ============================================
+  "editor.formatOnSave": true,
+  "editor.formatOnType": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll": "explicit",
+    "source.organizeImports": "explicit"
+  },
+  "editor.bracketPairColorization.enabled": true,
+  "editor.guides.bracketPairs": true,
+  "editor.minimap.enabled": true,
+  "editor.suggestSelection": "first",
+  "editor.wordWrap": "on",
+  
+  // ============================================
+  // CONFIGURATION PAR TYPE DE FICHIER
+  // ============================================
+  
+  // Dart (selon CODING_STANDARDS_FLUTTER.md)
+  "[dart]": {
+    "editor.defaultFormatter": "Dart-Code.dart-code",
+    "editor.formatOnSave": true,
+    "editor.rulers": [100],
+    "editor.selectionHighlight": false,
+    "editor.suggest.snippetsPreventQuickSuggestions": false,
+    "editor.suggestSelection": "first",
+    "editor.tabCompletion": "onlySnippets",
+    "editor.wordBasedSuggestions": "off"
+  },
+  
+  // ARB (i18n - fichiers de traduction)
+  "[arb]": {
+    "editor.defaultFormatter": "Dart-Code.flutter-intl",
+    "editor.formatOnSave": true
+  },
+  
+  // YAML (pubspec.yaml, etc.)
+  "[yaml]": {
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "redhat.vscode-yaml"
+  },
+  
+  // ============================================
+  // GESTION DES FICHIERS
+  // ============================================
+  "files.exclude": {
+    "**/.dart_tool": true,
+    "**/.flutter-plugins": true,
+    "**/.flutter-plugins-dependencies": true,
+    "**/.packages": true,
+    "**/.pub-cache": true,
+    "**/.pub": true,
+    "**/build": true
+  },
+  
+  // ============================================
+  // EXTENSIONS SPÉCIFIQUES
+  // ============================================
+  
+  // Error Lens (affichage des erreurs inline)
+  "errorLens.enabled": true,
+  "errorLens.followCursor": "activeLine",
+  
+  // Git
+  "git.ignoreLimitWarning": true
+}

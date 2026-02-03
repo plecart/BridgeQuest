@@ -1,0 +1,21 @@
+{
+  "recommendations": [
+    // ============================================
+    // FLUTTER/DART - Extensions essentielles
+    // ============================================
+    "dart-code.dart-code",
+    "dart-code.flutter",
+    "dart-code.flutter-intl",
+    
+    // ============================================
+    // QUALITÉ DE CODE - Affichage des erreurs
+    // ============================================
+    "usernamehw.errorlens",
+    
+    // ============================================
+    // PRODUCTIVITÉ - Git et support
+    // ============================================
+    "eamodio.gitlens",
+    "ms-vscode.vscode-json"
+  ]
+}

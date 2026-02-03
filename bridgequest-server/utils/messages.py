@@ -32,10 +32,37 @@ class Messages:
     APP_LOCATIONS = "app.locations.name"
     APP_POWERS = "app.powers.name"
     APP_LOGS = "app.logs.name"
+    
+    # Auth messages
+    LOGOUT_SUCCESS = "auth.logout.success"
+    SSO_LOGIN_SUCCESS = "auth.sso.login.success"
+    
+    # Admin fieldsets
+    ADMIN_PERSONAL_INFO = "admin.user.personal_info"
+    ADMIN_IMPORTANT_DATES = "admin.user.important_dates"
+    ADMIN_PERMISSIONS = "admin.user.permissions"
+    
+    # SSO Serializer
+    SSO_PROVIDER_HELP_TEXT = "serializer.sso.provider.help_text"
+    SSO_TOKEN_HELP_TEXT = "serializer.sso.token.help_text"
+
+    # Log messages (i18n pour cohérence et support multilingue)
+    LOG_AUTH_SSO_UNEXPECTED = "log.auth.sso_unexpected"
 
 
 class ModelMessages:
     """Clés de traduction pour les modèles."""
+    
+    # User
+    USER_USERNAME = "model.user.username"
+    USER_EMAIL = "model.user.email"
+    USER_FIRST_NAME = "model.user.first_name"
+    USER_LAST_NAME = "model.user.last_name"
+    USER_AVATAR = "model.user.avatar"
+    USER_CREATED_AT = "model.user.created_at"
+    USER_UPDATED_AT = "model.user.updated_at"
+    USER_VERBOSE_NAME = "model.user.verbose_name"
+    USER_VERBOSE_NAME_PLURAL = "model.user.verbose_name_plural"
     
     # Game
     GAME_NAME = "model.game.name"
@@ -46,6 +73,23 @@ class ModelMessages:
 
 class ErrorMessages:
     """Clés de traduction pour les messages d'erreur."""
+    
+    # Auth errors
+    AUTH_INVALID_CREDENTIALS = "error.auth.invalid_credentials"
+    AUTH_ACCOUNT_EXISTS = "error.auth.account_exists"
+    AUTH_ACCOUNT_NOT_FOUND = "error.auth.account_not_found"
+    AUTH_TOKEN_INVALID = "error.auth.token_invalid"
+    AUTH_TOKEN_EXPIRED = "error.auth.token_expired"
+    AUTH_SSO_FAILED = "error.auth.sso_failed"
+    AUTH_SSO_PROVIDER_INVALID = "error.auth.sso.provider_invalid"
+    AUTH_SSO_TOKEN_REQUIRED = "error.auth.sso.token_required"
+    AUTH_SSO_TOKEN_VALIDATION_FAILED = "error.auth.sso.token_validation_failed"
+    AUTH_SSO_CONFIG_ERROR = "error.auth.sso.config_error"
+    
+    # User errors
+    USER_NOT_FOUND = "error.user.not_found"
+    USER_EMAIL_REQUIRED = "error.user.email_required"
+    USER_EMAIL_INVALID = "error.user.email_invalid"
     
     # Game errors
     GAME_NAME_REQUIRED = "error.game.name.required"

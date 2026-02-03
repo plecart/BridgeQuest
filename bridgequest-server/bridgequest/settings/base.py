@@ -2,9 +2,40 @@
 Base settings for Bridge Quest project.
 
 These settings are shared across all environments (development, production, etc.)
+Symbols below are exported for ``from .base import *`` in environment modules.
 """
+__all__ = [
+    'BASE_DIR',
+    'SECRET_KEY',
+    'INSTALLED_APPS',
+    'AUTH_USER_MODEL',
+    'MIDDLEWARE',
+    'ROOT_URLCONF',
+    'TEMPLATES',
+    'WSGI_APPLICATION',
+    'DATABASES',
+    'AUTH_PASSWORD_VALIDATORS',
+    'LANGUAGE_CODE',
+    'TIME_ZONE',
+    'USE_I18N',
+    'USE_TZ',
+    'STATIC_URL',
+    'STATIC_ROOT',
+    'MEDIA_URL',
+    'MEDIA_ROOT',
+    'DEFAULT_AUTO_FIELD',
+    'REST_FRAMEWORK',
+    'CORS_ALLOWED_ORIGINS',
+    'CORS_ALLOW_CREDENTIALS',
+    'AUTHENTICATION_BACKENDS',
+    'APPLE_CLIENT_ID',
+    'GOOGLE_CLIENT_IDS',
+    'SIMPLE_JWT',
+]
 
+from datetime import timedelta
 from pathlib import Path
+
 from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -24,6 +55,7 @@ INSTALLED_APPS = [
     
     # Third-party apps
     'rest_framework',
+    'rest_framework_simplejwt.token_blacklist',  # requis si SIMPLE_JWT['BLACKLIST_AFTER_ROTATION']
     'corsheaders',
     
     # Local apps
@@ -34,6 +66,9 @@ INSTALLED_APPS = [
     'powers',
     'logs',
 ]
+
+# Configuration de l'authentification personnalisée
+AUTH_USER_MODEL = 'accounts.User'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -115,7 +150,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Django REST Framework
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.SessionAuthentication',  # Gardé pour compatibilité admin Django
     ],
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
@@ -138,3 +174,37 @@ CORS_ALLOWED_ORIGINS = config(
 )
 
 CORS_ALLOW_CREDENTIALS = True
+
+# Authentification
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+]
+
+# SSO Configuration
+# Apple Sign-In - Client ID (Bundle ID de l'app iOS)
+APPLE_CLIENT_ID = config('APPLE_CLIENT_ID', default='')
+
+# Google Sign-In - Liste des Client IDs autorisés (Web, iOS, Android)
+# Plusieurs IDs car Google génère un ID différent par plateforme
+GOOGLE_CLIENT_IDS = config(
+    'GOOGLE_CLIENT_IDS',
+    default='',
+    cast=lambda v: [s.strip() for s in v.split(',') if s.strip()] if v else []
+)
+
+# Simple JWT Configuration
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(hours=1),  # Token d'accès valide 1 heure
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=30),  # Refresh token valide 30 jours
+    'ROTATE_REFRESH_TOKENS': True,  # Générer un nouveau refresh token à chaque refresh
+    'BLACKLIST_AFTER_ROTATION': True,  # Blacklister l'ancien refresh token après rotation
+    'UPDATE_LAST_LOGIN': True,  # Mettre à jour last_login à chaque authentification
+    'ALGORITHM': 'HS256',  # Algorithme de signature
+    'SIGNING_KEY': SECRET_KEY,  # Clé de signature (utilise SECRET_KEY Django)
+    'AUTH_HEADER_TYPES': ('Bearer',),  # Format du header Authorization
+    'AUTH_HEADER_NAME': 'HTTP_AUTHORIZATION',  # Nom du header HTTP
+    'USER_ID_FIELD': 'id',  # Champ utilisé comme identifiant utilisateur dans le token
+    'USER_ID_CLAIM': 'user_id',  # Claim JWT contenant l'ID utilisateur
+    'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
+    'TOKEN_TYPE_CLAIM': 'token_type',
+}

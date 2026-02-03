@@ -1,0 +1,51 @@
+{
+  "recommendations": [
+    // ============================================
+    // PYTHON - Extensions essentielles
+    // ============================================
+    "ms-python.python",
+    "ms-python.vscode-pylance",
+    "ms-python.debugpy",
+    
+    // ============================================
+    // DJANGO - Support framework
+    // ============================================
+    "batisteo.vscode-django",
+    "shamanu4.django-intellisense",
+    
+    // ============================================
+    // QUALITÉ DE CODE - Formatage et linting
+    // ============================================
+    "ms-python.black-formatter",
+    "ms-python.isort",
+    "ms-python.flake8",
+    "ms-python.mypy-type-checker",
+    
+    // ============================================
+    // TESTS - pytest (selon CODING_STANDARDS.md)
+    // ============================================
+    "ms-python.pytest",
+    
+    // ============================================
+    // PRODUCTIVITÉ - Aide au développement
+    // ============================================
+    "kevinrose.vsc-python-indent",
+    "njpwerner.autodocstring",
+    
+    // ============================================
+    // GIT - Versioning
+    // ============================================
+    "eamodio.gitlens",
+    
+    // ============================================
+    // BASE DE DONNÉES - PostgreSQL (production)
+    // ============================================
+    "ms-ossdata.vscode-postgresql",
+    
+    // ============================================
+    // UTILITAIRES - Affichage et support
+    // ============================================
+    "usernamehw.errorlens",
+    "ms-vscode.vscode-json"
+  ]
+}
