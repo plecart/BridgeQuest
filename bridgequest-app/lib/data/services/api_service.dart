@@ -54,7 +54,7 @@ class ApiService {
           handler.next(options);
         },
         onError: (error, handler) async {
-          if (_isUnauthorizedError(error)) {
+          if (_shouldRetryAfterRefresh(error)) {
             final retried = await _retryRequestAfterRefresh(error, handler);
             if (retried) return;
           }
@@ -64,9 +64,25 @@ class ApiService {
     );
   }
 
-  /// Vérifie si l'erreur est une erreur d'authentification (401)
+  /// Indique si l'erreur doit déclencher un retry après refresh du token.
+  ///
+  /// Retourne true uniquement pour un 401 sur une requête autre que l'endpoint
+  /// de refresh (évite le cycle 401 → refresh → 401 sur la route de refresh).
+  bool _shouldRetryAfterRefresh(DioException error) {
+    return _isUnauthorizedError(error) && !_isRefreshRequest(error);
+  }
+
+  /// Vérifie si l'erreur est une erreur d'authentification (401).
   bool _isUnauthorizedError(DioException error) {
     return error.response?.statusCode == 401;
+  }
+
+  /// Vérifie si la requête en erreur cible l'endpoint de refresh.
+  ///
+  /// Ne pas retry sur cette route évite un cycle : un 401 sur le refresh
+  /// repasserait par l'intercepteur et rappellerait le refresh.
+  bool _isRefreshRequest(DioException error) {
+    return error.requestOptions.path == ApiConfig.authTokenRefresh;
   }
 
   /// Réessaie une requête après avoir rafraîchi le token (auth JWT Bearer, pas de cookies).
