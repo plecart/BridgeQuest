@@ -19,11 +19,21 @@ class NetworkException extends AppException {
   NetworkException(super.message, {super.code});
 }
 
-/// Exception API
+/// Exception API (réponse HTTP d'erreur).
+///
+/// Utiliser [isClientError] / [isServerError] pour adapter le message
+/// (voir CODING_STANDARDS_FLUTTER.md : 4xx = message API, 5xx = message générique).
 class ApiException extends AppException {
   final int? statusCode;
 
   ApiException(super.message, {super.code, this.statusCode});
+
+  /// True si le code HTTP indique une erreur client (4xx).
+  bool get isClientError =>
+      statusCode != null && statusCode! >= 400 && statusCode! < 500;
+
+  /// True si le code HTTP indique une erreur serveur (5xx).
+  bool get isServerError => statusCode != null && statusCode! >= 500;
 }
 
 /// Exception de validation

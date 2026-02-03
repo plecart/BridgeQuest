@@ -8,7 +8,7 @@ from django.test import TestCase
 from rest_framework import status
 from rest_framework.test import APIClient
 
-from utils.exceptions import BridgeQuestException
+from utils.exceptions import BridgeQuestException, HTTP_SERVER_ERROR
 from utils.messages import ErrorMessages
 
 User = get_user_model()
@@ -166,4 +166,17 @@ class SSOViewsTestCase(TestCase):
             response = self._post_sso_login(provider='google', token='invalid_token')
 
             self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+            self.assertIn('error', response.data)
+
+    def test_sso_login_config_error_returns_500(self):
+        """Test que les erreurs de configuration SSO renvoient 500 (erreur serveur)."""
+        with patch('accounts.views.auth_views.validate_google_token') as mock_validate:
+            mock_validate.side_effect = BridgeQuestException(
+                ErrorMessages.AUTH_SSO_CONFIG_ERROR,
+                status_code=HTTP_SERVER_ERROR,
+            )
+
+            response = self._post_sso_login(provider='google')
+
+            self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
             self.assertIn('error', response.data)

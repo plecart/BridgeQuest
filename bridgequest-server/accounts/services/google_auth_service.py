@@ -7,7 +7,7 @@ depuis l'application mobile Flutter.
 import requests
 from django.conf import settings
 
-from utils.exceptions import BridgeQuestException
+from utils.exceptions import BridgeQuestException, HTTP_SERVER_ERROR
 from utils.messages import ErrorMessages
 from utils.sso_validation import REQUEST_TIMEOUT_SECONDS, require_non_empty_sso_token
 
@@ -52,7 +52,10 @@ def _get_google_client_ids():
     """
     google_client_ids = getattr(settings, 'GOOGLE_CLIENT_IDS', None)
     if not google_client_ids:
-        raise BridgeQuestException(ErrorMessages.AUTH_SSO_CONFIG_ERROR)
+        raise BridgeQuestException(
+            ErrorMessages.AUTH_SSO_CONFIG_ERROR,
+            status_code=HTTP_SERVER_ERROR,
+        )
     return google_client_ids
 
 

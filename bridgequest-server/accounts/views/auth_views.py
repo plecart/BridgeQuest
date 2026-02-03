@@ -98,9 +98,23 @@ def _build_validation_error_response(errors):
     Returns:
         Response: Réponse d'erreur de validation formatée
     """
-    return Response(
-        errors,
-        status=status.HTTP_400_BAD_REQUEST
+    return Response(errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+def _handle_sso_unexpected_error(provider):
+    """
+    Log une erreur SSO inattendue et retourne une réponse 500.
+
+    Args:
+        provider: Le fournisseur SSO concerné (pour le log)
+
+    Returns:
+        Response: Réponse d'erreur 500 avec message générique
+    """
+    logger.exception(_(Messages.LOG_AUTH_SSO_UNEXPECTED), provider)
+    return _build_error_response(
+        _(ErrorMessages.AUTH_SSO_FAILED),
+        status.HTTP_500_INTERNAL_SERVER_ERROR,
     )
 
 
@@ -155,16 +169,9 @@ def sso_login_view(request):
         )
         
     except BridgeQuestException as e:
-        return _build_error_response(str(e), status.HTTP_400_BAD_REQUEST)
+        return _build_error_response(str(e), e.status_code)
     except Exception:
-        logger.exception(
-            _(Messages.LOG_AUTH_SSO_UNEXPECTED),
-            provider,
-        )
-        return _build_error_response(
-            _(ErrorMessages.AUTH_SSO_FAILED),
-            status.HTTP_500_INTERNAL_SERVER_ERROR
-        )
+        return _handle_sso_unexpected_error(provider)
 
 
 @api_view(['GET'])

@@ -10,7 +10,7 @@ from jwt.algorithms import RSAAlgorithm
 import requests
 from django.conf import settings
 
-from utils.exceptions import BridgeQuestException
+from utils.exceptions import BridgeQuestException, HTTP_SERVER_ERROR
 from utils.messages import ErrorMessages
 from utils.sso_validation import REQUEST_TIMEOUT_SECONDS, require_non_empty_sso_token
 
@@ -128,7 +128,10 @@ def _get_apple_client_id():
     """
     apple_client_id = getattr(settings, 'APPLE_CLIENT_ID', None)
     if not apple_client_id:
-        raise BridgeQuestException(ErrorMessages.AUTH_SSO_CONFIG_ERROR)
+        raise BridgeQuestException(
+            ErrorMessages.AUTH_SSO_CONFIG_ERROR,
+            status_code=HTTP_SERVER_ERROR,
+        )
     return apple_client_id
 
 
