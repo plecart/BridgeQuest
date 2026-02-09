@@ -30,7 +30,7 @@ class UserAdmin(BaseUserAdmin):
         (_(Messages.ADMIN_PERSONAL_INFO), {
             'fields': ('first_name', 'last_name', 'email', 'avatar')
         }),
-        (_(Messages.ADMIN_PERMISSIONS), {
+        (_('Permissions'), {
             'fields': ('is_active', 'is_staff', 'is_superuser'),
         }),
         (_(Messages.ADMIN_IMPORTANT_DATES), {

@@ -2,15 +2,11 @@ import '../services/api_service.dart';
 import '../services/token_manager.dart';
 import '../models/user.dart';
 import '../../core/config/api_config.dart';
-import '../../core/config/app_localizations_holder.dart';
 import '../../core/exceptions/app_exceptions.dart';
 import '../../core/utils/logger.dart';
 
 /// Repository pour l'authentification OAuth2/JWT
 class AuthRepository {
-  static const _errorCodeNotAuthenticated = 'error.auth.notAuthenticated';
-  static const _errorCodeGeneric = 'error.generic';
-
   final ApiService _apiService;
   final TokenManager _tokenManager;
 
@@ -34,12 +30,11 @@ class AuthRepository {
     required String provider,
     required String token,
   }) async {
-    final l10n = AppLocalizationsHolder.current;
-    AppLogger.debug(l10n?.logDebugSsoAttempt(provider) ?? 'logDebugSsoAttempt');
-
+    AppLogger.debug('Tentative de connexion SSO avec provider: $provider');
+    
     return _executeApiCall(
       () => _performSSOLogin(provider, token),
-      l10n?.logContextSsoLogin ?? 'logContextSsoLogin',
+      'connexion SSO',
     );
   }
 
@@ -62,8 +57,7 @@ class AuthRepository {
     await _saveTokensFromResponse(responseData);
     
     final user = _parseUserFromResponse(responseData);
-    final l10n = AppLocalizationsHolder.current;
-    AppLogger.debug(l10n?.logDebugUserAuthenticated(user.email) ?? 'logDebugUserAuthenticated');
+    AppLogger.debug('Utilisateur authentifié: ${user.email}');
     return user;
   }
 
@@ -77,7 +71,10 @@ class AuthRepository {
     final refreshToken = responseData['refresh'] as String?;
     
     if (accessToken == null || refreshToken == null) {
-      throw _authError('error.auth.tokensMissing');
+      throw AuthException(
+        'Tokens JWT manquants dans la réponse',
+        code: 'error.auth.tokensMissing',
+      );
     }
     
     await _tokenManager.saveTokens(
@@ -87,14 +84,15 @@ class AuthRepository {
   }
 
   /// Récupère l'utilisateur actuel
-  ///
+  /// 
   /// Throws [AuthException] si l'utilisateur n'est pas authentifié ou si une erreur survient.
-  /// Les erreurs 401/403 (non authentifié) sont gérées silencieusement (cas normal au démarrage).
+  /// Les erreurs 401/403 (non authentifié) sont gérées silencieusement car c'est un cas normal
+  /// au démarrage de l'application.
   Future<User> getCurrentUser() async {
     try {
       final response = await _apiService.get(ApiConfig.authMe);
       final responseData = _normalizeResponseData(response.data);
-      return _parseUserFromFlatResponse(responseData);
+      return User.fromJson(responseData);
     } on ApiException catch (e) {
       return _handleApiExceptionForCurrentUser(e);
     } catch (e) {
@@ -102,28 +100,27 @@ class AuthRepository {
     }
   }
 
-  /// Gère les exceptions API lors de la récupération de l'utilisateur.
-  ///
-  /// 401/403 : code dérivé de [ApiException.statusCode] (ApiService met toujours [ApiException.code] à une valeur générique).
+  /// Gère les exceptions API lors de la récupération de l'utilisateur
+  /// 
+  /// Les erreurs 401/403 sont normales si l'utilisateur n'est pas connecté.
   Never _handleApiExceptionForCurrentUser(ApiException e) {
     if (_isAuthenticationError(e)) {
-      throw _authError(_errorCodeNotAuthenticated);
+      throw AuthException(
+        e.message,
+        code: e.code ?? 'error.auth.notAuthenticated',
+      );
     }
-    AppLogger.error(
-      AppLocalizationsHolder.current?.logErrorApiUserFetch ?? 'logErrorApiUserFetch',
-      e,
-    );
-    throw _authError(e.code ?? _errorCodeGeneric);
+    AppLogger.error('Erreur API lors de la récupération de l\'utilisateur', e);
+    throw AuthException(e.message, code: e.code ?? 'error.generic');
   }
 
   /// Gère les erreurs inattendues lors de la récupération de l'utilisateur
   Never _handleUnexpectedErrorForCurrentUser(dynamic e) {
-    if (e is AuthException) throw e;
-    AppLogger.error(
-      AppLocalizationsHolder.current?.logErrorUnexpectedUserFetch ?? 'logErrorUnexpectedUserFetch',
-      e,
-    );
-    throw _authError('error.unexpected');
+    if (e is AuthException) {
+      throw e;
+    }
+    AppLogger.error('Erreur inattendue lors de la récupération de l\'utilisateur', e);
+    throw AuthException('Erreur inattendue', code: 'error.unexpected');
   }
 
   /// Vérifie si l'erreur est une erreur d'authentification (401/403)
@@ -141,8 +138,7 @@ class AuthRepository {
     } catch (e) {
       // Ignorer les erreurs lors de la déconnexion côté serveur
       // Les tokens seront supprimés localement de toute façon
-      final l10n = AppLocalizationsHolder.current;
-      AppLogger.debug(l10n?.logDebugLogoutError(e.toString()) ?? 'logDebugLogoutError');
+      AppLogger.debug('Erreur ignorée lors de la déconnexion: $e');
     } finally {
       // Toujours supprimer les tokens localement
       await _tokenManager.clearTokens();
@@ -162,20 +158,12 @@ class AuthRepository {
     try {
       return await operation();
     } on ApiException catch (e) {
-      final l10n = AppLocalizationsHolder.current;
-      AppLogger.error(
-        l10n?.logErrorApiContext(errorContext) ?? 'logErrorApiContext',
-        e,
-      );
-      throw _authError(e.code ?? _errorCodeGeneric);
+      AppLogger.error('Erreur API lors de la $errorContext', e);
+      throw AuthException(e.message, code: e.code ?? 'error.generic');
     } catch (e) {
       if (e is AppException) rethrow;
-      final l10n = AppLocalizationsHolder.current;
-      AppLogger.error(
-        l10n?.logErrorUnexpectedContext(errorContext) ?? 'logErrorUnexpectedContext',
-        e,
-      );
-      throw _authError('error.unexpected');
+      AppLogger.error('Erreur inattendue lors de la $errorContext', e);
+      throw AuthException('Erreur inattendue', code: 'error.unexpected');
     }
   }
 
@@ -187,22 +175,18 @@ class AuthRepository {
     if (data is Map) {
       return Map<String, dynamic>.from(data);
     }
-    throw _authError('error.response.unstructuredData');
+    throw AuthException(
+      'Format de réponse invalide: données non structurées',
+      code: 'error.response.unstructuredData',
+    );
   }
 
-  /// Lance une [AuthException] avec un code l10n (message = code pour affichage via [ErrorTranslator]).
-  Never _authError(String code) {
-    throw AuthException(code, code: code);
-  }
-
-  /// Parse l'utilisateur depuis une réponse API au format plat (ex. endpoint current user).
-  User _parseUserFromFlatResponse(Map<String, dynamic> data) {
-    return _parseUserFromData(data);
-  }
-
-  /// Parse l'utilisateur depuis une réponse API encapsulée (ex. login : { "user": {...} }).
+  /// Parse l'utilisateur depuis la réponse API
+  /// 
+  /// Throws [AuthException] si le format de réponse est invalide.
   User _parseUserFromResponse(Map<String, dynamic> data) {
-    return _parseUserFromData(_extractUserData(data));
+    final userData = _extractUserData(data);
+    return _parseUserFromData(userData);
   }
 
   /// Extrait les données utilisateur depuis la réponse API
@@ -212,10 +196,17 @@ class AuthRepository {
     final userData = data['user'];
     
     if (userData == null) {
-      throw _authError('error.response.userMissing');
+      throw AuthException(
+        'Format de réponse invalide: utilisateur manquant',
+        code: 'error.response.userMissing',
+      );
     }
+    
     if (userData is! Map<String, dynamic>) {
-      throw _authError('error.response.userNotObject');
+      throw AuthException(
+        'Format de réponse invalide: utilisateur n\'est pas un objet',
+        code: 'error.response.userNotObject',
+      );
     }
     
     return userData;
@@ -228,11 +219,11 @@ class AuthRepository {
     try {
       return User.fromJson(userData);
     } catch (e) {
-      AppLogger.error(
-        AppLocalizationsHolder.current?.logErrorUserParse ?? 'logErrorUserParse',
-        e,
+      AppLogger.error('Erreur lors du parsing de l\'utilisateur', e);
+      throw AuthException(
+        'Format de réponse invalide',
+        code: 'error.response.invalidFormat',
       );
-      throw _authError('error.response.invalidFormat');
     }
   }
 

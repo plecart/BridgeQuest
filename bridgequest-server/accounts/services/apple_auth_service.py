@@ -4,13 +4,12 @@ Service de validation des tokens Apple Sign-In pour Bridge Quest.
 Ce service valide les tokens ID obtenus via Apple Sign-In SDK
 depuis l'application mobile Flutter.
 """
-import json
 import jwt
 from jwt.algorithms import RSAAlgorithm
 import requests
 from django.conf import settings
-
-from utils.exceptions import BridgeQuestException, HTTP_SERVER_ERROR
+from django.utils.translation import gettext_lazy as _
+from utils.exceptions import BridgeQuestException
 from utils.messages import ErrorMessages
 from utils.sso_validation import REQUEST_TIMEOUT_SECONDS, require_non_empty_sso_token
 
@@ -41,16 +40,16 @@ def validate_apple_token(token):
         BridgeQuestException: Si la validation échoue ou si l'email est manquant
     """
     require_non_empty_sso_token(token)
-
+    
     try:
         decoded_token = _decode_and_verify_token(token)
         return _extract_user_data(decoded_token)
     except jwt.InvalidTokenError as e:
-        raise BridgeQuestException(ErrorMessages.AUTH_SSO_TOKEN_VALIDATION_FAILED) from e
+        raise BridgeQuestException(_(ErrorMessages.AUTH_SSO_TOKEN_VALIDATION_FAILED)) from e
     except BridgeQuestException:
         raise
     except Exception as e:
-        raise BridgeQuestException(ErrorMessages.AUTH_SSO_FAILED) from e
+        raise BridgeQuestException(_(ErrorMessages.AUTH_SSO_FAILED)) from e
 
 
 def _decode_and_verify_token(token):
@@ -71,7 +70,7 @@ def _decode_and_verify_token(token):
     public_key = _find_matching_public_key(apple_keys, unverified_header)
     
     if not public_key:
-        raise BridgeQuestException(ErrorMessages.AUTH_SSO_TOKEN_VALIDATION_FAILED)
+        raise BridgeQuestException(_(ErrorMessages.AUTH_SSO_TOKEN_VALIDATION_FAILED))
     
     return _decode_token_with_key(token, public_key)
 
@@ -89,10 +88,10 @@ def _fetch_apple_public_keys():
     try:
         response = requests.get(APPLE_PUBLIC_KEYS_URL, timeout=REQUEST_TIMEOUT_SECONDS)
         if response.status_code != 200:
-            raise BridgeQuestException(ErrorMessages.AUTH_SSO_TOKEN_VALIDATION_FAILED)
+            raise BridgeQuestException(_(ErrorMessages.AUTH_SSO_TOKEN_VALIDATION_FAILED))
         return response.json()
     except requests.RequestException as e:
-        raise BridgeQuestException(ErrorMessages.AUTH_SSO_TOKEN_VALIDATION_FAILED) from e
+        raise BridgeQuestException(_(ErrorMessages.AUTH_SSO_TOKEN_VALIDATION_FAILED)) from e
 
 
 def _find_matching_public_key(apple_keys, unverified_header):
@@ -107,12 +106,11 @@ def _find_matching_public_key(apple_keys, unverified_header):
         RSAPublicKey: La clé publique trouvée ou None
     """
     kid = unverified_header.get('kid')
-
+    
     for key in apple_keys.get('keys', []):
         if key['kid'] == kid:
-            # PyJWT RSAAlgorithm.from_jwk attend une chaîne JSON, pas un dict
-            return RSAAlgorithm.from_jwk(json.dumps(key))
-
+            return RSAAlgorithm.from_jwk(key)
+    
     return None
 
 
@@ -128,10 +126,7 @@ def _get_apple_client_id():
     """
     apple_client_id = getattr(settings, 'APPLE_CLIENT_ID', None)
     if not apple_client_id:
-        raise BridgeQuestException(
-            ErrorMessages.AUTH_SSO_CONFIG_ERROR,
-            status_code=HTTP_SERVER_ERROR,
-        )
+        raise BridgeQuestException(_(ErrorMessages.AUTH_SSO_CONFIG_ERROR))
     return apple_client_id
 
 
@@ -175,11 +170,11 @@ def _extract_user_data(decoded_token):
     """
     sub = decoded_token.get('sub')
     if not sub:
-        raise BridgeQuestException(ErrorMessages.AUTH_SSO_TOKEN_VALIDATION_FAILED)
+        raise BridgeQuestException(_(ErrorMessages.AUTH_SSO_TOKEN_VALIDATION_FAILED))
     
     email = decoded_token.get('email')
     if not email:
-        raise BridgeQuestException(ErrorMessages.USER_EMAIL_REQUIRED)
+        raise BridgeQuestException(_(ErrorMessages.USER_EMAIL_REQUIRED))
     
     return {
         'email': email,

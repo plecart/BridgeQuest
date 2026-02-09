@@ -1,6 +1,4 @@
 import 'dart:io';
-
-import 'app_localizations_holder.dart';
 import '../utils/logger.dart';
 
 /// Configuration de l'API
@@ -19,21 +17,20 @@ class ApiConfig {
     );
     
     if (envUrl.isNotEmpty) {
-      final l10n = AppLocalizationsHolder.current;
-      AppLogger.debug(l10n?.logDebugApiUrlEnv(envUrl) ?? 'logDebugApiUrlEnv($envUrl)');
+      AppLogger.debug('API Base URL (env): $envUrl');
       return envUrl;
     }
-
+    
+    // Pour Android, utiliser 10.0.2.2 au lieu de localhost
     if (Platform.isAndroid) {
       const url = 'http://10.0.2.2:8000';
-      final l10n = AppLocalizationsHolder.current;
-      AppLogger.debug(l10n?.logDebugApiUrlAndroid(url) ?? 'logDebugApiUrlAndroid($url)');
+      AppLogger.debug('API Base URL (Android): $url');
       return url;
     }
-
+    
+    // Pour iOS/autres plateformes, utiliser localhost
     const url = 'http://localhost:8000';
-    final l10n = AppLocalizationsHolder.current;
-    AppLogger.debug(l10n?.logDebugApiUrlDefault(url) ?? 'logDebugApiUrlDefault($url)');
+    AppLogger.debug('API Base URL (default): $url');
     return url;
   }
 

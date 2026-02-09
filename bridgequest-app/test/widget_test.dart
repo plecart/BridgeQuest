@@ -15,7 +15,6 @@ import 'package:bridgequest/main.dart';
 import 'package:bridgequest/core/config/app_providers.dart';
 import 'package:bridgequest/i18n/app_localizations.dart';
 
-@Tags(['widget'])
 void main() {
   setUpAll(() async {
     // Initialiser dotenv pour les tests

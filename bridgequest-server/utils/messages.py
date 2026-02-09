@@ -25,7 +25,7 @@ class Messages:
     GAME_CODE_INVALID_ALPHANUMERIC = "validation.game.code.alphanumeric"
     GAME_CODE_INVALID_LENGTH = "validation.game.code.length"
     
-    # Apps verbose names
+    # Apps verbose names (affichés dans l'admin Django)
     APP_ACCOUNTS = "app.accounts.name"
     APP_GAMES = "app.games.name"
     APP_INTERACTIONS = "app.interactions.name"
@@ -40,14 +40,10 @@ class Messages:
     # Admin fieldsets
     ADMIN_PERSONAL_INFO = "admin.user.personal_info"
     ADMIN_IMPORTANT_DATES = "admin.user.important_dates"
-    ADMIN_PERMISSIONS = "admin.user.permissions"
     
     # SSO Serializer
     SSO_PROVIDER_HELP_TEXT = "serializer.sso.provider.help_text"
     SSO_TOKEN_HELP_TEXT = "serializer.sso.token.help_text"
-
-    # Log messages (i18n pour cohérence et support multilingue)
-    LOG_AUTH_SSO_UNEXPECTED = "log.auth.sso_unexpected"
 
 
 class ModelMessages:

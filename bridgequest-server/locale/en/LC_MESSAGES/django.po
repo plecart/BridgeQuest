@@ -27,3 +27,15 @@ msgstr "Permissions"
 #: utils/messages.py - Messages.LOG_AUTH_SSO_UNEXPECTED
 msgid "log.auth.sso_unexpected"
 msgstr "Unexpected error during SSO authentication (provider=%s)"
+
+#: accounts/apps.py - utils/messages.py - Messages.APP_ACCOUNTS
+msgid "app.accounts.name"
+msgstr "Authentication"
+
+#: accounts/models/user.py - utils/messages.py - ModelMessages.USER_VERBOSE_NAME
+msgid "model.user.verbose_name"
+msgstr "User"
+
+#: accounts/models/user.py - utils/messages.py - ModelMessages.USER_VERBOSE_NAME_PLURAL
+msgid "model.user.verbose_name_plural"
+msgstr "Users"

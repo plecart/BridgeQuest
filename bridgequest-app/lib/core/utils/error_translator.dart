@@ -25,10 +25,6 @@ class ErrorTranslator {
         return l10n.errorAuthSsoFailed;
       case 'error.auth.tokenInvalid':
         return l10n.errorAuthTokenInvalid;
-      case 'error.auth.tokensMissing':
-        return l10n.errorAuthTokensMissing;
-      case 'error.auth.notAuthenticated':
-        return l10n.errorAuthNotAuthenticated;
       case 'error.response.invalidFormat':
         return l10n.errorResponseInvalidFormat;
       case 'error.response.unstructuredData':
