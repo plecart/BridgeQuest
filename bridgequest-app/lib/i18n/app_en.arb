@@ -108,6 +108,100 @@
   "@homeLogoutButton": {
     "description": "Logout button"
   },
+  "homeCreateGameButton": "Create game",
+  "@homeCreateGameButton": {
+    "description": "Create game button"
+  },
+  "homeJoinGameButton": "Join game",
+  "@homeJoinGameButton": {
+    "description": "Join game button"
+  },
+  "homeGameNameLabel": "Game name",
+  "@homeGameNameLabel": {
+    "description": "Game name label"
+  },
+  "homeGameCodeLabel": "Game code",
+  "@homeGameCodeLabel": {
+    "description": "Game code label"
+  },
+  "homeCreateGameSubmit": "Create",
+  "@homeCreateGameSubmit": {
+    "description": "Create game submit button"
+  },
+  "homeJoinGameSubmit": "Join",
+  "@homeJoinGameSubmit": {
+    "description": "Join game submit button"
+  },
+  "lobbyTitle": "Waiting room",
+  "@lobbyTitle": {
+    "description": "Lobby page title"
+  },
+  "lobbyPlayersTitle": "Connected players",
+  "@lobbyPlayersTitle": {
+    "description": "Players list title"
+  },
+  "lobbyNoPlayers": "No players",
+  "@lobbyNoPlayers": {
+    "description": "Empty player list"
+  },
+  "lobbyStartGameButton": "Start game",
+  "@lobbyStartGameButton": {
+    "description": "Start game button (admin)"
+  },
+  "lobbyGameCode": "Code: {code}",
+  "@lobbyGameCode": {
+    "description": "Game code display",
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "lobbyConnecting": "Connecting...",
+  "@lobbyConnecting": {
+    "description": "Lobby connecting state"
+  },
+  "lobbyErrorWebSocket": "Server connection error",
+  "@lobbyErrorWebSocket": {
+    "description": "Lobby WebSocket error"
+  },
+  "lobbyGameDeleted": "The game has been deleted",
+  "@lobbyGameDeleted": {
+    "description": "Game deleted"
+  },
+  "lobbyGameStarted": "Game started!",
+  "@lobbyGameStarted": {
+    "description": "Game started"
+  },
+  "lobbyStartGameError": "Unable to start the game",
+  "@lobbyStartGameError": {
+    "description": "Start game error"
+  },
+  "lobbyRetry": "Retry",
+  "@lobbyRetry": {
+    "description": "Retry button on lobby error"
+  },
+  "lobbyPlayerFallbackName": "Player {playerId}",
+  "@lobbyPlayerFallbackName": {
+    "description": "Display name when username empty",
+    "placeholders": {
+      "playerId": {
+        "type": "int"
+      }
+    }
+  },
+  "commonDialogCancel": "Cancel",
+  "@commonDialogCancel": {
+    "description": "Dialog cancel button"
+  },
+  "errorGameNotFound": "Game not found",
+  "@errorGameNotFound": {
+    "description": "Game not found error"
+  },
+  "errorGameInvalidCode": "Invalid game code",
+  "@errorGameInvalidCode": {
+    "description": "Invalid code error"
+  },
   "logDebugSsoAttempt": "SSO sign-in attempt with provider: {provider}",
   "@logDebugSsoAttempt": {
     "description": "Debug log message for SSO attempt",

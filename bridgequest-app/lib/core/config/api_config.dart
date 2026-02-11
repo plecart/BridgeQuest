@@ -51,4 +51,16 @@ class ApiConfig {
   /// Path pour détail et joueurs d'une partie
   static String gameDetail(int id) => '/api/games/$id/';
   static String gamePlayers(int id) => '/api/games/$id/players/';
+  static String gameStart(int id) => '/api/games/$id/start/';
+
+  /// URL WebSocket pour la salle d'attente (lobby).
+  ///
+  /// [gameId] : ID de la partie
+  /// [token] : Token JWT pour l'authentification (passé en query ?token=xxx)
+  static String lobbyWebSocketUrl(int gameId, String token) {
+    final base = baseUrl
+        .replaceFirst('http://', 'ws://')
+        .replaceFirst('https://', 'wss://');
+    return '$base/ws/lobby/$gameId/?token=${Uri.encodeQueryComponent(token)}';
+  }
 }

@@ -72,13 +72,16 @@ class AuthRepository {
   ///
   /// Throws [AuthException] si les tokens sont manquants.
   Future<void> _saveTokensFromResponse(
-      Map<String, dynamic> responseData,) async {
+    Map<String, dynamic> responseData,
+  ) async {
     final accessToken = responseData['access'] as String?;
     final refreshToken = responseData['refresh'] as String?;
 
     if (accessToken == null || refreshToken == null) {
       throw _authException(
-          'JWT tokens missing from API response', _codeTokensMissing,);
+        'JWT tokens missing from API response',
+        _codeTokensMissing,
+      );
     }
 
     await _tokenManager.saveTokens(
@@ -111,11 +114,15 @@ class AuthRepository {
   Never _handleApiExceptionForCurrentUser(ApiException e) {
     if (_isAuthenticationError(e)) {
       throw _authException(
-          'User not authenticated', e.code ?? _codeNotAuthenticated,);
+        'User not authenticated',
+        e.code ?? _codeNotAuthenticated,
+      );
     }
     AppLogger.error('API error while fetching user', e);
     throw _authException(
-        'API error while fetching user', e.code ?? _codeGeneric,);
+      'API error while fetching user',
+      e.code ?? _codeGeneric,
+    );
   }
 
   /// Gère les erreurs inattendues lors de la récupération de l'utilisateur
@@ -123,7 +130,9 @@ class AuthRepository {
     if (e is AuthException) throw e;
     AppLogger.error('Unexpected error while fetching user', e);
     throw _authException(
-        'Unexpected error while fetching user', _codeUnexpected,);
+      'Unexpected error while fetching user',
+      _codeUnexpected,
+    );
   }
 
   AuthException _authException(String message, String code) =>
@@ -167,12 +176,16 @@ class AuthRepository {
     } on ApiException catch (e) {
       AppLogger.error('API error during $errorContext', e);
       throw _authException(
-          'API error during $errorContext', e.code ?? _codeGeneric,);
+        'API error during $errorContext',
+        e.code ?? _codeGeneric,
+      );
     } catch (e) {
       if (e is AppException) rethrow;
       AppLogger.error('Unexpected error during $errorContext', e);
       throw _authException(
-          'Unexpected error during $errorContext', _codeUnexpected,);
+        'Unexpected error during $errorContext',
+        _codeUnexpected,
+      );
     }
   }
 
@@ -205,8 +218,10 @@ class AuthRepository {
     final userData = data['user'];
 
     if (userData == null) {
-      throw _authException('Invalid response format: user missing',
-          'error.response.userMissing',);
+      throw _authException(
+        'Invalid response format: user missing',
+        'error.response.userMissing',
+      );
     }
     if (userData is! Map<String, dynamic>) {
       throw _authException(
@@ -227,7 +242,9 @@ class AuthRepository {
     } catch (e) {
       AppLogger.error('Error while parsing user', e);
       throw _authException(
-          'Invalid response format', 'error.response.invalidFormat',);
+        'Invalid response format',
+        'error.response.invalidFormat',
+      );
     }
   }
 }

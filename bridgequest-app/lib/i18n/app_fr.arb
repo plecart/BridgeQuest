@@ -107,5 +107,99 @@
   "homeLogoutButton": "Déconnexion",
   "@homeLogoutButton": {
     "description": "Bouton de déconnexion"
+  },
+  "homeCreateGameButton": "Créer une partie",
+  "@homeCreateGameButton": {
+    "description": "Bouton créer une partie"
+  },
+  "homeJoinGameButton": "Rejoindre une partie",
+  "@homeJoinGameButton": {
+    "description": "Bouton rejoindre une partie"
+  },
+  "homeGameNameLabel": "Nom de la partie",
+  "@homeGameNameLabel": {
+    "description": "Label nom de la partie"
+  },
+  "homeGameCodeLabel": "Code de la partie",
+  "@homeGameCodeLabel": {
+    "description": "Label code de la partie"
+  },
+  "homeCreateGameSubmit": "Créer",
+  "@homeCreateGameSubmit": {
+    "description": "Bouton valider création partie"
+  },
+  "homeJoinGameSubmit": "Rejoindre",
+  "@homeJoinGameSubmit": {
+    "description": "Bouton valider rejoindre partie"
+  },
+  "lobbyTitle": "Salle d'attente",
+  "@lobbyTitle": {
+    "description": "Titre page lobby"
+  },
+  "lobbyPlayersTitle": "Joueurs connectés",
+  "@lobbyPlayersTitle": {
+    "description": "Titre liste joueurs"
+  },
+  "lobbyNoPlayers": "Aucun joueur",
+  "@lobbyNoPlayers": {
+    "description": "Liste vide de joueurs"
+  },
+  "lobbyStartGameButton": "Lancer la partie",
+  "@lobbyStartGameButton": {
+    "description": "Bouton lancer partie (admin)"
+  },
+  "lobbyGameCode": "Code : {code}",
+  "@lobbyGameCode": {
+    "description": "Affichage code partie",
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "lobbyConnecting": "Connexion en cours...",
+  "@lobbyConnecting": {
+    "description": "État connexion lobby"
+  },
+  "lobbyErrorWebSocket": "Erreur de connexion au serveur",
+  "@lobbyErrorWebSocket": {
+    "description": "Erreur WebSocket lobby"
+  },
+  "lobbyGameDeleted": "La partie a été supprimée",
+  "@lobbyGameDeleted": {
+    "description": "Partie supprimée"
+  },
+  "lobbyGameStarted": "Partie lancée !",
+  "@lobbyGameStarted": {
+    "description": "Partie lancée"
+  },
+  "lobbyStartGameError": "Impossible de lancer la partie",
+  "@lobbyStartGameError": {
+    "description": "Erreur lancement partie"
+  },
+  "lobbyRetry": "Réessayer",
+  "@lobbyRetry": {
+    "description": "Bouton réessayer en cas d'erreur lobby"
+  },
+  "lobbyPlayerFallbackName": "Joueur {playerId}",
+  "@lobbyPlayerFallbackName": {
+    "description": "Nom affiché quand username vide",
+    "placeholders": {
+      "playerId": {
+        "type": "int"
+      }
+    }
+  },
+  "commonDialogCancel": "Annuler",
+  "@commonDialogCancel": {
+    "description": "Bouton annuler dialogue"
+  },
+  "errorGameNotFound": "Partie introuvable",
+  "@errorGameNotFound": {
+    "description": "Erreur partie introuvable"
+  },
+  "errorGameInvalidCode": "Code de partie invalide",
+  "@errorGameInvalidCode": {
+    "description": "Erreur code invalide"
   }
 }

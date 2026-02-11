@@ -25,11 +25,11 @@ class ApiService {
             baseUrl: baseUrl,
             headers: const {'Content-Type': 'application/json'},
             connectTimeout: const Duration(
-                seconds: ApiConfig
-                    .timeoutSeconds,), // ignore: prefer_const_constructors
+              seconds: ApiConfig.timeoutSeconds,
+            ), // ignore: prefer_const_constructors
             receiveTimeout: const Duration(
-                seconds: ApiConfig
-                    .timeoutSeconds,), // ignore: prefer_const_constructors
+              seconds: ApiConfig.timeoutSeconds,
+            ), // ignore: prefer_const_constructors
             // Duration ne peut pas être const car ApiConfig.timeoutSeconds n'est pas une constante compile-time
           ),
         ) {
@@ -253,13 +253,17 @@ class ApiService {
     }
     if (_isConnectionError(error)) {
       return _createNetworkException(
-          'Network connection error', 'error.network',);
+        'Network connection error',
+        'error.network',
+      );
     }
     if (error.response != null) {
       return _createApiException(error);
     }
     return _createNetworkException(
-        'Unknown network error', 'error.api.unknown',);
+      'Unknown network error',
+      'error.api.unknown',
+    );
   }
 
   bool _isTimeoutError(DioException error) =>

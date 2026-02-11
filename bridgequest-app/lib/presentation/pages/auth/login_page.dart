@@ -58,7 +58,9 @@ class _LoginPageState extends State<LoginPage> {
               if (authProvider.errorMessage != null)
                 ErrorMessage(
                   message: ErrorTranslator.translate(
-                      authProvider.errorMessage!, l10n,),
+                    authProvider.errorMessage!,
+                    l10n,
+                  ),
                 ),
             ],
           ),

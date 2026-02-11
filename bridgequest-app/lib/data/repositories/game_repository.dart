@@ -20,10 +20,12 @@ class GameRepository {
   /// Throws [GameException] si la création échoue.
   Future<Game> createGame({required String name}) async {
     return _executeApiCall(
-      () => _requestGame(() => _apiService.post(
-            ApiConfig.gamesCreate,
-            data: {'name': name.trim()},
-          ),),
+      () => _requestGame(
+        () => _apiService.post(
+          ApiConfig.gamesCreate,
+          data: {'name': name.trim()},
+        ),
+      ),
       'create game',
     );
   }
@@ -34,10 +36,12 @@ class GameRepository {
   /// est déjà dans la partie.
   Future<Game> joinGame({required String code}) async {
     return _executeApiCall(
-      () => _requestGame(() => _apiService.post(
-            ApiConfig.gamesJoin,
-            data: {'code': code.trim().toUpperCase()},
-          ),),
+      () => _requestGame(
+        () => _apiService.post(
+          ApiConfig.gamesJoin,
+          data: {'code': code.trim().toUpperCase()},
+        ),
+      ),
       'join game',
     );
   }
@@ -60,6 +64,19 @@ class GameRepository {
       () =>
           _requestPlayers(() => _apiService.get(ApiConfig.gamePlayers(gameId))),
       'get game players',
+    );
+  }
+
+  /// Lance la partie (admin uniquement).
+  ///
+  /// Throws [GameException] si l'utilisateur n'est pas admin ou si la partie
+  /// est déjà commencée.
+  Future<Game> startGame(int gameId) async {
+    return _executeApiCall(
+      () => _requestGame(
+        () => _apiService.post(ApiConfig.gameStart(gameId)),
+      ),
+      'start game',
     );
   }
 
