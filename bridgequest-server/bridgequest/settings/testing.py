@@ -36,7 +36,8 @@ DATABASES = {
 
 CACHES = {
     'default': {
-        'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+        # LocMemCache requis pour les tests du lobby_service (exclusion après déconnexion)
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
     }
 }
 

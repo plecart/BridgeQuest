@@ -5,6 +5,8 @@ Deux canaux distincts :
 - LobbyConsumer : salle d'attente (phase WAITING)
 - GameConsumer : partie en cours (phases DEPLOYMENT, IN_PROGRESS)
 """
+import asyncio
+
 from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
 from django.contrib.auth.models import AnonymousUser
@@ -12,6 +14,13 @@ from django.contrib.auth.models import AnonymousUser
 from games.models import Game, GameState, Player
 from games.services.game_broadcast import get_game_group_name
 from games.services.lobby_broadcast import get_lobby_group_name
+from games.services.lobby_service import (
+    LOBBY_DISCONNECT_GRACE_SECONDS,
+    cancel_pending_exclusion,
+    exclude_player_from_lobby,
+    mark_player_disconnected,
+)
+from games.services.player_payload import build_player_websocket_payload
 
 # Codes de fermeture WebSocket
 _WS_CLOSE_UNAUTHORIZED = 4001
@@ -46,15 +55,6 @@ class _BaseGameConsumerMixin:
         """Transmet un événement du groupe au client WebSocket."""
         await self.send_json({"type": event_type, **payload})
 
-    def _player_payload_base(self):
-        """Payload minimal du joueur (player_id, user_id, username)."""
-        user = self.player.user
-        return {
-            "player_id": self.player.id,
-            "user_id": user.id,
-            "username": user.username or "",
-        }
-
     async def _send_connected_message(self):
         """Envoie la confirmation de connexion au client."""
         await self.send_json({
@@ -62,6 +62,10 @@ class _BaseGameConsumerMixin:
             "game_id": self.game_id,
             "player": self._player_payload(),
         })
+
+    async def receive_json(self, content):
+        """Reçoit un message du client. Echo pour vérifier la connectivité."""
+        await self.send_json({"type": "echo", "received": content})
 
 
 class LobbyConsumer(_BaseGameConsumerMixin, AsyncJsonWebsocketConsumer):
@@ -71,7 +75,8 @@ class LobbyConsumer(_BaseGameConsumerMixin, AsyncJsonWebsocketConsumer):
     Canal : ws/lobby/{game_id}/
     Groupe : lobby_{game_id}
     Phase : WAITING uniquement.
-    Événements : player_joined, player_left, game_started.
+    Événements : player_joined, player_left, player_excluded, admin_transferred,
+                 game_deleted, game_started.
     Codes de fermeture : 4001 (non authentifié), 4002 (non dans la partie),
                         4003 (partie déjà commencée, utiliser ws/game/).
     """
@@ -104,13 +109,14 @@ class LobbyConsumer(_BaseGameConsumerMixin, AsyncJsonWebsocketConsumer):
             self.channel_name,
         )
         self._joined_group = True
+        cancel_pending_exclusion(self.game_id, self.player.id)
         await self.accept()
         await self._send_connected_message()
         await self._broadcast_player_joined()
 
     def _player_payload(self):
         """Construit le payload d'un joueur (lobby : inclut is_admin)."""
-        return {**self._player_payload_base(), "is_admin": self.player.is_admin}
+        return build_player_websocket_payload(self.player, include_admin=True)
 
     async def _broadcast_player_joined(self):
         """Diffuse l'événement joueur rejoint au groupe."""
@@ -124,18 +130,36 @@ class LobbyConsumer(_BaseGameConsumerMixin, AsyncJsonWebsocketConsumer):
         )
 
     async def disconnect(self, close_code):
-        """Quitte le groupe et diffuse joueur quitte avant de se déconnecter."""
+        """Quitte le groupe, diffuse joueur quitte et planifie exclusion si délai dépassé."""
         if self._joined_group and hasattr(self, "player") and close_code not in (
             _WS_CLOSE_UNAUTHORIZED,
             _WS_CLOSE_NOT_IN_GAME,
             _WS_CLOSE_WRONG_CHANNEL,
         ):
             await self._broadcast_player_left()
+            await self._schedule_player_exclusion()
         if self._joined_group:
             await self.channel_layer.group_discard(
                 self.room_group_name,
                 self.channel_name,
             )
+
+    async def _schedule_player_exclusion(self):
+        """
+        Planifie l'exclusion du joueur après le délai de grâce (30 s).
+
+        Si le joueur se reconnecte avant, cancel_pending_exclusion annule.
+        """
+        game_id = self.game_id
+        player_id = self.player.id
+
+        mark_player_disconnected(game_id, player_id)
+        asyncio.create_task(self._run_delayed_exclusion(game_id, player_id))
+
+    async def _run_delayed_exclusion(self, game_id, player_id):
+        """Exécute l'exclusion après le délai de grâce."""
+        await asyncio.sleep(LOBBY_DISCONNECT_GRACE_SECONDS)
+        await database_sync_to_async(exclude_player_from_lobby)(game_id, player_id)
 
     async def _broadcast_player_left(self):
         """Diffuse l'événement joueur quitte au groupe."""
@@ -162,9 +186,21 @@ class LobbyConsumer(_BaseGameConsumerMixin, AsyncJsonWebsocketConsumer):
             "state": event["state"],
         })
 
-    async def receive_json(self, content):
-        """Reçoit un message du client. Simple echo pour vérifier la connectivité."""
-        await self.send_json({"type": "echo", "received": content})
+    async def player_excluded(self, event):
+        """Reçoit player_excluded du groupe et transmet au client."""
+        await self._forward_to_client("player_excluded", {"player": event["player"]})
+
+    async def admin_transferred(self, event):
+        """Reçoit admin_transferred du groupe et transmet au client."""
+        await self._forward_to_client(
+            "admin_transferred", {"new_admin": event["new_admin"]}
+        )
+
+    async def game_deleted(self, event):
+        """Reçoit game_deleted du groupe et transmet au client."""
+        await self._forward_to_client("game_deleted", {
+            "game_id": event["game_id"],
+        })
 
 
 class GameConsumer(_BaseGameConsumerMixin, AsyncJsonWebsocketConsumer):
@@ -212,7 +248,7 @@ class GameConsumer(_BaseGameConsumerMixin, AsyncJsonWebsocketConsumer):
 
     def _player_payload(self):
         """Construit le payload minimal du joueur (game : sans is_admin)."""
-        return self._player_payload_base()
+        return build_player_websocket_payload(self.player, include_admin=False)
 
     async def disconnect(self, close_code):
         """Quitte le groupe à la déconnexion."""
@@ -226,7 +262,3 @@ class GameConsumer(_BaseGameConsumerMixin, AsyncJsonWebsocketConsumer):
         """Reçoit position_updated du groupe et transmet au client."""
         payload = {k: v for k, v in event.items() if k != "type"}
         await self._forward_to_client("position_updated", payload)
-
-    async def receive_json(self, content):
-        """Reçoit un message du client. Echo pour vérifier la connectivité."""
-        await self.send_json({"type": "echo", "received": content})
