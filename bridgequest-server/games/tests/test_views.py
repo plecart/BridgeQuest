@@ -6,7 +6,7 @@ from django.test import TestCase
 from rest_framework import status
 from rest_framework.test import APIClient
 
-from games.models import Game, Player
+from games.models import Game, GameState, Player
 
 User = get_user_model()
 
@@ -151,3 +151,66 @@ class GameViewsTestCase(TestCase):
         response = self.client.get(f'/api/games/{game.id}/players/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 2)
+
+    def test_game_start_admin_success(self):
+        """Test de lancement de partie par l'administrateur."""
+        game = Game.objects.create(name='Partie', code='MNO678')
+        Player.objects.create(game=game, user=self.user, is_admin=True)
+
+        self._authenticate_client()
+        response = self.client.post(f'/api/games/{game.id}/start/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['state'], GameState.DEPLOYMENT)
+
+    def test_game_start_not_admin_forbidden(self):
+        """Test de lancement par un joueur non-admin."""
+        game = Game.objects.create(name='Partie', code='PQR901')
+        Player.objects.create(game=game, user=self.user, is_admin=True)
+        Player.objects.create(game=game, user=self.other_user, is_admin=False)
+
+        self._authenticate_client(self.other_user)
+        response = self.client.post(f'/api/games/{game.id}/start/')
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertIn('error', response.data)
+
+    def test_game_start_not_in_game_forbidden(self):
+        """Test de lancement par un utilisateur non présent dans la partie."""
+        game = Game.objects.create(name='Partie', code='STU234')
+        Player.objects.create(game=game, user=self.user, is_admin=True)
+
+        self._authenticate_client(self.other_user)
+        response = self.client.post(f'/api/games/{game.id}/start/')
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertIn('error', response.data)
+
+    def test_game_start_already_started_bad_request(self):
+        """Test de lancement d'une partie déjà commencée."""
+        game = Game.objects.create(
+            name='Partie',
+            code='VWX567',
+            state=GameState.DEPLOYMENT,
+        )
+        Player.objects.create(game=game, user=self.user, is_admin=True)
+
+        self._authenticate_client()
+        response = self.client.post(f'/api/games/{game.id}/start/')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('error', response.data)
+
+    def test_game_start_not_found(self):
+        """Test de lancement d'une partie inexistante."""
+        self._authenticate_client()
+        response = self.client.post('/api/games/99999/start/')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertIn('error', response.data)
+
+    def test_game_start_unauthenticated_forbidden(self):
+        """Test de lancement sans authentification."""
+        game = Game.objects.create(name='Partie', code='YZA890')
+        Player.objects.create(game=game, user=self.user, is_admin=True)
+
+        response = self.client.post(f'/api/games/{game.id}/start/')
+        self.assertIn(
+            response.status_code,
+            [status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN],
+        )

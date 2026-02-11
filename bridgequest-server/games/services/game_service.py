@@ -7,6 +7,7 @@ import random
 import string
 
 from django.utils.translation import gettext_lazy as _
+from rest_framework import status
 
 from games.models import Game, GameState, Player, PlayerRole
 from utils.exceptions import GameException, PlayerException
@@ -118,7 +119,10 @@ def get_game_by_id(game_id):
     try:
         return Game.objects.get(pk=game_id)
     except Game.DoesNotExist:
-        raise GameException(_(ErrorMessages.GAME_NOT_FOUND))
+        raise GameException(
+            _(ErrorMessages.GAME_NOT_FOUND),
+            status_code=status.HTTP_404_NOT_FOUND,
+        )
 
 
 def get_game_by_code(code):
@@ -140,6 +144,33 @@ def get_game_by_code(code):
         return None
 
 
+def _require_game_waiting(game):
+    """
+    Vérifie que la partie est en attente.
+
+    Raises:
+        GameException: Si la partie a déjà commencé.
+    """
+    if game.state != GameState.WAITING:
+        raise GameException(_(ErrorMessages.GAME_ALREADY_STARTED))
+
+
+def _get_player_in_game(game, user):
+    """
+    Récupère le joueur dans une partie.
+
+    Raises:
+        PlayerException: Si l'utilisateur n'est pas dans la partie.
+    """
+    try:
+        return Player.objects.get(user=user, game=game)
+    except Player.DoesNotExist:
+        raise PlayerException(
+            _(ErrorMessages.PLAYER_NOT_IN_GAME),
+            status_code=status.HTTP_403_FORBIDDEN,
+        )
+
+
 def _validate_can_join_game(game, user):
     """
     Vérifie qu'un utilisateur peut rejoindre une partie.
@@ -148,8 +179,7 @@ def _validate_can_join_game(game, user):
         GameException: Si la partie n'est pas en attente.
         PlayerException: Si l'utilisateur est déjà dans la partie.
     """
-    if game.state != GameState.WAITING:
-        raise GameException(_(ErrorMessages.GAME_ALREADY_STARTED))
+    _require_game_waiting(game)
     if Player.objects.filter(user=user, game=game).exists():
         raise PlayerException(_(ErrorMessages.PLAYER_ALREADY_IN_GAME))
 
@@ -175,3 +205,35 @@ def join_game(code, user):
 
     _validate_can_join_game(game, user)
     return _add_player_to_game(game, user, is_admin=False)
+
+
+def start_game(game_id, user):
+    """
+    Lance une partie (passe de WAITING à DEPLOYMENT).
+
+    Seul l'administrateur de la partie peut lancer.
+
+    Args:
+        game_id: Identifiant de la partie.
+        user: Utilisateur qui demande le lancement.
+
+    Returns:
+        Game: La partie mise à jour.
+
+    Raises:
+        GameException: Si la partie n'existe pas ou est déjà commencée.
+        PlayerException: Si l'utilisateur n'est pas dans la partie ou n'est pas admin.
+    """
+    game = get_game_by_id(game_id)
+    _require_game_waiting(game)
+
+    player = _get_player_in_game(game, user)
+    if not player.is_admin:
+        raise PlayerException(
+            _(ErrorMessages.PLAYER_NOT_ADMIN),
+            status_code=status.HTTP_403_FORBIDDEN,
+        )
+
+    game.state = GameState.DEPLOYMENT
+    game.save(update_fields=["state", "updated_at"])
+    return game

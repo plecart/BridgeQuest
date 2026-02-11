@@ -14,7 +14,7 @@ from games.serializers import (
     JoinGameSerializer,
     PlayerSerializer,
 )
-from games.services import create_game, get_game_by_id, join_game
+from games.services import create_game, get_game_by_id, join_game, start_game
 from utils.exceptions import GameException, PlayerException
 
 
@@ -60,7 +60,7 @@ def create_game_view(request):
             status=status.HTTP_201_CREATED,
         )
     except GameException as e:
-        return _error_response(e)
+        return _error_response(e, e.status_code)
 
 
 @api_view(["POST"])
@@ -83,7 +83,7 @@ def join_game_view(request):
             status=status.HTTP_200_OK,
         )
     except (GameException, PlayerException) as e:
-        return _error_response(e)
+        return _error_response(e, e.status_code)
 
 
 @api_view(["GET"])
@@ -98,7 +98,7 @@ def game_detail_view(request, pk):
         game = get_game_by_id(pk)
         return _game_detail_response(game)
     except GameException as e:
-        return _error_response(e, status.HTTP_404_NOT_FOUND)
+        return _error_response(e, e.status_code)
 
 
 @api_view(["GET"])
@@ -113,4 +113,20 @@ def game_players_view(request, pk):
         game = get_game_by_id(pk)
         return _game_players_response(game)
     except GameException as e:
-        return _error_response(e, status.HTTP_404_NOT_FOUND)
+        return _error_response(e, e.status_code)
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def game_start_view(request, pk):
+    """
+    Lance une partie (administrateur uniquement).
+
+    Passe la partie de WAITING à DEPLOYMENT.
+    POST /api/games/{id}/start/
+    """
+    try:
+        game = start_game(pk, request.user)
+        return _game_detail_response(game)
+    except (GameException, PlayerException) as e:
+        return _error_response(e, e.status_code)

@@ -118,6 +118,7 @@ class ErrorMessages:
     # Player errors
     PLAYER_NOT_IN_GAME = "error.player.not_in_game"
     PLAYER_ALREADY_IN_GAME = "error.player.already_in_game"
+    PLAYER_NOT_ADMIN = "error.player.not_admin"
     
     # Interaction errors
     QR_CODE_INVALID = "error.interaction.qr_code.invalid"

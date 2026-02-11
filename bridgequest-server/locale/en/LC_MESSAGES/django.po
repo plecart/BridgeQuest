@@ -117,3 +117,9 @@ msgstr "This game has already started."
 
 msgid "error.player.already_in_game"
 msgstr "You are already in this game."
+
+msgid "error.player.not_in_game"
+msgstr "You are not in this game."
+
+msgid "error.player.not_admin"
+msgstr "Only the administrator can start the game."

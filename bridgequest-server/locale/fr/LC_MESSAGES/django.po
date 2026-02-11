@@ -120,3 +120,9 @@ msgstr "Cette partie a déjà commencé."
 
 msgid "error.player.already_in_game"
 msgstr "Vous êtes déjà dans cette partie."
+
+msgid "error.player.not_in_game"
+msgstr "Vous n'êtes pas dans cette partie."
+
+msgid "error.player.not_admin"
+msgstr "Seul l'administrateur peut lancer la partie."

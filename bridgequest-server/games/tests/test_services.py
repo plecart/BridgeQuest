@@ -11,6 +11,7 @@ from games.services import (
     get_game_by_code,
     get_game_by_id,
     join_game,
+    start_game,
 )
 from utils.exceptions import GameException, PlayerException
 
@@ -217,3 +218,63 @@ class JoinGameTestCase(GameServiceTestCase):
         # Act & Assert
         with self.assertRaises(GameException):
             join_game(game.code, joiner)
+
+
+class StartGameTestCase(GameServiceTestCase):
+    """Tests pour start_game."""
+
+    def test_start_game_success(self):
+        """Test de lancement réussi par l'administrateur."""
+        # Arrange
+        admin = self._create_user()
+        game = create_game(_GAME_NAME, admin)
+
+        # Act
+        result = start_game(game.id, admin)
+
+        # Assert
+        self.assertEqual(result.state, GameState.DEPLOYMENT)
+
+    def test_start_game_not_admin_raises_exception(self):
+        """Test qu'un joueur non-admin lève PlayerException."""
+        # Arrange
+        admin = self._create_user()
+        joiner = self._create_user(username="joiner", email="joiner@example.com")
+        game = create_game(_GAME_NAME, admin)
+        join_game(game.code, joiner)
+
+        # Act & Assert
+        with self.assertRaises(PlayerException):
+            start_game(game.id, joiner)
+
+    def test_start_game_not_in_game_raises_exception(self):
+        """Test qu'un utilisateur non présent dans la partie lève PlayerException."""
+        # Arrange
+        admin = self._create_user()
+        outsider = self._create_user(username="outsider", email="out@example.com")
+        game = create_game(_GAME_NAME, admin)
+
+        # Act & Assert
+        with self.assertRaises(PlayerException):
+            start_game(game.id, outsider)
+
+    def test_start_game_already_started_raises_exception(self):
+        """Test qu'on ne peut pas lancer une partie déjà commencée."""
+        # Arrange
+        admin = self._create_user()
+        game = create_game(_GAME_NAME, admin)
+        game.state = GameState.DEPLOYMENT
+        game.save()
+
+        # Act & Assert
+        with self.assertRaises(GameException):
+            start_game(game.id, admin)
+
+    def test_start_game_not_found_raises_exception(self):
+        """Test qu'une partie inexistante lève GameException."""
+        # Arrange
+        user = self._create_user()
+
+        # Act & Assert
+        with self.assertRaises(GameException):
+            start_game(99999, user)
