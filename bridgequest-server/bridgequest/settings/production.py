@@ -41,13 +41,13 @@ X_FRAME_OPTIONS = 'DENY'
 STATIC_ROOT = config('STATIC_ROOT', default=BASE_DIR / 'staticfiles')
 
 # Channel layers - Redis requis pour WebSocket en production
-# Configurer REDIS_URL dans les variables d'environnement
-_redis_url = config('REDIS_URL', default='')
-if _redis_url:
+# Configurer REDIS_URL dans les variables d'environnement (ex: redis://localhost:6379/0)
+redis_url = config('REDIS_URL', default='')
+if redis_url:
     CHANNEL_LAYERS = {
         'default': {
             'BACKEND': 'channels_redis.core.RedisChannelLayer',
-            'CONFIG': {'hosts': [_redis_url]},
+            'CONFIG': {'hosts': [redis_url]},
         },
     }
 

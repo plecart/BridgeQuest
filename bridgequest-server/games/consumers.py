@@ -4,7 +4,6 @@ Consumers WebSocket pour le module Games.
 Ce fichier contient les consumers Django Channels pour la synchronisation
 temps réel (salle d'attente, positions, événements).
 """
-import json
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
 
 
@@ -28,7 +27,10 @@ class LobbyConsumer(AsyncJsonWebsocketConsumer):
             self.channel_name,
         )
         await self.accept()
+        await self._send_connected_message()
 
+    async def _send_connected_message(self):
+        """Envoie la confirmation de connexion au client."""
         await self.send_json({
             'type': 'connected',
             'game_id': self.game_id,
@@ -48,6 +50,10 @@ class LobbyConsumer(AsyncJsonWebsocketConsumer):
         Pour l'instant, simple echo pour vérifier la connectivité.
         La logique métier sera ajoutée à l'étape 5.
         """
+        await self._send_echo_message(content)
+
+    async def _send_echo_message(self, content):
+        """Renvoie le message reçu (echo) au client."""
         await self.send_json({
             'type': 'echo',
             'received': content,
