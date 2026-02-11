@@ -6,6 +6,7 @@ from .game_service import (
     generate_game_code,
     get_game_by_code,
     get_game_by_id,
+    get_player_in_game,
     join_game,
     start_game,
 )
@@ -15,6 +16,7 @@ __all__ = [
     "generate_game_code",
     "get_game_by_code",
     "get_game_by_id",
+    "get_player_in_game",
     "join_game",
     "start_game",
 ]

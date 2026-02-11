@@ -156,15 +156,15 @@ def _require_game_waiting(game):
         raise GameException(_(ErrorMessages.GAME_ALREADY_STARTED))
 
 
-def _get_player_in_game(game, user):
+def get_player_in_game(game, user):
     """
-    Récupère le joueur dans une partie.
+    Récupère le joueur dans une partie, avec user chargé.
 
     Raises:
         PlayerException: Si l'utilisateur n'est pas dans la partie.
     """
     try:
-        return Player.objects.get(user=user, game=game)
+        return Player.objects.select_related("user").get(user=user, game=game)
     except Player.DoesNotExist:
         raise PlayerException(
             _(ErrorMessages.PLAYER_NOT_IN_GAME),
@@ -228,7 +228,7 @@ def start_game(game_id, user):
     game = get_game_by_id(game_id)
     _require_game_waiting(game)
 
-    player = _get_player_in_game(game, user)
+    player = get_player_in_game(game, user)
     if not player.is_admin:
         raise PlayerException(
             _(ErrorMessages.PLAYER_NOT_ADMIN),

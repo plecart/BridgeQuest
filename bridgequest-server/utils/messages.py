@@ -88,6 +88,14 @@ class ModelMessages:
     PLAYER_ROLE_HUMAN = "model.player.role.human"
     PLAYER_ROLE_SPIRIT = "model.player.role.spirit"
 
+    # Position
+    POSITION_PLAYER = "model.position.player"
+    POSITION_LATITUDE = "model.position.latitude"
+    POSITION_LONGITUDE = "model.position.longitude"
+    POSITION_RECORDED_AT = "model.position.recorded_at"
+    POSITION_VERBOSE_NAME = "Position"
+    POSITION_VERBOSE_NAME_PLURAL = "Positions"
+
 
 class ErrorMessages:
     """Clés de traduction pour les messages d'erreur."""
@@ -123,6 +131,10 @@ class ErrorMessages:
     # Interaction errors
     QR_CODE_INVALID = "error.interaction.qr_code.invalid"
     QR_CODE_ALREADY_SCANNED = "error.interaction.qr_code.already_scanned"
+
+    # Position/Location errors
+    POSITION_GAME_NOT_ACTIVE = "error.position.game_not_active"
+    POSITION_COORDINATES_INVALID = "error.position.coordinates_invalid"
     
     # Generic
     UNAUTHORIZED = "error.generic.unauthorized"
