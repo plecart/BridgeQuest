@@ -10,6 +10,7 @@ from django.utils.translation import gettext_lazy as _
 from rest_framework import status
 
 from games.models import Game, GameState, Player, PlayerRole
+from games.services import lobby_broadcast
 from utils.exceptions import GameException, PlayerException
 from utils.messages import ErrorMessages
 
@@ -236,4 +237,5 @@ def start_game(game_id, user):
 
     game.state = GameState.DEPLOYMENT
     game.save(update_fields=["state", "updated_at"])
+    lobby_broadcast.broadcast_game_started(game.id)
     return game
