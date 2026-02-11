@@ -104,3 +104,19 @@ msgstr "Joueurs"
 
 msgid "{user} in {game}"
 msgstr "{user} dans {game}"
+
+#: games/services/game_service.py - ErrorMessages
+msgid "error.game.name.required"
+msgstr "Le nom de la partie est requis."
+
+msgid "error.game.not_found"
+msgstr "Partie introuvable."
+
+msgid "error.game.code.not_found"
+msgstr "Aucune partie ne correspond à ce code."
+
+msgid "error.game.already_started"
+msgstr "Cette partie a déjà commencé."
+
+msgid "error.player.already_in_game"
+msgstr "Vous êtes déjà dans cette partie."

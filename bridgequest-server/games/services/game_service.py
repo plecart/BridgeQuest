@@ -1,0 +1,177 @@
+"""
+Service de gestion des parties pour Bridge Quest.
+
+Contient la logique métier : création, jonction, récupération.
+"""
+import random
+import string
+
+from django.utils.translation import gettext_lazy as _
+
+from games.models import Game, GameState, Player, PlayerRole
+from utils.exceptions import GameException, PlayerException
+from utils.messages import ErrorMessages
+
+_CODE_LENGTH = 6
+_CODE_CHARS = string.ascii_uppercase + string.digits
+
+
+def generate_game_code():
+    """
+    Génère un code unique de 6 caractères pour une partie.
+
+    Returns:
+        str: Code alphanumérique majuscule de 6 caractères.
+    """
+    return "".join(random.choices(_CODE_CHARS, k=_CODE_LENGTH))
+
+
+def _ensure_unique_code(code):
+    """
+    Garantit l'unicité du code en régénérant si nécessaire.
+
+    Args:
+        code: Code à vérifier.
+
+    Returns:
+        str: Code unique.
+    """
+    while Game.objects.filter(code=code).exists():
+        code = generate_game_code()
+    return code
+
+
+def _add_player_to_game(game, user, *, is_admin=False):
+    """
+    Ajoute un joueur à une partie.
+
+    Args:
+        game: La partie.
+        user: L'utilisateur.
+        is_admin: Si True, le joueur est administrateur.
+
+    Returns:
+        Player: Le joueur créé.
+    """
+    return Player.objects.create(
+        user=user,
+        game=game,
+        is_admin=is_admin,
+        role=PlayerRole.HUMAN,
+    )
+
+
+def _normalize_game_code(code):
+    """
+    Normalise un code de partie pour la recherche.
+
+    Args:
+        code: Code saisi (peut être minuscules, espaces).
+
+    Returns:
+        str | None: Code normalisé (6 caractères majuscules) ou None si invalide.
+    """
+    if not code or not isinstance(code, str):
+        return None
+    normalized = code.strip().upper()
+    if len(normalized) != _CODE_LENGTH:
+        return None
+    return normalized
+
+
+def create_game(name, admin_user):
+    """
+    Crée une nouvelle partie avec l'utilisateur comme administrateur.
+
+    Args:
+        name: Nom de la partie.
+        admin_user: Utilisateur créateur (sera admin de la partie).
+
+    Returns:
+        Game: La partie créée.
+
+    Raises:
+        GameException: Si le nom est vide.
+    """
+    if not name or not name.strip():
+        raise GameException(_(ErrorMessages.GAME_NAME_REQUIRED))
+
+    code = _ensure_unique_code(generate_game_code())
+    game = Game.objects.create(name=name.strip(), code=code)
+    _add_player_to_game(game, admin_user, is_admin=True)
+    return game
+
+
+def get_game_by_id(game_id):
+    """
+    Récupère une partie par son identifiant.
+
+    Args:
+        game_id: Identifiant de la partie.
+
+    Returns:
+        Game: La partie trouvée.
+
+    Raises:
+        GameException: Si la partie n'existe pas.
+    """
+    try:
+        return Game.objects.get(pk=game_id)
+    except Game.DoesNotExist:
+        raise GameException(_(ErrorMessages.GAME_NOT_FOUND))
+
+
+def get_game_by_code(code):
+    """
+    Récupère une partie par son code.
+
+    Args:
+        code: Code de la partie (6 caractères, insensible à la casse).
+
+    Returns:
+        Game | None: La partie trouvée ou None.
+    """
+    normalized = _normalize_game_code(code)
+    if normalized is None:
+        return None
+    try:
+        return Game.objects.get(code=normalized)
+    except Game.DoesNotExist:
+        return None
+
+
+def _validate_can_join_game(game, user):
+    """
+    Vérifie qu'un utilisateur peut rejoindre une partie.
+
+    Raises:
+        GameException: Si la partie n'est pas en attente.
+        PlayerException: Si l'utilisateur est déjà dans la partie.
+    """
+    if game.state != GameState.WAITING:
+        raise GameException(_(ErrorMessages.GAME_ALREADY_STARTED))
+    if Player.objects.filter(user=user, game=game).exists():
+        raise PlayerException(_(ErrorMessages.PLAYER_ALREADY_IN_GAME))
+
+
+def join_game(code, user):
+    """
+    Fait rejoindre un utilisateur à une partie via son code.
+
+    Args:
+        code: Code de la partie (6 caractères).
+        user: Utilisateur qui rejoint.
+
+    Returns:
+        Player: Le joueur créé dans la partie.
+
+    Raises:
+        GameException: Si le code est invalide ou la partie déjà commencée.
+        PlayerException: Si l'utilisateur est déjà dans la partie.
+    """
+    game = get_game_by_code(code)
+    if game is None:
+        raise GameException(_(ErrorMessages.GAME_CODE_NOT_FOUND))
+
+    _validate_can_join_game(game, user)
+    return _add_player_to_game(game, user, is_admin=False)

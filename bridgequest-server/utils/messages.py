@@ -112,8 +112,9 @@ class ErrorMessages:
     # Game errors
     GAME_NAME_REQUIRED = "error.game.name.required"
     GAME_NOT_FOUND = "error.game.not_found"
+    GAME_CODE_NOT_FOUND = "error.game.code.not_found"
     GAME_ALREADY_STARTED = "error.game.already_started"
-    
+
     # Player errors
     PLAYER_NOT_IN_GAME = "error.player.not_in_game"
     PLAYER_ALREADY_IN_GAME = "error.player.already_in_game"

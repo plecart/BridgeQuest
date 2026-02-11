@@ -101,3 +101,19 @@ msgstr "Players"
 
 msgid "{user} in {game}"
 msgstr "{user} in {game}"
+
+#: games/services/game_service.py - ErrorMessages
+msgid "error.game.name.required"
+msgstr "Game name is required."
+
+msgid "error.game.not_found"
+msgstr "Game not found."
+
+msgid "error.game.code.not_found"
+msgstr "No game matches this code."
+
+msgid "error.game.already_started"
+msgstr "This game has already started."
+
+msgid "error.player.already_in_game"
+msgstr "You are already in this game."
