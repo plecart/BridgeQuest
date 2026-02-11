@@ -3,16 +3,17 @@ import '../../core/config/app_config.dart';
 import '../../core/exceptions/app_exceptions.dart';
 
 /// Service pour l'authentification Google Sign-In
-/// 
+///
 /// L'initialisation de GoogleSignIn est lazy pour éviter de bloquer le thread principal
 /// au démarrage de l'application.
 class GoogleSignInService {
   GoogleSignIn? _googleSignIn;
 
-  GoogleSignInService({GoogleSignIn? googleSignIn}) : _googleSignIn = googleSignIn;
+  GoogleSignInService({GoogleSignIn? googleSignIn})
+      : _googleSignIn = googleSignIn;
 
   /// Retourne l'instance GoogleSignIn, en la créant si nécessaire
-  /// 
+  ///
   /// L'initialisation est lazy pour améliorer les performances au démarrage.
   GoogleSignIn get _googleSignInInstance {
     _googleSignIn ??= GoogleSignIn(
@@ -25,9 +26,9 @@ class GoogleSignInService {
   }
 
   /// Obtient le token ID Google
-  /// 
+  ///
   /// Retourne le token ID si la connexion réussit, null si l'utilisateur annule.
-  /// 
+  ///
   /// Throws [AuthException] si une erreur survient.
   Future<String?> getToken() async {
     try {

@@ -24,12 +24,12 @@ class ApiService {
           BaseOptions(
             baseUrl: baseUrl,
             headers: const {'Content-Type': 'application/json'},
-            connectTimeout: Duration(
+            connectTimeout: const Duration(
                 seconds: ApiConfig
-                    .timeoutSeconds), // ignore: prefer_const_constructors
-            receiveTimeout: Duration(
+                    .timeoutSeconds,), // ignore: prefer_const_constructors
+            receiveTimeout: const Duration(
                 seconds: ApiConfig
-                    .timeoutSeconds), // ignore: prefer_const_constructors
+                    .timeoutSeconds,), // ignore: prefer_const_constructors
             // Duration ne peut pas être const car ApiConfig.timeoutSeconds n'est pas une constante compile-time
           ),
         ) {
@@ -253,13 +253,13 @@ class ApiService {
     }
     if (_isConnectionError(error)) {
       return _createNetworkException(
-          'Network connection error', 'error.network');
+          'Network connection error', 'error.network',);
     }
     if (error.response != null) {
       return _createApiException(error);
     }
     return _createNetworkException(
-        'Unknown network error', 'error.api.unknown');
+        'Unknown network error', 'error.api.unknown',);
   }
 
   bool _isTimeoutError(DioException error) =>
@@ -281,6 +281,7 @@ class ApiService {
   ApiException _createApiException(DioException error) {
     final statusCode = error.response!.statusCode!;
     final errorData = error.response!.data;
+    final serverMessage = _extractServerErrorMessage(errorData);
 
     _logApiErrorIfNeeded(statusCode, errorData);
 
@@ -288,7 +289,17 @@ class ApiService {
       'API error: $statusCode',
       code: 'error.api.generic',
       statusCode: statusCode,
+      serverMessage: serverMessage,
     );
+  }
+
+  /// Extrait le message d'erreur du body de réponse API (format {"error": "..."}).
+  String? _extractServerErrorMessage(dynamic data) {
+    if (data is Map && data.containsKey('error')) {
+      final error = data['error'];
+      if (error is String && error.isNotEmpty) return error;
+    }
+    return null;
   }
 
   /// Log une erreur API si nécessaire

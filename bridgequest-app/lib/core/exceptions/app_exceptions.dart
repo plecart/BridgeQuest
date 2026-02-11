@@ -23,7 +23,16 @@ class NetworkException extends AppException {
 class ApiException extends AppException {
   final int? statusCode;
 
-  ApiException(super.message, {super.code, this.statusCode});
+  /// Message d'erreur renvoyé par le serveur (ex: {"error": "..."}).
+  /// Utiliser pour l'affichage quand le backend envoie un message déjà traduit.
+  final String? serverMessage;
+
+  ApiException(
+    super.message, {
+    super.code,
+    this.statusCode,
+    this.serverMessage,
+  });
 }
 
 /// Exception de validation
@@ -34,4 +43,17 @@ class ValidationException extends AppException {
 /// Exception de configuration
 class ConfigurationException extends AppException {
   ConfigurationException(super.message, {super.code});
+}
+
+/// Exception liée aux parties de jeu
+///
+/// [serverMessage] : Message déjà traduit renvoyé par le backend (prioritaire pour l'affichage).
+/// [code] : Clé de traduction à utiliser si [serverMessage] est null.
+class GameException extends AppException {
+  final String? serverMessage;
+
+  GameException(super.message, {super.code, this.serverMessage});
+
+  /// Message à afficher à l'utilisateur (serverMessage ou code pour traduction).
+  String get displayMessage => serverMessage ?? code ?? message;
 }

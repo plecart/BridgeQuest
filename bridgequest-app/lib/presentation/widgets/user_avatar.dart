@@ -4,23 +4,23 @@ import '../../core/utils/user_helpers.dart';
 import '../theme/app_text_styles.dart';
 
 /// Widget réutilisable pour afficher l'avatar d'un utilisateur.
-/// 
+///
 /// Affiche l'image de profil si disponible, sinon affiche les initiales
 /// dans un cercle coloré. Gère automatiquement les erreurs de chargement
 /// d'image en basculant sur l'avatar par défaut.
 class UserAvatar extends StatefulWidget {
   /// L'utilisateur dont on affiche l'avatar.
   final User user;
-  
+
   /// Le rayon de l'avatar (défaut: 30).
   final double radius;
-  
+
   /// La couleur de fond pour l'avatar par défaut.
   final Color? backgroundColor;
 
   /// Couleur de fond par défaut si non spécifiée.
   static const Color defaultBackgroundColor = Colors.blue;
-  
+
   /// Ratio du rayon pour calculer la taille de police des initiales.
   static const double _initialsTextRatio = 0.5;
 

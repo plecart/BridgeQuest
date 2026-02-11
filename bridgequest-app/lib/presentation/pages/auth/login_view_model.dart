@@ -19,7 +19,7 @@ class LoginViewModel {
   bool _isLoggingIn = false;
 
   /// Connexion via Google Sign-In
-  /// 
+  ///
   /// Retourne null si l'utilisateur annule la connexion.
   /// Throws [AuthException] si une erreur survient.
   Future<void> loginWithGoogle() async {
@@ -30,7 +30,7 @@ class LoginViewModel {
   }
 
   /// Connexion via Apple Sign-In
-  /// 
+  ///
   /// Throws [AuthException] si une erreur survient.
   Future<void> loginWithApple() async {
     await _loginWithSSO(
@@ -40,7 +40,7 @@ class LoginViewModel {
   }
 
   /// Logique commune de connexion SSO
-  /// 
+  ///
   /// [provider] : Le fournisseur SSO ('google' ou 'apple')
   /// [getToken] : Fonction pour obtenir le token du fournisseur
   Future<void> _loginWithSSO({

@@ -17,11 +17,13 @@ class User {
   });
 
   /// Création depuis JSON
+  ///
+  /// [email] est optionnel car UserPublicSerializer (liste joueurs) ne l'inclut pas.
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
       id: json['id'] as int,
       username: json['username'] as String,
-      email: json['email'] as String,
+      email: json['email'] as String? ?? '',
       firstName: json['first_name'] as String?,
       lastName: json['last_name'] as String?,
       avatar: json['avatar'] as String?,

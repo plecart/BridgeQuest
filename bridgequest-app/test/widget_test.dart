@@ -21,7 +21,8 @@ void main() {
     await dotenv.load(fileName: '.env');
   });
 
-  testWidgets('BridgeQuestApp se construit correctement', (WidgetTester tester) async {
+  testWidgets('BridgeQuestApp se construit correctement',
+      (WidgetTester tester) async {
     // Act : Construire l'application avec les providers
     await tester.pumpWidget(
       MultiProvider(
@@ -35,10 +36,10 @@ void main() {
 
     // Assert : Vérifier que l'application se construit sans erreur
     expect(find.byType(MaterialApp), findsOneWidget);
-    
+
     // Vérifier que le titre de connexion est affiché (via les localisations)
     final l10n = AppLocalizations.of(tester.element(find.byType(MaterialApp)));
     expect(l10n, isNotNull);
     expect(find.text(l10n!.authLoginTitle), findsOneWidget);
-  }, tags: ['widget']);
+  }, tags: ['widget'],);
 }

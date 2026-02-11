@@ -4,9 +4,9 @@ import '../../core/exceptions/app_exceptions.dart';
 /// Service pour l'authentification Apple Sign-In
 class AppleSignInService {
   /// Obtient le token ID Apple
-  /// 
+  ///
   /// Retourne le token ID si la connexion réussit.
-  /// 
+  ///
   /// Throws [AuthException] si une erreur survient ou si l'utilisateur annule.
   Future<String> getToken() async {
     try {

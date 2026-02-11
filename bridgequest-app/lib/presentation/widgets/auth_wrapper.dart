@@ -5,7 +5,7 @@ import '../pages/auth/login_page.dart';
 import '../pages/menu/home_page.dart';
 
 /// Widget qui gère la navigation conditionnelle selon l'état d'authentification
-/// 
+///
 /// Affiche la page de connexion si l'utilisateur n'est pas authentifié,
 /// sinon affiche la page d'accueil.
 class AuthWrapper extends StatefulWidget {
@@ -25,7 +25,7 @@ class _AuthWrapperState extends State<AuthWrapper> {
   }
 
   /// Initialise l'authentification après le premier frame
-  /// 
+  ///
   /// Utilise [addPostFrameCallback] avec un délai pour éviter de bloquer
   /// le thread principal au démarrage et permettre au premier frame de s'afficher.
   void _initializeAuth() {

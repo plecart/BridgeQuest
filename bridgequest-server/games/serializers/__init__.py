@@ -1,6 +1,16 @@
 """
 Serializers du module Games.
-
-Les serializers DRF seront importés ici lorsqu'ils seront créés.
 """
-# Exemple: from .game_serializers import GameSerializer
+from .game_serializers import (
+    CreateGameSerializer,
+    GameSerializer,
+    JoinGameSerializer,
+    PlayerSerializer,
+)
+
+__all__ = [
+    "CreateGameSerializer",
+    "GameSerializer",
+    "JoinGameSerializer",
+    "PlayerSerializer",
+]

@@ -1,17 +1,17 @@
 import '../../i18n/app_localizations.dart';
 
 /// Utilitaire pour traduire les codes d'erreur en messages localisés
-/// 
+///
 /// Cette classe centralise la traduction des codes d'erreur pour éviter
 /// la duplication de code dans les différentes pages.
 class ErrorTranslator {
   ErrorTranslator._();
 
   /// Traduit un code d'erreur en message localisé
-  /// 
+  ///
   /// [errorCode] : Le code d'erreur (ex: 'error.generic', 'error.network')
   /// [l10n] : Les localisations de l'application
-  /// 
+  ///
   /// Retourne le message traduit ou le code si aucune traduction n'est trouvée.
   static String translate(String errorCode, AppLocalizations l10n) {
     switch (errorCode) {
