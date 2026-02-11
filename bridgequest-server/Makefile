@@ -1,4 +1,4 @@
-.PHONY: help server run migrate install test clean makemessages makemessages-fr makemessages-en compilemessages i18n shell createsuperuser check clean-db reset-db test-quiet test-unit
+.PHONY: help server server-ws run migrate install test clean makemessages makemessages-fr makemessages-en compilemessages i18n shell createsuperuser check clean-db reset-db test-quiet test-unit
 
 # ============================================================================
 # Variables
@@ -44,9 +44,13 @@ help: ## Affiche cette aide
 # Serveur
 # ============================================================================
 
-server: ## Démarre le serveur Django de développement
+server: ## Démarre le serveur Django de développement (HTTP uniquement)
 	$(call msg-start,Démarrage du serveur Django)
 	$(PYTHON) $(MANAGE) runserver
+
+server-ws: ## Démarre le serveur avec Daphne (HTTP + WebSocket)
+	$(call msg-start,Démarrage du serveur Daphne)
+	$(PYTHON) -m daphne -b 0.0.0.0 -p 8000 bridgequest.asgi:application
 
 server-8001: ## Démarre le serveur Django sur le port 8001
 	$(call msg-start,Démarrage du serveur Django sur le port 8001)

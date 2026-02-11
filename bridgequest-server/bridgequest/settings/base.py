@@ -15,7 +15,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 SECRET_KEY = config('SECRET_KEY', default='django-insecure-dev-key-change-in-production')
 
 # Application definition
+# daphne doit être en premier pour gérer HTTP et WebSocket
 INSTALLED_APPS = [
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -24,6 +26,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     
     # Third-party apps
+    'channels',
     'rest_framework',
     'corsheaders',
     
@@ -69,6 +72,16 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'bridgequest.wsgi.application'
+ASGI_APPLICATION = 'bridgequest.asgi.application'
+
+# Channel layers pour WebSocket (synchronisation temps réel)
+# En développement : InMemoryChannelLayer (pas de Redis requis)
+# En production : configurer channels_redis avec REDIS_URL
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels.layers.InMemoryChannelLayer',
+    },
+}
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases

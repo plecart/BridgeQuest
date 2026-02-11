@@ -40,6 +40,17 @@ X_FRAME_OPTIONS = 'DENY'
 # Static files - servir via Nginx ou CDN en production
 STATIC_ROOT = config('STATIC_ROOT', default=BASE_DIR / 'staticfiles')
 
+# Channel layers - Redis requis pour WebSocket en production
+# Configurer REDIS_URL dans les variables d'environnement
+_redis_url = config('REDIS_URL', default='')
+if _redis_url:
+    CHANNEL_LAYERS = {
+        'default': {
+            'BACKEND': 'channels_redis.core.RedisChannelLayer',
+            'CONFIG': {'hosts': [_redis_url]},
+        },
+    }
+
 # Logging pour la production
 LOGGING = {
     'version': 1,
