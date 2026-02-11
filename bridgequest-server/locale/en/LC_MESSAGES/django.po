@@ -19,17 +19,85 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: accounts/apps.py - utils/messages.py - Messages.APP_ACCOUNTS
-msgid "app.accounts.name"
+msgid "Authentication"
 msgstr "Authentication"
 
-#: accounts/models/user.py - utils/messages.py - ModelMessages.USER_VERBOSE_NAME
-msgid "model.user.verbose_name"
+#: games/apps.py - utils/messages.py - Messages.APP_GAMES
+msgid "Games"
+msgstr "Games"
+
+#: accounts/models/user.py - utils/messages.py - ModelMessages
+msgid "User"
 msgstr "User"
 
-#: accounts/models/user.py - utils/messages.py - ModelMessages.USER_VERBOSE_NAME_PLURAL
-msgid "model.user.verbose_name_plural"
+msgid "Users"
 msgstr "Users"
 
 #: accounts/admin.py - utils/messages.py - Messages.ADMIN_PERMISSIONS
 msgid "admin.user.permissions"
 msgstr "Permissions"
+
+#: games/models/game.py - utils/messages.py - ModelMessages
+msgid "model.game.name"
+msgstr "Name"
+
+msgid "model.game.code"
+msgstr "Code"
+
+msgid "model.game.state"
+msgstr "State"
+
+msgid "model.game.state.waiting"
+msgstr "Waiting"
+
+msgid "model.game.state.deployment"
+msgstr "Deployment"
+
+msgid "model.game.state.in_progress"
+msgstr "In progress"
+
+msgid "model.game.state.finished"
+msgstr "Finished"
+
+msgid "model.game.created_at"
+msgstr "Created at"
+
+msgid "model.game.updated_at"
+msgstr "Updated at"
+
+msgid "Game"
+msgstr "Game"
+
+#: games/models/player.py - utils/messages.py - ModelMessages
+msgid "model.player.user"
+msgstr "User"
+
+msgid "model.player.game"
+msgstr "Game"
+
+msgid "model.player.is_admin"
+msgstr "Admin"
+
+msgid "model.player.role"
+msgstr "Role"
+
+msgid "model.player.role.human"
+msgstr "Human"
+
+msgid "model.player.role.spirit"
+msgstr "Spirit"
+
+msgid "model.player.score"
+msgstr "Score"
+
+msgid "model.player.joined_at"
+msgstr "Joined at"
+
+msgid "Player"
+msgstr "Player"
+
+msgid "Players"
+msgstr "Players"
+
+msgid "{user} in {game}"
+msgstr "{user} in {game}"

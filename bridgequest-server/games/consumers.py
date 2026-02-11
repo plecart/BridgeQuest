@@ -19,8 +19,8 @@ class LobbyConsumer(AsyncJsonWebsocketConsumer):
 
     async def connect(self):
         """Accepte la connexion et rejoint le groupe de la partie."""
-        self.game_id = self.scope['url_route']['kwargs']['game_id']
-        self.room_group_name = f'lobby_{self.game_id}'
+        self.game_id = self.scope["url_route"]["kwargs"]["game_id"]
+        self.room_group_name = f"lobby_{self.game_id}"
 
         await self.channel_layer.group_add(
             self.room_group_name,
@@ -32,8 +32,8 @@ class LobbyConsumer(AsyncJsonWebsocketConsumer):
     async def _send_connected_message(self):
         """Envoie la confirmation de connexion au client."""
         await self.send_json({
-            'type': 'connected',
-            'game_id': self.game_id,
+            "type": "connected",
+            "game_id": self.game_id,
         })
 
     async def disconnect(self, close_code):
@@ -55,6 +55,6 @@ class LobbyConsumer(AsyncJsonWebsocketConsumer):
     async def _send_echo_message(self, content):
         """Renvoie le message reçu (echo) au client."""
         await self.send_json({
-            'type': 'echo',
-            'received': content,
+            "type": "echo",
+            "received": content,
         })

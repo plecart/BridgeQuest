@@ -7,5 +7,5 @@ from django.urls import path
 from games.consumers import LobbyConsumer
 
 websocket_urlpatterns = [
-    path('ws/lobby/<int:game_id>/', LobbyConsumer.as_asgi()),
+    path("ws/lobby/<int:game_id>/", LobbyConsumer.as_asgi()),
 ]

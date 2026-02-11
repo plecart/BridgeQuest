@@ -26,8 +26,9 @@ class Messages:
     GAME_CODE_INVALID_LENGTH = "validation.game.code.length"
     
     # Apps verbose names (affichés dans l'admin Django)
-    APP_ACCOUNTS = "app.accounts.name"
-    APP_GAMES = "app.games.name"
+    # Utiliser du texte lisible comme msgid pour affichage correct sans .mo compilé
+    APP_ACCOUNTS = "Authentication"
+    APP_GAMES = "Games"
     APP_INTERACTIONS = "app.interactions.name"
     APP_LOCATIONS = "app.locations.name"
     APP_POWERS = "app.powers.name"
@@ -58,14 +59,34 @@ class ModelMessages:
     USER_AVATAR = "model.user.avatar"
     USER_CREATED_AT = "model.user.created_at"
     USER_UPDATED_AT = "model.user.updated_at"
-    USER_VERBOSE_NAME = "model.user.verbose_name"
-    USER_VERBOSE_NAME_PLURAL = "model.user.verbose_name_plural"
+    USER_VERBOSE_NAME = "User"
+    USER_VERBOSE_NAME_PLURAL = "Users"
     
     # Game
     GAME_NAME = "model.game.name"
     GAME_CODE = "model.game.code"
-    GAME_VERBOSE_NAME = "model.game.verbose_name"
-    GAME_VERBOSE_NAME_PLURAL = "model.game.verbose_name_plural"
+    GAME_STATE = "model.game.state"
+    GAME_STATE_WAITING = "model.game.state.waiting"
+    GAME_STATE_DEPLOYMENT = "model.game.state.deployment"
+    GAME_STATE_IN_PROGRESS = "model.game.state.in_progress"
+    GAME_STATE_FINISHED = "model.game.state.finished"
+    GAME_CREATED_AT = "model.game.created_at"
+    GAME_UPDATED_AT = "model.game.updated_at"
+    GAME_VERBOSE_NAME = "Game"
+    GAME_VERBOSE_NAME_PLURAL = "Games"
+
+    # Player
+    PLAYER_USER = "model.player.user"
+    PLAYER_GAME = "model.player.game"
+    PLAYER_IS_ADMIN = "model.player.is_admin"
+    PLAYER_ROLE = "model.player.role"
+    PLAYER_SCORE = "model.player.score"
+    PLAYER_JOINED_AT = "model.player.joined_at"
+    PLAYER_VERBOSE_NAME = "Player"
+    PLAYER_VERBOSE_NAME_PLURAL = "Players"
+    PLAYER_STR_DISPLAY = "{user} in {game}"
+    PLAYER_ROLE_HUMAN = "model.player.role.human"
+    PLAYER_ROLE_SPIRIT = "model.player.role.spirit"
 
 
 class ErrorMessages:

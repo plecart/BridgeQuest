@@ -19,17 +19,88 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
 #: accounts/apps.py - utils/messages.py - Messages.APP_ACCOUNTS
-msgid "app.accounts.name"
+msgid "Authentication"
 msgstr "Authentification"
 
+#: games/apps.py - utils/messages.py - Messages.APP_GAMES
+msgid "Games"
+msgstr "Parties"
+
 #: accounts/models/user.py - utils/messages.py - ModelMessages.USER_VERBOSE_NAME
-msgid "model.user.verbose_name"
+msgid "User"
 msgstr "Utilisateur"
 
 #: accounts/models/user.py - utils/messages.py - ModelMessages.USER_VERBOSE_NAME_PLURAL
-msgid "model.user.verbose_name_plural"
+msgid "Users"
 msgstr "Utilisateurs"
 
 #: accounts/admin.py - utils/messages.py - Messages.ADMIN_PERMISSIONS
 msgid "admin.user.permissions"
 msgstr "Permissions"
+
+#: games/models/game.py - utils/messages.py - ModelMessages
+msgid "model.game.name"
+msgstr "Nom"
+
+msgid "model.game.code"
+msgstr "Code"
+
+msgid "model.game.state"
+msgstr "État"
+
+msgid "model.game.state.waiting"
+msgstr "En attente"
+
+msgid "model.game.state.deployment"
+msgstr "Déploiement"
+
+msgid "model.game.state.in_progress"
+msgstr "En cours"
+
+msgid "model.game.state.finished"
+msgstr "Terminée"
+
+msgid "model.game.created_at"
+msgstr "Créé le"
+
+msgid "model.game.updated_at"
+msgstr "Modifié le"
+
+msgid "Game"
+msgstr "Partie"
+
+# GAME_VERBOSE_NAME_PLURAL et APP_GAMES utilisent le même msgid
+
+#: games/models/player.py - utils/messages.py - ModelMessages
+msgid "model.player.user"
+msgstr "Utilisateur"
+
+msgid "model.player.game"
+msgstr "Partie"
+
+msgid "model.player.is_admin"
+msgstr "Administrateur"
+
+msgid "model.player.role"
+msgstr "Rôle"
+
+msgid "model.player.role.human"
+msgstr "Humain"
+
+msgid "model.player.role.spirit"
+msgstr "Esprit"
+
+msgid "model.player.score"
+msgstr "Score"
+
+msgid "model.player.joined_at"
+msgstr "Rejoint le"
+
+msgid "Player"
+msgstr "Joueur"
+
+msgid "Players"
+msgstr "Joueurs"
+
+msgid "{user} in {game}"
+msgstr "{user} dans {game}"

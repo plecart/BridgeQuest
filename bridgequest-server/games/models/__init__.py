@@ -1,6 +1,7 @@
 """
 Modèles du module Games.
-
-Les modèles seront importés ici lorsqu'ils seront créés.
 """
-# Exemple: from .game import Game
+from .game import Game, GameState
+from .player import Player, PlayerRole
+
+__all__ = ["Game", "GameState", "Player", "PlayerRole"]
