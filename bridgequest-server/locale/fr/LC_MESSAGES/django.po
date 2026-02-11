@@ -18,16 +18,6 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: accounts/admin.py:33
-#: utils/messages.py - Messages.ADMIN_PERMISSIONS
-msgid "admin.user.permissions"
-msgstr "Permissions"
-
-#: accounts/views/auth_views.py
-#: utils/messages.py - Messages.LOG_AUTH_SSO_UNEXPECTED
-msgid "log.auth.sso_unexpected"
-msgstr "Erreur inattendue lors de l'authentification SSO (provider=%s)"
-
 #: accounts/apps.py - utils/messages.py - Messages.APP_ACCOUNTS
 msgid "app.accounts.name"
 msgstr "Authentification"
@@ -39,3 +29,7 @@ msgstr "Utilisateur"
 #: accounts/models/user.py - utils/messages.py - ModelMessages.USER_VERBOSE_NAME_PLURAL
 msgid "model.user.verbose_name_plural"
 msgstr "Utilisateurs"
+
+#: accounts/admin.py - utils/messages.py - Messages.ADMIN_PERMISSIONS
+msgid "admin.user.permissions"
+msgstr "Permissions"

@@ -1,4 +1,4 @@
-.PHONY: help install run test clean i18n analyze format format-check check build-android build-android-release build-ios build-ios-release deps-outdated deps-upgrade setup run-ios run-android emulator
+.PHONY: help install run test test-unit test-widget clean i18n analyze format format-check check build-android build-android-release build-ios build-ios-release deps-outdated deps-upgrade setup run-ios run-android emulator
 
 # ============================================================================
 # Variables
@@ -72,9 +72,15 @@ run-android: ## Lance l'application Flutter sur l'émulateur Android (emulator-5
 	$(call msg-start,Lancement sur l'émulateur Android)
 	$(FLUTTER) run -d emulator-5554
 
-emulator: ## Démarre l'émulateur Android (Medium_Phone_API_36.1)
+# Émulateur Android : utilise 'emulator' (doit être dans PATH).
+# Pour surcharger le chemin : make emulator EMULATOR_CMD=/chemin/vers/emulator
+# Pour surcharger l'AVD : make emulator EMULATOR_AVD=Mon_AVD
+EMULATOR_AVD ?= Medium_Phone_API_36.1
+EMULATOR_CMD ?= emulator
+
+emulator: ## Démarre l'émulateur Android (voir README pour la configuration)
 	$(call msg-start,Démarrage de l'émulateur Android)
-	/c/Users/pacom/AppData/Local/Android/Sdk/emulator/emulator.exe -avd Medium_Phone_API_36.1
+	$(EMULATOR_CMD) -avd $(EMULATOR_AVD)
 	$(call msg-done,Émulateur lancé)
 
 # ============================================================================
@@ -107,6 +113,16 @@ test: ## Lance tous les tests Flutter
 	$(call msg-start,Lancement des tests Flutter)
 	$(FLUTTER) test
 	$(call msg-done,Tests terminés)
+
+test-widget: ## Lance uniquement les tests de widgets
+	$(call msg-start,Lancement des tests de widgets)
+	$(FLUTTER) test --tags widget
+	$(call msg-done,Tests de widgets terminés)
+
+test-unit: ## Lance uniquement les tests unitaires (exclut les tests de widgets)
+	$(call msg-start,Lancement des tests unitaires)
+	$(FLUTTER) test --exclude-tags widget
+	$(call msg-done,Tests unitaires terminés)
 
 # ============================================================================
 # Build

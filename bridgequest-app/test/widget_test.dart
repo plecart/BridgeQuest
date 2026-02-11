@@ -40,5 +40,5 @@ void main() {
     final l10n = AppLocalizations.of(tester.element(find.byType(MaterialApp)));
     expect(l10n, isNotNull);
     expect(find.text(l10n!.authLoginTitle), findsOneWidget);
-  });
+  }, tags: ['widget']);
 }

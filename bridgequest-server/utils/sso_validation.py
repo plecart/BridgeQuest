@@ -5,11 +5,29 @@ Fonctions de validation communes aux services Google et Apple Sign-In.
 Constantes partagées pour les appels HTTP (ex. timeout).
 """
 from django.utils.translation import gettext_lazy as _
+from rest_framework import status
 from utils.exceptions import BridgeQuestException
 from utils.messages import ErrorMessages
 
 # Timeout (secondes) pour les appels HTTP vers les APIs SSO (Google tokeninfo, Apple keys)
 REQUEST_TIMEOUT_SECONDS = 10
+
+
+def require_sso_config(value):
+    """
+    Vérifie qu'une valeur de configuration SSO est présente.
+
+    Args:
+        value: La valeur à vérifier (chaîne, liste, etc. — toute valeur falsy est rejetée)
+
+    Raises:
+        BridgeQuestException: Si la valeur est vide/None (500, erreur serveur)
+    """
+    if not value:
+        raise BridgeQuestException(
+            message_key=ErrorMessages.AUTH_SSO_CONFIG_ERROR,
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
 
 
 def require_non_empty_sso_token(token):

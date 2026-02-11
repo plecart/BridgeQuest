@@ -11,7 +11,7 @@ from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 from utils.exceptions import BridgeQuestException
 from utils.messages import ErrorMessages
-from utils.sso_validation import REQUEST_TIMEOUT_SECONDS, require_non_empty_sso_token
+from utils.sso_validation import REQUEST_TIMEOUT_SECONDS, require_non_empty_sso_token, require_sso_config
 
 # Constantes de configuration
 APPLE_PUBLIC_KEYS_URL = 'https://appleid.apple.com/auth/keys'
@@ -109,6 +109,7 @@ def _find_matching_public_key(apple_keys, unverified_header):
     
     for key in apple_keys.get('keys', []):
         if key['kid'] == kid:
+            # PyJWT 2.0+ accepte un dict ; les versions <2.0 requirent json.dumps(key)
             return RSAAlgorithm.from_jwk(key)
     
     return None
@@ -117,16 +118,15 @@ def _find_matching_public_key(apple_keys, unverified_header):
 def _get_apple_client_id():
     """
     Récupère le Client ID Apple depuis la configuration.
-    
+
     Returns:
         str: Le Client ID Apple
-        
+
     Raises:
         BridgeQuestException: Si la configuration est manquante
     """
     apple_client_id = getattr(settings, 'APPLE_CLIENT_ID', None)
-    if not apple_client_id:
-        raise BridgeQuestException(_(ErrorMessages.AUTH_SSO_CONFIG_ERROR))
+    require_sso_config(apple_client_id)
     return apple_client_id
 
 

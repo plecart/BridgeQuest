@@ -110,7 +110,7 @@ def sso_login_view(request):
         )
         
     except BridgeQuestException as e:
-        return _build_error_response(str(e), status.HTTP_400_BAD_REQUEST)
+        return _build_error_response(str(e), e.status_code)
     except Exception as e:
         return _build_error_response(
             _(ErrorMessages.AUTH_SSO_FAILED),

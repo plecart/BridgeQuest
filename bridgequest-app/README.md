@@ -46,6 +46,24 @@ make test              # Lance les tests
 make analyze           # Analyse le code
 make format            # Formate le code
 make clean             # Nettoie les fichiers générés
+make emulator          # Démarre l'émulateur Android
+```
+
+### Configuration de l'émulateur Android
+
+La commande `make emulator` utilise la commande `emulator` (Android SDK). Elle doit être dans votre PATH.
+
+**Si `emulator` n'est pas dans le PATH :**
+- Définir `ANDROID_HOME` (ex: `C:\Users\VOTRE_USER\AppData\Local\Android\Sdk` sur Windows)
+- Ajouter `$ANDROID_HOME/emulator` au PATH, ou exécuter :
+  ```bash
+  make emulator EMULATOR_CMD=$ANDROID_HOME/emulator/emulator
+  ```
+  (sur Windows avec Git Bash : `EMULATOR_CMD=$ANDROID_HOME/emulator/emulator.exe`)
+
+**Pour utiliser un AVD différent :**
+```bash
+make emulator EMULATOR_AVD=Nom_De_Votre_AVD
 ```
 
 ## Structure du projet

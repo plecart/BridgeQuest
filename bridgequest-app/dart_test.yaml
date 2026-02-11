@@ -1,0 +1,15 @@
+# Configuration des tests Dart/Flutter
+# https://dart.dev/tools/dart-test
+#
+# Tags déclarés pour exécution sélective :
+# - widget : tests de widgets (test/testWidgets)
+# - unit : tests unitaires (services, repositories, models)
+#
+# Exemples :
+#   flutter test --tags widget     # Uniquement les tests de widgets
+#   flutter test --tags unit      # Uniquement les tests unitaires
+#   flutter test --exclude-tags widget  # Tous sauf les widgets
+
+tags:
+  widget:
+  unit:

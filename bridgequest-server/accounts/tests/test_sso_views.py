@@ -52,10 +52,6 @@ class SSOViewsTestCase(TestCase):
                 format='json'
             )
             
-            # Debug: afficher l'erreur si 500
-            if response.status_code == 500:
-                print(f"Error response: {response.data}")
-            
             # Assert
             self.assertEqual(response.status_code, status.HTTP_200_OK, 
                            f"Expected 200, got {response.status_code}. Response: {response.data}")
@@ -191,4 +187,31 @@ class SSOViewsTestCase(TestCase):
             
             # Assert
             self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+            self.assertIn('error', response.data)
+
+    def test_sso_login_config_error_returns_500(self):
+        """Test que les erreurs de configuration SSO renvoient 500 (erreur serveur)."""
+        # Arrange : simuler une erreur de configuration (GOOGLE_CLIENT_IDS manquant, etc.)
+        with patch('accounts.views.auth_views.validate_google_token') as mock_validate:
+            mock_validate.side_effect = BridgeQuestException(
+                message_key=ErrorMessages.AUTH_SSO_CONFIG_ERROR,
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+            # Act
+            response = self.client.post(
+                '/api/auth/sso/login/',
+                {
+                    'provider': 'google',
+                    'token': self.sso_token
+                },
+                format='json'
+            )
+
+            # Assert
+            self.assertEqual(
+                response.status_code,
+                status.HTTP_500_INTERNAL_SERVER_ERROR,
+                f"Expected 500 for config error, got {response.status_code}. Response: {response.data}"
+            )
             self.assertIn('error', response.data)

@@ -28,6 +28,14 @@
   "@errorAuthTokenInvalid": {
     "description": "Message d'erreur pour un token invalide"
   },
+  "errorAuthTokensMissing": "Tokens JWT manquants dans la réponse",
+  "@errorAuthTokensMissing": {
+    "description": "Message d'erreur quand les tokens sont absents de la réponse API"
+  },
+  "errorAuthNotAuthenticated": "Authentification requise",
+  "@errorAuthNotAuthenticated": {
+    "description": "Message d'erreur quand l'utilisateur n'est pas authentifié"
+  },
   "errorGeneric": "Une erreur est survenue",
   "@errorGeneric": {
     "description": "Message d'erreur générique"

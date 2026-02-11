@@ -21,7 +21,7 @@ class AppleSignInService {
 
       if (identityToken == null) {
         throw AuthException(
-          'Token Apple non disponible',
+          'Apple token unavailable',
           code: 'error.apple.tokenUnavailable',
         );
       }
@@ -30,14 +30,13 @@ class AppleSignInService {
     } catch (e) {
       if (e is AuthException) rethrow;
       if (e is SignInWithAppleAuthorizationException) {
-        // L'utilisateur a annulé la connexion
         throw AuthException(
-          'Connexion Apple annulée',
+          'Apple Sign-In cancelled by user',
           code: 'error.apple.signInCancelled',
         );
       }
       throw AuthException(
-        'Erreur lors de la connexion Apple',
+        'Apple Sign-In error',
         code: 'error.apple.signIn',
       );
     }

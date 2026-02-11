@@ -73,6 +73,7 @@ venv.bak/
 *.freezed.dart
 *.mocks.dart
 # Coverage
+.coverage
 coverage/
 test/.test_coverage.dart
 

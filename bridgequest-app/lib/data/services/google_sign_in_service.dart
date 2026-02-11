@@ -41,7 +41,7 @@ class GoogleSignInService {
 
       if (idToken == null) {
         throw AuthException(
-          'Token Google non disponible',
+          'Google token unavailable',
           code: 'error.google.tokenUnavailable',
         );
       }
@@ -50,7 +50,7 @@ class GoogleSignInService {
     } catch (e) {
       if (e is AuthException) rethrow;
       throw AuthException(
-        'Erreur lors de la connexion Google',
+        'Google Sign-In error',
         code: 'error.google.signIn',
       );
     }

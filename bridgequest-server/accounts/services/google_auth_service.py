@@ -9,7 +9,7 @@ from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 from utils.exceptions import BridgeQuestException
 from utils.messages import ErrorMessages
-from utils.sso_validation import REQUEST_TIMEOUT_SECONDS, require_non_empty_sso_token
+from utils.sso_validation import REQUEST_TIMEOUT_SECONDS, require_non_empty_sso_token, require_sso_config
 
 # Constantes de configuration
 GOOGLE_TOKEN_INFO_URL = 'https://oauth2.googleapis.com/tokeninfo'
@@ -43,16 +43,15 @@ def validate_google_token(token):
 def _get_google_client_ids():
     """
     Récupère la liste des Client IDs Google autorisés depuis la configuration.
-    
+
     Returns:
         list: Liste des Client IDs autorisés
-        
+
     Raises:
         BridgeQuestException: Si la configuration est manquante
     """
     google_client_ids = getattr(settings, 'GOOGLE_CLIENT_IDS', None)
-    if not google_client_ids:
-        raise BridgeQuestException(_(ErrorMessages.AUTH_SSO_CONFIG_ERROR))
+    require_sso_config(google_client_ids)
     return google_client_ids
 
 
