@@ -20,12 +20,29 @@ def _get_client_ip(request):
     return request.META.get('REMOTE_ADDR', '-')
 
 
+def _can_measure_response_size(response):
+    """
+    Vérifie si la taille de la réponse peut être mesurée sans erreur.
+
+    Retourne False pour TemplateResponse non rendue (ContentNotRenderedError)
+    et StreamingHttpResponse (pas de content mesurable).
+    """
+    if hasattr(response, 'is_rendered') and not response.is_rendered:
+        return False
+    if hasattr(response, 'streaming_content'):
+        return False
+    return True
+
+
 def _get_response_size(response):
     """
     Récupère la taille de la réponse en octets.
 
-    Retourne 0 pour StreamingHttpResponse ou si la taille n'est pas déterminable.
+    Retourne 0 pour StreamingHttpResponse, TemplateResponse non rendue,
+    ou si la taille n'est pas déterminable.
     """
+    if not _can_measure_response_size(response):
+        return 0
     content = getattr(response, 'content', None)
     if isinstance(content, bytes):
         return len(content)

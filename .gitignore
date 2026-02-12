@@ -2,6 +2,8 @@
 bridgequest-doc/
 
 # Python / Django
+# Artefacts pip (redirection accidentelle, ex: typo "pip install pkg>=1.0" créant fichier =1.0)
+=*
 __pycache__/
 *.py[cod]
 *$py.class

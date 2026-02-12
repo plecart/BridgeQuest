@@ -41,15 +41,20 @@ X_FRAME_OPTIONS = 'DENY'
 STATIC_ROOT = config('STATIC_ROOT', default=BASE_DIR / 'staticfiles')
 
 # Channel layers - Redis requis pour WebSocket en production
-# Configurer REDIS_URL dans les variables d'environnement (ex: redis://localhost:6379/0)
+# Fail-fast : InMemoryChannelLayer ne fonctionne pas avec plusieurs workers/instances
+_REDIS_URL_REQUIRED_MSG = (
+    'REDIS_URL doit être défini en production pour les WebSockets. '
+    'Exemple : redis://localhost:6379/0'
+)
 redis_url = config('REDIS_URL', default='')
-if redis_url:
-    CHANNEL_LAYERS = {
-        'default': {
-            'BACKEND': 'channels_redis.core.RedisChannelLayer',
-            'CONFIG': {'hosts': [redis_url]},
-        },
-    }
+if not redis_url:
+    raise ValueError(_REDIS_URL_REQUIRED_MSG)
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {'hosts': [redis_url]},
+    },
+}
 
 # Logging pour la production
 LOGGING = {
