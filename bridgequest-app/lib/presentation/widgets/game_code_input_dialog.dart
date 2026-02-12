@@ -73,26 +73,42 @@ class _GameCodeInputDialogState<T> extends State<GameCodeInputDialog<T>> {
     super.dispose();
   }
 
-  Future<void> _handleSubmit() async {
-    final l10n = AppLocalizations.of(context)!;
+  /// Récupère et valide la valeur saisie. Retourne null si invalide.
+  String? _getValidatedValue() {
     final raw = _controller.text.trim();
     final value = widget.transformInput(raw);
     final validationError = widget.validate(value);
     if (validationError != null) {
       setState(() => _errorMessage = validationError);
-      return;
+      return null;
     }
+    return value;
+  }
+
+  /// Assigne le message d'erreur uniquement si le widget est encore monté.
+  void _safeSetError(String message) {
+    if (!mounted) return;
+    setState(() => _errorMessage = message);
+  }
+
+  Future<void> _handleSubmit() async {
+    final value = _getValidatedValue();
+    if (value == null) return;
+
+    final l10n = AppLocalizations.of(context)!;
     try {
       final result = await widget.submit(value);
       if (!mounted) return;
       Navigator.of(context).pop(result);
     } on AppException catch (e) {
-      setState(
-        () => _errorMessage = e.displayMessage,
-      );
-    } catch (e) {
-      setState(() => _errorMessage = l10n.errorGeneric);
+      _safeSetError(e.displayMessage);
+    } catch (_) {
+      _safeSetError(l10n.errorGeneric);
     }
+  }
+
+  void _clearError() {
+    setState(() => _errorMessage = null);
   }
 
   @override
@@ -107,7 +123,7 @@ class _GameCodeInputDialogState<T> extends State<GameCodeInputDialog<T>> {
           errorText: _errorMessage,
         ),
         textCapitalization: widget.textCapitalization,
-        onChanged: (_) => setState(() => _errorMessage = null),
+        onChanged: (_) => _clearError(),
       ),
       actions: [
         TextButton(
