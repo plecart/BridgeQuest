@@ -92,5 +92,10 @@ LOGGING = {
             'level': 'ERROR',
             'propagate': False,
         },
+        'bridgequest.access': {
+            'handlers': ['console'],
+            'level': 'ERROR',  # Pas d'access logs pendant les tests
+            'propagate': False,
+        },
     },
 }

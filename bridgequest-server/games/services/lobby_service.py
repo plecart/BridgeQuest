@@ -57,17 +57,26 @@ def cancel_pending_exclusion(game_id, player_id):
     cache.delete(_cache_key(game_id, player_id))
 
 
-def exclude_player_from_lobby(game_id, player_id):
+def exclude_player_immediately(game_id, player_id):
     """
-    Exclut un joueur de la partie après le délai de grâce.
+    Exclut immédiatement un joueur (sortie volontaire).
 
-    Appelé 30 secondes après la déconnexion. Si le joueur s'est reconnecté,
-    la clé cache est supprimée et la fonction ne fait rien.
+    Appelé quand le joueur quitte volontairement le lobby (bouton retour,
+    fermeture de l'app). Pas de vérification du cache.
 
-    Logique :
-    - Supprime le joueur de la partie
-    - Si c'était l'admin : transfère les droits au joueur restant le plus ancien
-    - S'il ne reste aucun joueur : supprime la partie et diffuse game_deleted
+    Args:
+        game_id: Identifiant de la partie.
+        player_id: Identifiant du joueur à exclure.
+    """
+    _remove_player_from_lobby(game_id, player_id)
+
+
+def exclude_player_after_timeout(game_id, player_id):
+    """
+    Exclut un joueur après le délai de grâce (30 s).
+
+    Appelé par le timer d'exclusion. Si le joueur s'est reconnecté entre-temps
+    (clé cache supprimée par cancel_pending_exclusion), ne fait rien.
 
     Args:
         game_id: Identifiant de la partie.
@@ -76,9 +85,22 @@ def exclude_player_from_lobby(game_id, player_id):
     key = _cache_key(game_id, player_id)
     if cache.get(key) is None:
         return  # Joueur reconnecté, ne rien faire
-
     cache.delete(key)
+    _remove_player_from_lobby(game_id, player_id)
 
+
+def _remove_player_from_lobby(game_id, player_id):
+    """
+    Supprime un joueur de la partie et gère les conséquences.
+
+    - Supprime le joueur de la base
+    - Diffuse player_excluded
+    - Si c'était l'admin : transfère ou supprime la partie
+
+    Args:
+        game_id: Identifiant de la partie.
+        player_id: Identifiant du joueur à retirer.
+    """
     try:
         game = Game.objects.get(pk=game_id)
     except Game.DoesNotExist:

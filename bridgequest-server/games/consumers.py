@@ -17,7 +17,8 @@ from games.services.lobby_broadcast import get_lobby_group_name
 from games.services.lobby_service import (
     LOBBY_DISCONNECT_GRACE_SECONDS,
     cancel_pending_exclusion,
-    exclude_player_from_lobby,
+    exclude_player_after_timeout,
+    exclude_player_immediately,
     mark_player_disconnected,
 )
 from games.services.player_payload import build_player_websocket_payload
@@ -146,8 +147,8 @@ class LobbyConsumer(_BaseGameConsumerMixin, AsyncJsonWebsocketConsumer):
     async def _handle_voluntary_leave(self):
         """Exclut immédiatement le joueur (sortie volontaire, sans délai 30 s)."""
         self._voluntarily_left = True
-        await database_sync_to_async(exclude_player_from_lobby)(
-            self.game_id, self.player.id
+        await database_sync_to_async(exclude_player_immediately)(
+            self.game_id, self.player.id,
         )
 
     async def receive_json(self, content):
@@ -192,7 +193,7 @@ class LobbyConsumer(_BaseGameConsumerMixin, AsyncJsonWebsocketConsumer):
     async def _run_delayed_exclusion(self, game_id, player_id):
         """Exécute l'exclusion après le délai de grâce."""
         await asyncio.sleep(LOBBY_DISCONNECT_GRACE_SECONDS)
-        await database_sync_to_async(exclude_player_from_lobby)(game_id, player_id)
+        await database_sync_to_async(exclude_player_after_timeout)(game_id, player_id)
 
     async def _broadcast_player_left(self):
         """Diffuse l'événement joueur quitte au groupe."""

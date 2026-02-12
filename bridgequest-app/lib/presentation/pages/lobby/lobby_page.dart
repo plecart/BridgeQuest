@@ -90,14 +90,14 @@ class _LobbyContent extends StatelessWidget {
         return PopScope(
           canPop: false,
           onPopInvokedWithResult: (didPop, _) {
-            if (!didPop) _handleBackPressed(vm);
+            if (!didPop) _handleBackPressed(context, vm);
           },
           child: Scaffold(
             appBar: AppBar(
               title: Text(vm.game.code),
               leading: IconButton(
                 icon: const Icon(Icons.arrow_back),
-                onPressed: () => _handleBackPressed(vm),
+                onPressed: () => _handleBackPressed(context, vm),
               ),
             ),
             body: SafeArea(child: _buildBody(context, vm)),
@@ -107,16 +107,20 @@ class _LobbyContent extends StatelessWidget {
     );
   }
 
-  void _handleBackPressed(LobbyViewModel vm) {
-    vm.leaveAndDisconnect();
+  Future<void> _handleBackPressed(
+    BuildContext context,
+    LobbyViewModel vm,
+  ) async {
+    await vm.leaveAndDisconnect();
+    if (!context.mounted) return;
     onNavigateToMenu();
   }
 
   void _scheduleNavigationIfNeeded(BuildContext context, LobbyViewModel vm) {
     final result = vm.navigationResult;
     if (result == null) return;
-    vm.clearNavigationResult();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      vm.clearNavigationResult();
       if (!context.mounted) return;
       switch (result) {
         case LobbyNavigateToMenu():
@@ -150,7 +154,10 @@ class _LobbyContent extends StatelessWidget {
   }
 
   Widget _buildErrorState(
-      BuildContext context, LobbyViewModel vm, AppLocalizations l10n) {
+    BuildContext context,
+    LobbyViewModel vm,
+    AppLocalizations l10n,
+  ) {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24),
@@ -176,7 +183,10 @@ class _LobbyContent extends StatelessWidget {
   }
 
   Widget _buildLobbyContent(
-      BuildContext context, LobbyViewModel vm, AppLocalizations l10n) {
+    BuildContext context,
+    LobbyViewModel vm,
+    AppLocalizations l10n,
+  ) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24),
       child: Column(
@@ -218,25 +228,24 @@ class _LobbyContent extends StatelessWidget {
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       itemCount: players.length,
-      itemBuilder: (context, index) {
-        final p = players[index];
-        final l10n = AppLocalizations.of(context)!;
-        return ListTile(
-          leading: CircleAvatar(
-            child: Text(
-              (p.username.isNotEmpty ? p.username[0] : '?').toUpperCase(),
-            ),
-          ),
-          title: Text(
-            p.username.isNotEmpty
-                ? p.username
-                : l10n.lobbyPlayerFallbackName(p.playerId),
-          ),
-          trailing: p.isAdmin
-              ? const Icon(Icons.admin_panel_settings, color: Colors.amber)
-              : null,
-        );
-      },
+      itemBuilder: (context, index) =>
+          _buildPlayerTile(context, players[index]),
+    );
+  }
+
+  Widget _buildPlayerTile(BuildContext context, LobbyPlayer player) {
+    final l10n = AppLocalizations.of(context)!;
+    final initial =
+        (player.username.isNotEmpty ? player.username[0] : '?').toUpperCase();
+    final displayName = player.username.isNotEmpty
+        ? player.username
+        : l10n.lobbyPlayerFallbackName(player.playerId);
+    return ListTile(
+      leading: CircleAvatar(child: Text(initial)),
+      title: Text(displayName),
+      trailing: player.isAdmin
+          ? const Icon(Icons.admin_panel_settings, color: Colors.amber)
+          : null,
     );
   }
 

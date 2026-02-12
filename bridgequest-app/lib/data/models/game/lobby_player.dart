@@ -15,6 +15,20 @@ class LobbyPlayer {
   final String username;
   final bool isAdmin;
 
+  LobbyPlayer copyWith({
+    int? playerId,
+    int? userId,
+    String? username,
+    bool? isAdmin,
+  }) {
+    return LobbyPlayer(
+      playerId: playerId ?? this.playerId,
+      userId: userId ?? this.userId,
+      username: username ?? this.username,
+      isAdmin: isAdmin ?? this.isAdmin,
+    );
+  }
+
   /// Création depuis le payload JSON des événements WebSocket lobby.
   factory LobbyPlayer.fromJson(Map<String, dynamic> json) {
     return LobbyPlayer(

@@ -52,6 +52,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'utils.middleware.AccessLogMiddleware',  # Logs HTTP unifiés (format cohérent avec Daphne)
 ]
 
 ROOT_URLCONF = 'bridgequest.urls'

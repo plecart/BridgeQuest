@@ -46,14 +46,19 @@ help: ## Affiche cette aide
 
 DAPHNE_PORT = 8000
 DAPHNE_APP = bridgequest.asgi:application
+DAPHNE_ACCESS_LOG = logs/access.log
+# Options communes Daphne (access-log vers fichier : middleware enregistre en console)
+DAPHNE_OPTS = -b 0.0.0.0 --access-log $(DAPHNE_ACCESS_LOG)
 
 server: ## Démarre le serveur (Daphne : HTTP + WebSocket)
 	$(call msg-start,Démarrage du serveur Daphne)
-	$(PYTHON) -m daphne -b 0.0.0.0 -p $(DAPHNE_PORT) $(DAPHNE_APP)
+	@mkdir -p logs
+	$(PYTHON) -m daphne $(DAPHNE_OPTS) -p $(DAPHNE_PORT) $(DAPHNE_APP)
 
 server-8001: ## Démarre le serveur sur le port 8001 (si 8000 est occupé)
 	$(call msg-start,Démarrage du serveur Daphne sur le port 8001)
-	$(PYTHON) -m daphne -b 0.0.0.0 -p 8001 $(DAPHNE_APP)
+	@mkdir -p logs
+	$(PYTHON) -m daphne $(DAPHNE_OPTS) -p 8001 $(DAPHNE_APP)
 
 run: server ## Alias pour server (cohérence avec Flutter)
 

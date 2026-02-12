@@ -105,10 +105,7 @@ class LobbyWebSocketService {
         AppLogger.error('Lobby WebSocket error', error);
         onEvent(LobbyErrorEvent(message: error.toString()));
       },
-      onDone: () {
-        _channel = null;
-        _subscription = null;
-      },
+      onDone: _clearConnection,
       cancelOnError: false,
     );
   }
@@ -161,7 +158,9 @@ class LobbyWebSocketService {
   }
 
   void _emitConnected(
-      Map<String, dynamic> decoded, void Function(LobbyEvent) onEvent) {
+    Map<String, dynamic> decoded,
+    void Function(LobbyEvent) onEvent,
+  ) {
     final gameId = decoded['game_id'] as int?;
     final player = _parsePlayer(decoded, 'player');
     if (gameId == null || player == null) return;
@@ -169,42 +168,54 @@ class LobbyWebSocketService {
   }
 
   void _emitPlayerJoined(
-      Map<String, dynamic> decoded, void Function(LobbyEvent) onEvent) {
+    Map<String, dynamic> decoded,
+    void Function(LobbyEvent) onEvent,
+  ) {
     final player = _parsePlayer(decoded, 'player');
     if (player == null) return;
     onEvent(LobbyPlayerJoinedEvent(player: player));
   }
 
   void _emitPlayerLeft(
-      Map<String, dynamic> decoded, void Function(LobbyEvent) onEvent) {
+    Map<String, dynamic> decoded,
+    void Function(LobbyEvent) onEvent,
+  ) {
     final player = _parsePlayer(decoded, 'player');
     if (player == null) return;
     onEvent(LobbyPlayerLeftEvent(player: player));
   }
 
   void _emitPlayerExcluded(
-      Map<String, dynamic> decoded, void Function(LobbyEvent) onEvent) {
+    Map<String, dynamic> decoded,
+    void Function(LobbyEvent) onEvent,
+  ) {
     final player = _parsePlayer(decoded, 'player');
     if (player == null) return;
     onEvent(LobbyPlayerExcludedEvent(player: player));
   }
 
   void _emitAdminTransferred(
-      Map<String, dynamic> decoded, void Function(LobbyEvent) onEvent) {
+    Map<String, dynamic> decoded,
+    void Function(LobbyEvent) onEvent,
+  ) {
     final newAdmin = _parsePlayer(decoded, 'new_admin');
     if (newAdmin == null) return;
     onEvent(LobbyAdminTransferredEvent(newAdmin: newAdmin));
   }
 
   void _emitGameDeleted(
-      Map<String, dynamic> decoded, void Function(LobbyEvent) onEvent) {
+    Map<String, dynamic> decoded,
+    void Function(LobbyEvent) onEvent,
+  ) {
     final gameId = decoded['game_id'] as int?;
     if (gameId == null) return;
     onEvent(LobbyGameDeletedEvent(gameId: gameId));
   }
 
   void _emitGameStarted(
-      Map<String, dynamic> decoded, void Function(LobbyEvent) onEvent) {
+    Map<String, dynamic> decoded,
+    void Function(LobbyEvent) onEvent,
+  ) {
     final gameId = decoded['game_id'] as int?;
     final state = decoded['state'] as String?;
     if (gameId == null || state == null) return;
@@ -213,27 +224,35 @@ class LobbyWebSocketService {
 
   /// Ferme la connexion WebSocket.
   void disconnect() {
-    _subscription?.cancel();
-    _subscription = null;
     _channel?.sink.close();
-    _channel = null;
+    _clearConnection();
   }
 
   /// Envoie le message de sortie volontaire puis ferme la connexion.
   ///
   /// À appeler quand l'utilisateur quitte volontairement (retour, déconnexion).
   /// Permet au serveur d'exclure immédiatement sans attendre les 30 s.
-  void leaveAndDisconnect() {
-    _sendLeaveMessageIfConnected();
-    disconnect();
-  }
-
-  void _sendLeaveMessageIfConnected() {
-    if (_channel == null) return;
+  ///
+  /// L'appel à [sink.close] est attendu pour garantir que le message soit
+  /// transmis avant la fermeture (flush implicite).
+  Future<void> leaveAndDisconnect() async {
+    if (_channel == null) {
+      _clearConnection();
+      return;
+    }
     try {
       _channel!.sink.add(jsonEncode({'type': _leaveMessageType}));
+      await _channel!.sink.close();
     } catch (_) {
       // Ignorer si la connexion est déjà fermée
+    } finally {
+      _clearConnection();
     }
+  }
+
+  void _clearConnection() {
+    _subscription?.cancel();
+    _subscription = null;
+    _channel = null;
   }
 }

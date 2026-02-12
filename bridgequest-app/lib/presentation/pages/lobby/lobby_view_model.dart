@@ -120,8 +120,7 @@ class LobbyViewModel extends ChangeNotifier {
         _removePlayer(e.player.playerId);
         break;
       case LobbyAdminTransferredEvent e:
-        _updateCurrentPlayerIfNewAdmin(e.newAdmin);
-        _updateAdmin(e.newAdmin);
+        _handleAdminTransferred(e.newAdmin);
         break;
       case LobbyGameDeletedEvent _:
         _setNavigationResult(LobbyNavigateToMenu());
@@ -154,27 +153,16 @@ class LobbyViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void _updateAdmin(LobbyPlayer newAdmin) {
-    _players = _players.map((p) {
-      if (p.playerId == newAdmin.playerId) return newAdmin;
-      if (p.isAdmin)
-        return LobbyPlayer(
-            playerId: p.playerId,
-            userId: p.userId,
-            username: p.username,
-            isAdmin: false);
-      return p;
-    }).toList();
-    notifyListeners();
-  }
-
-  /// Met à jour _currentPlayer si l'utilisateur local est le nouveau admin.
-  ///
-  /// Permet à l'UI d'afficher le bouton "Lancer la partie" immédiatement.
-  void _updateCurrentPlayerIfNewAdmin(LobbyPlayer newAdmin) {
+  void _handleAdminTransferred(LobbyPlayer newAdmin) {
     if (_isLocalPlayer(newAdmin) && newAdmin.isAdmin) {
       _currentPlayer = newAdmin;
     }
+    _players = _players.map((p) {
+      if (p.playerId == newAdmin.playerId) return newAdmin;
+      if (p.isAdmin) return p.copyWith(isAdmin: false);
+      return p;
+    }).toList();
+    notifyListeners();
   }
 
   bool _isLocalPlayer(LobbyPlayer player) =>
@@ -227,8 +215,8 @@ class LobbyViewModel extends ChangeNotifier {
   ///
   /// À appeler quand l'utilisateur quitte volontairement (bouton retour).
   /// Le transfert des droits admin se fait immédiatement, sans attendre 30 s.
-  void leaveAndDisconnect() {
-    _lobbyWebSocketService.leaveAndDisconnect();
+  Future<void> leaveAndDisconnect() async {
+    await _lobbyWebSocketService.leaveAndDisconnect();
   }
 
   /// Consomme le résultat de navigation (après que la page ait navigué).
