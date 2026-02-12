@@ -144,6 +144,10 @@ class ErrorMessages:
     SETTINGS_NOT_FOUND = "error.settings.not_found"
     SETTINGS_GAME_NOT_WAITING = "error.settings.game_not_waiting"
 
+    # Lifecycle errors
+    GAME_NOT_DEPLOYMENT = "error.game.not_deployment"
+    GAME_NOT_IN_PROGRESS = "error.game.not_in_progress"
+
     # Interaction errors
     QR_CODE_INVALID = "error.interaction.qr_code.invalid"
     QR_CODE_ALREADY_SCANNED = "error.interaction.qr_code.already_scanned"

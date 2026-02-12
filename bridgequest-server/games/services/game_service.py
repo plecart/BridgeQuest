@@ -10,7 +10,6 @@ from django.db import IntegrityError
 from rest_framework import status
 
 from games.models import Game, GameSettings, GameState, Player, PlayerRole
-from games.services import lobby_broadcast
 from utils.exceptions import GameException, PlayerException
 from utils.messages import ErrorMessages
 
@@ -276,7 +275,8 @@ def start_game(game_id, user):
     """
     Lance une partie (passe de WAITING à DEPLOYMENT).
 
-    Seul l'administrateur de la partie peut lancer.
+    Vérifie les droits d'administration, puis délègue la
+    transition d'état à ``lifecycle_service.begin_deployment``.
 
     Args:
         game_id: Identifiant de la partie.
@@ -290,12 +290,10 @@ def start_game(game_id, user):
         PlayerException: Si l'utilisateur n'est pas dans la partie ou n'est pas admin.
     """
     game = get_game_by_id(game_id)
-    _require_game_waiting(game)
-
     player = get_player_in_game(game, user)
     _require_admin(player)
 
-    game.state = GameState.DEPLOYMENT
-    game.save(update_fields=["state", "updated_at"])
-    lobby_broadcast.broadcast_game_started(game.id)
+    from games.services.lifecycle_service import begin_deployment
+
+    begin_deployment(game)
     return game

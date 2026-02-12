@@ -220,6 +220,7 @@ class LobbyConsumer(_BaseGameConsumerMixin, AsyncJsonWebsocketConsumer):
         await self._forward_to_client("game_started", {
             "game_id": event["game_id"],
             "state": event["state"],
+            "deployment_ends_at": event["deployment_ends_at"],
         })
 
     async def player_excluded(self, event):

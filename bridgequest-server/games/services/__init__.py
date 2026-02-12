@@ -11,6 +11,11 @@ from .game_service import (
     join_game,
     start_game,
 )
+from .lifecycle_service import (
+    begin_deployment,
+    begin_in_progress,
+    finish_game,
+)
 
 __all__ = [
     "create_game",
@@ -21,4 +26,7 @@ __all__ = [
     "get_player_in_game",
     "join_game",
     "start_game",
+    "begin_deployment",
+    "begin_in_progress",
+    "finish_game",
 ]

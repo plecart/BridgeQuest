@@ -32,7 +32,7 @@ def _send_to_lobby(group_game_id, event_type, **event_payload):
     )
 
 
-def broadcast_game_started(game_id):
+def broadcast_game_started(game_id, *, deployment_ends_at):
     """
     Diffuse l'événement « partie lancée » aux clients de la salle d'attente.
 
@@ -42,8 +42,15 @@ def broadcast_game_started(game_id):
 
     Args:
         game_id: Identifiant de la partie.
+        deployment_ends_at: ISO 8601 datetime de fin du déploiement.
     """
-    _send_to_lobby(game_id, "game_started", game_id=game_id, state=GameState.DEPLOYMENT)
+    _send_to_lobby(
+        game_id,
+        "game_started",
+        game_id=game_id,
+        state=GameState.DEPLOYMENT,
+        deployment_ends_at=deployment_ends_at,
+    )
 
 
 def broadcast_player_excluded(game_id, player_payload):
