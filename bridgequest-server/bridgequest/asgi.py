@@ -27,7 +27,7 @@ from bridgequest.routing import websocket_urlpatterns
 websocket_app = AuthMiddlewareStack(
     JWTAuthMiddleware(URLRouter(websocket_urlpatterns)),
 )
-# DEBUG : pas de validation d'origine (clients mobiles sans header Origin → 403).
+# DEBUG : pas de validation d'origine (clients mobiles sans header Origin -> 403).
 # Production : AllowedHostsOriginValidator pour la sécurité.
 if not settings.DEBUG:
     websocket_app = AllowedHostsOriginValidator(websocket_app)

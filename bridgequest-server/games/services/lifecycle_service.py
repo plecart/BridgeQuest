@@ -2,7 +2,7 @@
 Service de gestion du cycle de vie d'une partie.
 
 Orchestre les transitions d'état automatiques :
-WAITING → DEPLOYMENT → IN_PROGRESS → FINISHED
+WAITING -> DEPLOYMENT -> IN_PROGRESS -> FINISHED
 
 Chaque transition met à jour l'état, calcule les timestamps de fin
 de phase, délègue aux services spécialisés (rôles, scores) et
@@ -41,7 +41,7 @@ def _require_enough_players(game):
 
 def begin_deployment(game):
     """
-    Lance la phase de déploiement (WAITING → DEPLOYMENT).
+    Lance la phase de déploiement (WAITING -> DEPLOYMENT).
 
     Vérifie qu'il y a au moins 2 joueurs, calcule ``deployment_ends_at``
     à partir du paramètre ``deployment_duration`` (en minutes) et diffuse
@@ -77,11 +77,13 @@ def begin_deployment(game):
 
 def begin_in_progress(game):
     """
-    Lance la phase de jeu (DEPLOYMENT → IN_PROGRESS).
+    Lance la phase de jeu (DEPLOYMENT -> IN_PROGRESS).
 
-    Attribue les rôles (via ``role_service``), calcule ``game_ends_at``
-    à partir du paramètre ``game_duration`` (en minutes), et diffuse
-    ``roles_assigned`` puis ``game_in_progress`` aux clients du canal game.
+    Attribue les rôles (via ``role_service``), persiste les points
+    passifs de déploiement pour tous les joueurs (via ``score_service``),
+    calcule ``game_ends_at`` à partir du paramètre ``game_duration``
+    (en minutes), et diffuse ``roles_assigned`` puis ``game_in_progress``
+    aux clients du canal game.
 
     Args:
         game: La partie (state doit être DEPLOYMENT).
@@ -93,12 +95,14 @@ def begin_in_progress(game):
         raise GameException(message_key=ErrorMessages.GAME_NOT_DEPLOYMENT)
 
     from games.services.role_service import assign_roles
+    from games.services.score_service import apply_deployment_scores
 
     settings = game.settings
     now = timezone.now()
     game_ends_at = now + datetime.timedelta(minutes=settings.game_duration)
 
     roles_data = assign_roles(game, settings.spirit_percentage)
+    apply_deployment_scores(game)
 
     game.state = GameState.IN_PROGRESS
     game.game_ends_at = game_ends_at
@@ -113,7 +117,7 @@ def begin_in_progress(game):
 
 def finish_game(game):
     """
-    Termine la partie (IN_PROGRESS → FINISHED).
+    Termine la partie (IN_PROGRESS -> FINISHED).
 
     Calcule les scores finaux (via ``score_service``) et diffuse
     ``game_finished`` aux clients du canal game.

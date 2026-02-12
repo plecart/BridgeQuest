@@ -28,7 +28,7 @@ _WS_CLOSE_UNAUTHORIZED = 4001
 _WS_CLOSE_NOT_IN_GAME = 4002
 _WS_CLOSE_WRONG_CHANNEL = 4003
 
-# Message client : sortie volontaire → exclusion immédiate (sans délai 30 s)
+# Message client : sortie volontaire -> exclusion immédiate (sans délai 30 s)
 _WS_MESSAGE_LEAVE = "leave"
 
 _CLOSE_CODES_SKIP_EXCLUSION = (
