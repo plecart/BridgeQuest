@@ -8,7 +8,7 @@ from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 
 from accounts.serializers.user_serializers import UserPublicSerializer
-from games.models import Game, Player
+from games.models import Game, GameSettings, Player
 from utils.messages import ModelMessages
 from utils.validators import validate_game_code
 
@@ -51,6 +51,25 @@ class JoinGameSerializer(serializers.Serializer):
         except ValidationError as e:
             raise serializers.ValidationError(e.messages[0] if e.messages else str(e))
         return normalized.upper()
+
+
+class GameSettingsSerializer(serializers.ModelSerializer):
+    """
+    Serializer pour les paramètres d'une partie.
+
+    Expose les champs configurables. Le champ `game` n'est pas
+    exposé (déduit du contexte URL).
+    """
+
+    class Meta:
+        model = GameSettings
+        fields = [
+            'game_duration',
+            'deployment_duration',
+            'spirit_percentage',
+            'points_per_minute',
+            'conversion_points_percentage',
+        ]
 
 
 class PlayerSerializer(serializers.ModelSerializer):

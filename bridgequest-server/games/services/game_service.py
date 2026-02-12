@@ -1,7 +1,7 @@
 """
 Service de gestion des parties pour Bridge Quest.
 
-Contient la logique métier : création, jonction, récupération.
+Contient la logique métier : création, jonction, récupération, paramétrage.
 """
 import random
 import string
@@ -233,6 +233,45 @@ def join_game(code, user):
     return _add_player_to_game(game, user, is_admin=False)
 
 
+def _require_admin(player):
+    """
+    Vérifie que le joueur est administrateur de la partie.
+
+    Args:
+        player: Le joueur à vérifier.
+
+    Raises:
+        PlayerException: Si le joueur n'est pas admin.
+    """
+    if not player.is_admin:
+        raise PlayerException(
+            message_key=ErrorMessages.PLAYER_NOT_ADMIN,
+            status_code=status.HTTP_403_FORBIDDEN,
+        )
+
+
+def get_game_settings(game):
+    """
+    Récupère les paramètres d'une partie.
+
+    Args:
+        game: La partie.
+
+    Returns:
+        GameSettings: Les paramètres de la partie.
+
+    Raises:
+        GameException: Si les settings n'existent pas.
+    """
+    try:
+        return game.settings
+    except GameSettings.DoesNotExist:
+        raise GameException(
+            message_key=ErrorMessages.SETTINGS_NOT_FOUND,
+            status_code=status.HTTP_404_NOT_FOUND,
+        )
+
+
 def start_game(game_id, user):
     """
     Lance une partie (passe de WAITING à DEPLOYMENT).
@@ -254,11 +293,7 @@ def start_game(game_id, user):
     _require_game_waiting(game)
 
     player = get_player_in_game(game, user)
-    if not player.is_admin:
-        raise PlayerException(
-            message_key=ErrorMessages.PLAYER_NOT_ADMIN,
-            status_code=status.HTTP_403_FORBIDDEN,
-        )
+    _require_admin(player)
 
     game.state = GameState.DEPLOYMENT
     game.save(update_fields=["state", "updated_at"])

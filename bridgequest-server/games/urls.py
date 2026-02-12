@@ -8,6 +8,7 @@ from games.views.game_views import (
     game_detail_view,
     game_players_view,
     game_positions_view,
+    game_settings_view,
     game_start_view,
     join_game_view,
 )
@@ -20,5 +21,6 @@ urlpatterns = [
     path('<int:pk>/', game_detail_view, name='detail'),
     path('<int:pk>/players/', game_players_view, name='players'),
     path('<int:pk>/positions/', game_positions_view, name='positions'),
+    path('<int:pk>/settings/', game_settings_view, name='settings'),
     path('<int:pk>/start/', game_start_view, name='start'),
 ]

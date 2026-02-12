@@ -86,7 +86,7 @@ class LobbyConsumer(_BaseGameConsumerMixin, AsyncJsonWebsocketConsumer):
     Groupe : lobby_{game_id}
     Phase : WAITING uniquement.
     Événements : player_joined, player_left, player_excluded, admin_transferred,
-                 game_deleted, game_started.
+                 game_deleted, game_started, settings_updated.
     Codes de fermeture : 4001 (non authentifié), 4002 (non dans la partie),
                         4003 (partie déjà commencée, utiliser ws/game/).
     """
@@ -236,6 +236,12 @@ class LobbyConsumer(_BaseGameConsumerMixin, AsyncJsonWebsocketConsumer):
         """Reçoit game_deleted du groupe et transmet au client."""
         await self._forward_to_client("game_deleted", {
             "game_id": event["game_id"],
+        })
+
+    async def settings_updated(self, event):
+        """Reçoit settings_updated du groupe et transmet au client."""
+        await self._forward_to_client("settings_updated", {
+            "settings": event["settings"],
         })
 
 
