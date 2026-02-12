@@ -3,20 +3,22 @@ Vues API pour l'authentification dans le module Accounts.
 
 Ces vues gèrent les endpoints d'authentification SSO mobile.
 """
-from rest_framework import status
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated, AllowAny
-from rest_framework.response import Response
 from django.contrib.auth import get_user_model
 from django.utils.translation import gettext_lazy as _
-from accounts.serializers.user_serializers import UserSerializer, UserPublicSerializer
+from rest_framework import status
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.response import Response
+
 from accounts.serializers.sso_serializers import SSOLoginSerializer
-from accounts.services.google_auth_service import validate_google_token
+from accounts.serializers.user_serializers import UserPublicSerializer, UserSerializer
 from accounts.services.apple_auth_service import validate_apple_token
 from accounts.services.auth_service import create_or_get_user_from_sso_data
+from accounts.services.google_auth_service import validate_google_token
 from accounts.services.jwt_service import generate_tokens_for_user
-from utils.messages import ErrorMessages, Messages
 from utils.exceptions import BridgeQuestException
+from utils.messages import ErrorMessages, Messages
+from utils.responses import error_response
 
 User = get_user_model()
 
@@ -40,7 +42,7 @@ def _validate_sso_token(provider, token):
     elif provider == 'apple':
         return validate_apple_token(token)
     else:
-        raise BridgeQuestException(_(ErrorMessages.AUTH_SSO_PROVIDER_INVALID))
+        raise BridgeQuestException(message_key=ErrorMessages.AUTH_SSO_PROVIDER_INVALID)
 
 
 def _build_login_response(user, tokens):
@@ -110,29 +112,12 @@ def sso_login_view(request):
         )
         
     except BridgeQuestException as e:
-        return _build_error_response(str(e), e.status_code)
-    except Exception as e:
-        return _build_error_response(
+        return error_response(e, e.status_code)
+    except Exception:
+        return error_response(
             _(ErrorMessages.AUTH_SSO_FAILED),
-            status.HTTP_500_INTERNAL_SERVER_ERROR
+            status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
-
-
-def _build_error_response(error_message, status_code):
-    """
-    Construit une réponse d'erreur standardisée.
-    
-    Args:
-        error_message: Le message d'erreur à retourner
-        status_code: Le code de statut HTTP
-        
-    Returns:
-        Response: Réponse d'erreur formatée
-    """
-    return Response(
-        {'error': error_message},
-        status=status_code
-    )
 
 
 def _build_validation_error_response(errors):
@@ -203,7 +188,7 @@ def user_profile_view(request, user_id):
         serializer = UserPublicSerializer(user)
         return Response(serializer.data, status=status.HTTP_200_OK)
     except User.DoesNotExist:
-        return _build_error_response(
+        return error_response(
             _(ErrorMessages.USER_NOT_FOUND),
-            status.HTTP_404_NOT_FOUND
+            status.HTTP_404_NOT_FOUND,
         )

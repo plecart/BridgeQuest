@@ -24,7 +24,7 @@ class PositionModelTestCase(TestCase):
             username="testuser",
             email="test@example.com",
         )
-        self.game = Game.objects.create(name="Partie test", code="ABC123")
+        self.game = Game.objects.create(code="ABC123")
         self.player = Player.objects.create(
             game=self.game,
             user=self.user,

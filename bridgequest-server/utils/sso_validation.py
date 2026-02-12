@@ -4,7 +4,6 @@ Validation SSO partagée pour Bridge Quest.
 Fonctions de validation communes aux services Google et Apple Sign-In.
 Constantes partagées pour les appels HTTP (ex. timeout).
 """
-from django.utils.translation import gettext_lazy as _
 from rest_framework import status
 from utils.exceptions import BridgeQuestException
 from utils.messages import ErrorMessages
@@ -41,4 +40,4 @@ def require_non_empty_sso_token(token):
         BridgeQuestException: Si le token est vide ou None
     """
     if not token:
-        raise BridgeQuestException(_(ErrorMessages.AUTH_SSO_TOKEN_REQUIRED))
+        raise BridgeQuestException(message_key=ErrorMessages.AUTH_SSO_TOKEN_REQUIRED)

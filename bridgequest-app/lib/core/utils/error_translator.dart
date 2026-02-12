@@ -28,7 +28,12 @@ class ErrorTranslator {
       case 'error.auth.tokensMissing':
         return l10n.errorAuthTokensMissing;
       case 'error.auth.notAuthenticated':
+      case 'errorAuthNotAuthenticated':
         return l10n.errorAuthNotAuthenticated;
+      case 'lobbyErrorWebSocket':
+        return l10n.lobbyErrorWebSocket;
+      case 'lobbyStartGameError':
+        return l10n.lobbyStartGameError;
       case 'error.response.invalidFormat':
         return l10n.errorResponseInvalidFormat;
       case 'error.response.unstructuredData':

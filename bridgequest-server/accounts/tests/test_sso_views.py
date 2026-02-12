@@ -3,7 +3,6 @@ Tests pour les vues SSO mobile du module Accounts.
 """
 from django.test import TestCase
 from django.contrib.auth import get_user_model
-from django.utils.translation import gettext_lazy as _
 from rest_framework.test import APIClient
 from rest_framework import status
 from unittest.mock import patch
@@ -173,7 +172,9 @@ class SSOViewsTestCase(TestCase):
         """Test de connexion SSO avec un token invalide."""
         # Arrange
         with patch('accounts.views.auth_views.validate_google_token') as mock_validate:
-            mock_validate.side_effect = BridgeQuestException(_(ErrorMessages.AUTH_SSO_TOKEN_VALIDATION_FAILED))
+            mock_validate.side_effect = BridgeQuestException(
+                message_key=ErrorMessages.AUTH_SSO_TOKEN_VALIDATION_FAILED
+            )
             
             # Act
             response = self.client.post(

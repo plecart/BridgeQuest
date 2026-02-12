@@ -6,7 +6,6 @@ depuis l'application mobile Flutter.
 """
 import requests
 from django.conf import settings
-from django.utils.translation import gettext_lazy as _
 from utils.exceptions import BridgeQuestException
 from utils.messages import ErrorMessages
 from utils.sso_validation import REQUEST_TIMEOUT_SECONDS, require_non_empty_sso_token, require_sso_config
@@ -76,17 +75,17 @@ def _fetch_token_info(token):
         )
         
         if response.status_code != 200:
-            raise BridgeQuestException(_(ErrorMessages.AUTH_SSO_TOKEN_VALIDATION_FAILED))
+            raise BridgeQuestException(message_key=ErrorMessages.AUTH_SSO_TOKEN_VALIDATION_FAILED)
         
         token_info = response.json()
         
         if 'error' in token_info:
-            raise BridgeQuestException(_(ErrorMessages.AUTH_SSO_TOKEN_VALIDATION_FAILED))
+            raise BridgeQuestException(message_key=ErrorMessages.AUTH_SSO_TOKEN_VALIDATION_FAILED)
         
         return token_info
         
     except requests.RequestException as e:
-        raise BridgeQuestException(_(ErrorMessages.AUTH_SSO_TOKEN_VALIDATION_FAILED)) from e
+        raise BridgeQuestException(message_key=ErrorMessages.AUTH_SSO_TOKEN_VALIDATION_FAILED) from e
 
 
 def _validate_token_audience(token_info, google_client_ids):
@@ -102,7 +101,7 @@ def _validate_token_audience(token_info, google_client_ids):
     """
     token_audience = token_info.get('aud')
     if not token_audience or token_audience not in google_client_ids:
-        raise BridgeQuestException(_(ErrorMessages.AUTH_SSO_TOKEN_VALIDATION_FAILED))
+        raise BridgeQuestException(message_key=ErrorMessages.AUTH_SSO_TOKEN_VALIDATION_FAILED)
 
 
 def _extract_user_data(token_info):
@@ -120,7 +119,7 @@ def _extract_user_data(token_info):
     """
     email = token_info.get('email')
     if not email:
-        raise BridgeQuestException(_(ErrorMessages.USER_EMAIL_REQUIRED))
+        raise BridgeQuestException(message_key=ErrorMessages.USER_EMAIL_REQUIRED)
     
     return {
         'email': email,

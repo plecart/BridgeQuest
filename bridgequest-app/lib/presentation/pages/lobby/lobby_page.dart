@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../core/utils/error_translator.dart';
 import '../../../data/models/game/game.dart';
 import '../../../data/models/game/lobby_player.dart';
 import '../../../data/repositories/game_repository.dart';
@@ -171,7 +172,7 @@ class _LobbyContent extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              _translateError(vm.errorKey!, l10n),
+              ErrorTranslator.translate(vm.errorKey!, l10n),
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: Theme.of(context).colorScheme.error,
@@ -258,16 +259,4 @@ class _LobbyContent extends StatelessWidget {
     );
   }
 
-  String _translateError(String key, AppLocalizations l10n) {
-    switch (key) {
-      case 'lobbyErrorWebSocket':
-        return l10n.lobbyErrorWebSocket;
-      case 'lobbyStartGameError':
-        return l10n.lobbyStartGameError;
-      case 'errorAuthNotAuthenticated':
-        return l10n.errorAuthNotAuthenticated;
-      default:
-        return l10n.errorGeneric;
-    }
-  }
 }

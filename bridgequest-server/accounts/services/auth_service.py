@@ -91,14 +91,14 @@ def get_user_by_email(email):
         BridgeQuestException: Si l'email est invalide
     """
     if not email:
-        raise BridgeQuestException(_(ErrorMessages.USER_EMAIL_REQUIRED))
+        raise BridgeQuestException(message_key=ErrorMessages.USER_EMAIL_REQUIRED)
     
     try:
         return User.objects.get(email=email)
     except User.DoesNotExist:
         return None
     except Exception as e:
-        raise BridgeQuestException(_(ErrorMessages.USER_NOT_FOUND)) from e
+        raise BridgeQuestException(message_key=ErrorMessages.USER_NOT_FOUND) from e
 
 
 def create_or_get_user_from_sso_data(sso_data, provider):
@@ -118,7 +118,7 @@ def create_or_get_user_from_sso_data(sso_data, provider):
     try:
         email = sso_data.get('email')
         if not email:
-            raise BridgeQuestException(_(ErrorMessages.USER_EMAIL_REQUIRED))
+            raise BridgeQuestException(message_key=ErrorMessages.USER_EMAIL_REQUIRED)
         
         # Vérifier si un utilisateur avec cet email existe déjà
         user = User.objects.filter(email=email).first()
@@ -146,4 +146,4 @@ def create_or_get_user_from_sso_data(sso_data, provider):
         raise
     except Exception as e:
         # Encapsuler les autres exceptions
-        raise BridgeQuestException(_(ErrorMessages.AUTH_SSO_FAILED)) from e
+        raise BridgeQuestException(message_key=ErrorMessages.AUTH_SSO_FAILED) from e

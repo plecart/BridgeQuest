@@ -113,7 +113,7 @@ def get_game_by_id(game_id):
         return Game.objects.get(pk=game_id)
     except Game.DoesNotExist:
         raise GameException(
-            ErrorMessages.GAME_NOT_FOUND,
+            message_key=ErrorMessages.GAME_NOT_FOUND,
             status_code=status.HTTP_404_NOT_FOUND,
         )
 
@@ -148,7 +148,7 @@ def _require_game_waiting(game):
         GameException: Si la partie a déjà commencé.
     """
     if game.state != GameState.WAITING:
-        raise GameException(ErrorMessages.GAME_ALREADY_STARTED)
+        raise GameException(message_key=ErrorMessages.GAME_ALREADY_STARTED)
 
 
 def get_player_in_game(game, user):
@@ -169,7 +169,7 @@ def get_player_in_game(game, user):
         return Player.objects.select_related("user").get(user=user, game=game)
     except Player.DoesNotExist:
         raise PlayerException(
-            ErrorMessages.PLAYER_NOT_IN_GAME,
+            message_key=ErrorMessages.PLAYER_NOT_IN_GAME,
             status_code=status.HTTP_403_FORBIDDEN,
         )
 
@@ -188,7 +188,7 @@ def _validate_can_join_game(game, user):
     """
     _require_game_waiting(game)
     if Player.objects.filter(user=user, game=game).exists():
-        raise PlayerException(ErrorMessages.PLAYER_ALREADY_IN_GAME)
+        raise PlayerException(message_key=ErrorMessages.PLAYER_ALREADY_IN_GAME)
 
 
 def join_game(code, user):
@@ -208,7 +208,7 @@ def join_game(code, user):
     """
     game = get_game_by_code(code)
     if game is None:
-        raise GameException(ErrorMessages.GAME_CODE_NOT_FOUND)
+        raise GameException(message_key=ErrorMessages.GAME_CODE_NOT_FOUND)
 
     _validate_can_join_game(game, user)
     return _add_player_to_game(game, user, is_admin=False)
@@ -237,7 +237,7 @@ def start_game(game_id, user):
     player = get_player_in_game(game, user)
     if not player.is_admin:
         raise PlayerException(
-            ErrorMessages.PLAYER_NOT_ADMIN,
+            message_key=ErrorMessages.PLAYER_NOT_ADMIN,
             status_code=status.HTTP_403_FORBIDDEN,
         )
 

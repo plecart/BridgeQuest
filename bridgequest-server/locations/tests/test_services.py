@@ -30,7 +30,7 @@ class PositionServiceTestCase(TestCase):
             username="otheruser",
             email="other@example.com",
         )
-        self.game = Game.objects.create(name="Partie", code="ABC123")
+        self.game = Game.objects.create(code="ABC123")
         self.player = Player.objects.create(
             game=self.game,
             user=self.user,
@@ -166,4 +166,5 @@ class PositionServiceTestCase(TestCase):
         p1.save(update_fields=["recorded_at"])
         positions = get_latest_positions_for_game(self.game)
         self.assertEqual(len(positions), 1)
+        self.assertEqual(positions[0].id, p2.id)
         self.assertEqual(positions[0].latitude, Decimal("48.8566"))

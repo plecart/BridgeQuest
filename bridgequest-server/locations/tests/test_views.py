@@ -28,7 +28,7 @@ class LocationViewsTestCase(TestCase):
             username="otheruser",
             email="other@example.com",
         )
-        self.game = Game.objects.create(name="Partie", code="ABC123")
+        self.game = Game.objects.create(code="ABC123")
         self.player = Player.objects.create(
             game=self.game,
             user=self.user,
@@ -107,7 +107,7 @@ class GamePositionsViewTestCase(TestCase):
             username="testuser",
             email="test@example.com",
         )
-        self.game = Game.objects.create(name="Partie", code="ABC123")
+        self.game = Game.objects.create(code="ABC123")
         self.player = Player.objects.create(
             game=self.game,
             user=self.user,

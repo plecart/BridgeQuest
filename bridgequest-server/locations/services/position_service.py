@@ -5,7 +5,6 @@ Contient la logique métier : enregistrement et récupération des positions.
 """
 from decimal import Decimal
 
-from django.utils.translation import gettext_lazy as _
 from rest_framework import status
 
 from games.models import GameState
@@ -32,7 +31,7 @@ def _require_game_active(game):
     """
     if game.state not in (GameState.DEPLOYMENT, GameState.IN_PROGRESS):
         raise LocationException(
-            _(ErrorMessages.POSITION_GAME_NOT_ACTIVE),
+            message_key=ErrorMessages.POSITION_GAME_NOT_ACTIVE,
             status_code=status.HTTP_400_BAD_REQUEST,
         )
 
@@ -48,10 +47,10 @@ def _validate_coordinates(latitude, longitude):
         lat = Decimal(str(latitude))
         lng = Decimal(str(longitude))
     except (ValueError, TypeError):
-        raise LocationException(_(ErrorMessages.POSITION_COORDINATES_INVALID))
+        raise LocationException(message_key=ErrorMessages.POSITION_COORDINATES_INVALID)
 
     if not (_LAT_MIN <= lat <= _LAT_MAX and _LNG_MIN <= lng <= _LNG_MAX):
-        raise LocationException(_(ErrorMessages.POSITION_COORDINATES_INVALID))
+        raise LocationException(message_key=ErrorMessages.POSITION_COORDINATES_INVALID)
 
 
 def update_position(game_id, user, latitude, longitude):
