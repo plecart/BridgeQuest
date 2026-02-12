@@ -135,8 +135,12 @@ class AuthRepository {
     );
   }
 
-  AuthException _authException(String message, String code) =>
-      AuthException(message, code: code);
+  AuthException _authException(
+    String message,
+    String code, {
+    String? serverMessage,
+  }) =>
+      AuthException(message, code: code, serverMessage: serverMessage);
 
   /// Vérifie si l'erreur est une erreur d'authentification (401/403)
   bool _isAuthenticationError(ApiException e) {
@@ -178,6 +182,7 @@ class AuthRepository {
       throw _authException(
         'API error during $errorContext',
         e.code ?? _codeGeneric,
+        serverMessage: e.serverMessage,
       );
     } catch (e) {
       if (e is AppException) rethrow;

@@ -121,6 +121,10 @@ class GameRepository {
   ///
   /// Si l'API renvoie un message (serverMessage), il est prioritaire
   /// pour l'affichage car déjà traduit par le backend.
+  /// Gère les exceptions API et les convertit en [GameException].
+  ///
+  /// Si l'API renvoie un message (serverMessage), il est prioritaire
+  /// pour l'affichage car déjà traduit par le backend.
   Never _handleApiException(ApiException e, String errorContext) {
     AppLogger.error('API error during $errorContext', e);
     throw GameException(

@@ -9,7 +9,7 @@ class GamePlayer {
   final int score;
   final String? joinedAt;
 
-  GamePlayer({
+  const GamePlayer({
     required this.id,
     required this.user,
     required this.isAdmin,

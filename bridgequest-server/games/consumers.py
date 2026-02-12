@@ -120,7 +120,9 @@ class LobbyConsumer(_BaseGameConsumerMixin, AsyncJsonWebsocketConsumer):
             self.channel_name,
         )
         self._joined_group = True
-        cancel_pending_exclusion(self.game_id, self.player.id)
+        await database_sync_to_async(cancel_pending_exclusion)(
+            self.game_id, self.player.id,
+        )
         await self.accept()
         await self._send_connected_message()
         await self._broadcast_player_joined()
@@ -187,7 +189,7 @@ class LobbyConsumer(_BaseGameConsumerMixin, AsyncJsonWebsocketConsumer):
         game_id = self.game_id
         player_id = self.player.id
 
-        mark_player_disconnected(game_id, player_id)
+        await database_sync_to_async(mark_player_disconnected)(game_id, player_id)
         asyncio.create_task(self._run_delayed_exclusion(game_id, player_id))
 
     async def _run_delayed_exclusion(self, game_id, player_id):

@@ -6,7 +6,6 @@ Contient la logique métier : création, jonction, récupération.
 import random
 import string
 
-from django.utils.translation import gettext_lazy as _
 from rest_framework import status
 
 from games.models import Game, GameState, Player, PlayerRole
@@ -114,7 +113,7 @@ def get_game_by_id(game_id):
         return Game.objects.get(pk=game_id)
     except Game.DoesNotExist:
         raise GameException(
-            _(ErrorMessages.GAME_NOT_FOUND),
+            ErrorMessages.GAME_NOT_FOUND,
             status_code=status.HTTP_404_NOT_FOUND,
         )
 
@@ -142,16 +141,26 @@ def _require_game_waiting(game):
     """
     Vérifie que la partie est en attente.
 
+    Args:
+        game: La partie à vérifier.
+
     Raises:
         GameException: Si la partie a déjà commencé.
     """
     if game.state != GameState.WAITING:
-        raise GameException(_(ErrorMessages.GAME_ALREADY_STARTED))
+        raise GameException(ErrorMessages.GAME_ALREADY_STARTED)
 
 
 def get_player_in_game(game, user):
     """
     Récupère le joueur dans une partie, avec user chargé.
+
+    Args:
+        game: La partie.
+        user: L'utilisateur recherché.
+
+    Returns:
+        Player: Le joueur trouvé.
 
     Raises:
         PlayerException: Si l'utilisateur n'est pas dans la partie.
@@ -160,7 +169,7 @@ def get_player_in_game(game, user):
         return Player.objects.select_related("user").get(user=user, game=game)
     except Player.DoesNotExist:
         raise PlayerException(
-            _(ErrorMessages.PLAYER_NOT_IN_GAME),
+            ErrorMessages.PLAYER_NOT_IN_GAME,
             status_code=status.HTTP_403_FORBIDDEN,
         )
 
@@ -169,13 +178,17 @@ def _validate_can_join_game(game, user):
     """
     Vérifie qu'un utilisateur peut rejoindre une partie.
 
+    Args:
+        game: La partie à rejoindre.
+        user: L'utilisateur qui souhaite rejoindre.
+
     Raises:
         GameException: Si la partie n'est pas en attente.
         PlayerException: Si l'utilisateur est déjà dans la partie.
     """
     _require_game_waiting(game)
     if Player.objects.filter(user=user, game=game).exists():
-        raise PlayerException(_(ErrorMessages.PLAYER_ALREADY_IN_GAME))
+        raise PlayerException(ErrorMessages.PLAYER_ALREADY_IN_GAME)
 
 
 def join_game(code, user):
@@ -195,7 +208,7 @@ def join_game(code, user):
     """
     game = get_game_by_code(code)
     if game is None:
-        raise GameException(_(ErrorMessages.GAME_CODE_NOT_FOUND))
+        raise GameException(ErrorMessages.GAME_CODE_NOT_FOUND)
 
     _validate_can_join_game(game, user)
     return _add_player_to_game(game, user, is_admin=False)
@@ -224,7 +237,7 @@ def start_game(game_id, user):
     player = get_player_in_game(game, user)
     if not player.is_admin:
         raise PlayerException(
-            _(ErrorMessages.PLAYER_NOT_ADMIN),
+            ErrorMessages.PLAYER_NOT_ADMIN,
             status_code=status.HTTP_403_FORBIDDEN,
         )
 

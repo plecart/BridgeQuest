@@ -78,18 +78,21 @@ class HomePage extends StatelessWidget {
       final game = await context.read<GameRepository>().createGame();
       if (!context.mounted) return;
       _navigateToLobby(context, game);
-    } catch (e) {
+    } on AppException catch (e) {
       if (!context.mounted) return;
-      final message = e is GameException
-          ? (e.serverMessage ?? l10n.errorGeneric)
-          : l10n.errorGeneric;
-      _showErrorSnackBar(context, message);
+      _showErrorSnackBar(context, e.serverMessage ?? l10n.errorGeneric);
+    } catch (_) {
+      if (!context.mounted) return;
+      _showErrorSnackBar(context, l10n.errorGeneric);
     }
   }
 
   void _showErrorSnackBar(BuildContext context, String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: Colors.red),
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Theme.of(context).colorScheme.error,
+      ),
     );
   }
 

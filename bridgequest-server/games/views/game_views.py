@@ -70,7 +70,8 @@ def join_game_view(request):
     """
     serializer = JoinGameSerializer(data=request.data)
     if not serializer.is_valid():
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        first_error = next(iter(serializer.errors.values()))[0]
+        return error_response(first_error, status.HTTP_400_BAD_REQUEST)
 
     try:
         player = join_game(serializer.validated_data["code"], request.user)

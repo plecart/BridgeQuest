@@ -6,7 +6,7 @@ class Game {
   final String? createdAt;
   final String? updatedAt;
 
-  Game({
+  const Game({
     required this.id,
     required this.code,
     required this.state,

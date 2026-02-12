@@ -7,7 +7,7 @@ class User {
   final String? lastName;
   final String? avatar;
 
-  User({
+  const User({
     required this.id,
     required this.username,
     required this.email,

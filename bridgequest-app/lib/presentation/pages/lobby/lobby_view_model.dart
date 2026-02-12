@@ -7,17 +7,19 @@ import '../../../data/services/lobby_websocket_service.dart';
 import '../../../data/services/token_manager.dart';
 
 /// Résultat de la navigation après un événement lobby.
-sealed class LobbyNavigationResult {}
+sealed class LobbyNavigationResult {
+  const LobbyNavigationResult();
+}
 
 /// La partie a été lancée → naviguer vers la carte de jeu.
 class LobbyNavigateToGame extends LobbyNavigationResult {
-  LobbyNavigateToGame({required this.gameId});
+  const LobbyNavigateToGame({required this.gameId});
   final int gameId;
 }
 
 /// La partie a été supprimée → naviguer vers le menu.
 class LobbyNavigateToMenu extends LobbyNavigationResult {
-  LobbyNavigateToMenu();
+  const LobbyNavigateToMenu();
 }
 
 /// ViewModel pour la page salle d'attente (lobby).
@@ -123,7 +125,7 @@ class LobbyViewModel extends ChangeNotifier {
         _handleAdminTransferred(e.newAdmin);
         break;
       case LobbyGameDeletedEvent _:
-        _setNavigationResult(LobbyNavigateToMenu());
+        _setNavigationResult(const LobbyNavigateToMenu());
         break;
       case LobbyGameStartedEvent e:
         _setNavigationResult(LobbyNavigateToGame(gameId: e.gameId));

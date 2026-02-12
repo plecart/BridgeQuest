@@ -164,12 +164,18 @@ class _LobbyContent extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.error_outline, size: 48, color: Colors.red[300]),
+            Icon(
+              Icons.error_outline,
+              size: 48,
+              color: Theme.of(context).colorScheme.error,
+            ),
             const SizedBox(height: 16),
             Text(
               _translateError(vm.errorKey!, l10n),
               textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.red[700]),
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.error,
+              ),
             ),
             const SizedBox(height: 24),
             OutlinedButton(
@@ -244,7 +250,10 @@ class _LobbyContent extends StatelessWidget {
       leading: CircleAvatar(child: Text(initial)),
       title: Text(displayName),
       trailing: player.isAdmin
-          ? const Icon(Icons.admin_panel_settings, color: Colors.amber)
+          ? Icon(
+              Icons.admin_panel_settings,
+              color: Theme.of(context).colorScheme.tertiary,
+            )
           : null,
     );
   }

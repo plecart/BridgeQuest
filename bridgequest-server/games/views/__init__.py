@@ -1,6 +1,13 @@
 """
 Vues du module Games.
 
-Les vues API REST seront importées ici lorsqu'elles seront créées.
+Réexporte les vues API REST pour accès direct depuis games.views.
 """
-# Exemple: from .game_views import create_game_view
+from .game_views import (
+    create_game_view,
+    game_detail_view,
+    game_players_view,
+    game_positions_view,
+    game_start_view,
+    join_game_view,
+)

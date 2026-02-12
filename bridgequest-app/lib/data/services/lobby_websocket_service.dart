@@ -8,11 +8,13 @@ import '../../core/utils/logger.dart';
 import '../models/game/lobby_player.dart';
 
 /// Événements reçus du canal WebSocket lobby.
-sealed class LobbyEvent {}
+sealed class LobbyEvent {
+  const LobbyEvent();
+}
 
 /// Connexion établie, contient game_id et le joueur local.
 class LobbyConnectedEvent extends LobbyEvent {
-  LobbyConnectedEvent({
+  const LobbyConnectedEvent({
     required this.gameId,
     required this.player,
   });
@@ -22,37 +24,37 @@ class LobbyConnectedEvent extends LobbyEvent {
 
 /// Un joueur a rejoint la salle.
 class LobbyPlayerJoinedEvent extends LobbyEvent {
-  LobbyPlayerJoinedEvent({required this.player});
+  const LobbyPlayerJoinedEvent({required this.player});
   final LobbyPlayer player;
 }
 
 /// Un joueur a quitté le canal (déconnexion — peut se reconnecter sous 30 s).
 class LobbyPlayerLeftEvent extends LobbyEvent {
-  LobbyPlayerLeftEvent({required this.player});
+  const LobbyPlayerLeftEvent({required this.player});
   final LobbyPlayer player;
 }
 
 /// Un joueur exclu après 30 s sans reconnexion.
 class LobbyPlayerExcludedEvent extends LobbyEvent {
-  LobbyPlayerExcludedEvent({required this.player});
+  const LobbyPlayerExcludedEvent({required this.player});
   final LobbyPlayer player;
 }
 
 /// Droits admin transférés à un nouveau joueur.
 class LobbyAdminTransferredEvent extends LobbyEvent {
-  LobbyAdminTransferredEvent({required this.newAdmin});
+  const LobbyAdminTransferredEvent({required this.newAdmin});
   final LobbyPlayer newAdmin;
 }
 
 /// Partie supprimée (admin exclu seul).
 class LobbyGameDeletedEvent extends LobbyEvent {
-  LobbyGameDeletedEvent({required this.gameId});
+  const LobbyGameDeletedEvent({required this.gameId});
   final int gameId;
 }
 
 /// Partie lancée (state: DEPLOYMENT).
 class LobbyGameStartedEvent extends LobbyEvent {
-  LobbyGameStartedEvent({
+  const LobbyGameStartedEvent({
     required this.gameId,
     required this.state,
   });
@@ -62,7 +64,7 @@ class LobbyGameStartedEvent extends LobbyEvent {
 
 /// Erreur ou fermeture inattendue.
 class LobbyErrorEvent extends LobbyEvent {
-  LobbyErrorEvent({required this.message, this.closeCode});
+  const LobbyErrorEvent({required this.message, this.closeCode});
   final String message;
   final int? closeCode;
 }

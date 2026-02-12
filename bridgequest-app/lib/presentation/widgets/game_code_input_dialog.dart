@@ -86,9 +86,9 @@ class _GameCodeInputDialogState<T> extends State<GameCodeInputDialog<T>> {
       final result = await widget.submit(value);
       if (!mounted) return;
       Navigator.of(context).pop(result);
-    } on GameException catch (e) {
+    } on AppException catch (e) {
       setState(
-        () => _errorMessage = e.serverMessage ?? l10n.errorGeneric,
+        () => _errorMessage = e.displayMessage,
       );
     } catch (e) {
       setState(() => _errorMessage = l10n.errorGeneric);
