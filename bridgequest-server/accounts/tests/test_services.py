@@ -17,16 +17,15 @@ from accounts.services.auth_service import (
     get_user_by_email,
 )
 from accounts.services.jwt_service import generate_tokens_for_user
+from accounts.tests.mixins import JwtAssertionsMixin
 from utils.exceptions import BridgeQuestException
 from utils.sso_validation import REQUEST_TIMEOUT_SECONDS
 
 User = get_user_model()
 
 
-class JwtServiceTestCase(TestCase):
+class JwtServiceTestCase(JwtAssertionsMixin, TestCase):
     """Tests pour le service de génération des tokens JWT."""
-
-    JWT_SEGMENTS_COUNT = 3  # header.payload.signature
 
     def setUp(self):
         """Configuration initiale pour les tests."""
@@ -35,15 +34,6 @@ class JwtServiceTestCase(TestCase):
             email="jwt@example.com",
             first_name="Jwt",
             last_name="User",
-        )
-
-    def _assert_jwt_format(self, token):
-        """Vérifie qu'un token a le format JWT (3 segments base64 séparés par des points)."""
-        parts = token.split(".")
-        self.assertEqual(
-            len(parts),
-            self.JWT_SEGMENTS_COUNT,
-            "Un JWT doit contenir header.payload.signature",
         )
 
     def test_generate_tokens_for_user_returns_access_and_refresh(self):

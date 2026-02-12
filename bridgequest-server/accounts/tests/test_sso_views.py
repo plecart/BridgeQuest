@@ -7,15 +7,16 @@ from rest_framework.test import APIClient
 from rest_framework import status
 from unittest.mock import patch
 
+from accounts.tests.mixins import JwtAssertionsMixin
 from utils.exceptions import BridgeQuestException
 from utils.messages import ErrorMessages
 
 User = get_user_model()
 
 
-class SSOViewsTestCase(TestCase):
+class SSOViewsTestCase(JwtAssertionsMixin, TestCase):
     """Tests pour les vues d'authentification SSO mobile."""
-    
+
     def setUp(self):
         """Configuration initiale pour les tests."""
         self.client = APIClient()
@@ -34,7 +35,7 @@ class SSOViewsTestCase(TestCase):
             'family_name': 'Smith',
             'sub': 'apple_user_id_456'
         }
-    
+
     def test_sso_login_google_success_new_user(self):
         """Test de connexion SSO Google avec création d'un nouvel utilisateur."""
         # Arrange
@@ -59,6 +60,7 @@ class SSOViewsTestCase(TestCase):
             self.assertEqual(response.data['user']['email'], self.sso_email)
             self.assertEqual(response.data['user']['first_name'], 'John')
             self.assertEqual(response.data['user']['last_name'], 'Doe')
+            self._assert_login_response_contains_valid_tokens(response.data)
             
             # Vérifier que l'utilisateur a été créé
             user = User.objects.get(email=self.sso_email)
@@ -94,6 +96,7 @@ class SSOViewsTestCase(TestCase):
             self.assertEqual(response.status_code, status.HTTP_200_OK,
                            f"Expected 200, got {response.status_code}. Response: {response.data}")
             self.assertEqual(response.data['user']['id'], existing_user.id)
+            self._assert_login_response_contains_valid_tokens(response.data)
             # Les informations existantes ne doivent pas être écrasées si déjà présentes
             existing_user.refresh_from_db()
             self.assertEqual(existing_user.first_name, 'Old')
@@ -119,6 +122,7 @@ class SSOViewsTestCase(TestCase):
                            f"Expected 200, got {response.status_code}. Response: {response.data}")
             self.assertIn('user', response.data)
             self.assertEqual(response.data['user']['email'], self.sso_email)
+            self._assert_login_response_contains_valid_tokens(response.data)
             mock_validate.assert_called_once_with(self.sso_token)
     
     def test_sso_login_invalid_provider(self):
