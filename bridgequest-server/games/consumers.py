@@ -253,7 +253,7 @@ class GameConsumer(_BaseGameConsumerMixin, AsyncJsonWebsocketConsumer):
     Canal : ws/game/{game_id}/
     Groupe : game_{game_id}
     Phases : DEPLOYMENT, IN_PROGRESS uniquement.
-    Événements : position_updated (et futurs : conversion, score, etc.).
+    Événements : roles_assigned, game_in_progress, game_finished, position_updated.
     Codes de fermeture : 4001 (non authentifié), 4002 (non dans la partie),
                         4003 (partie en attente ou terminée).
     """
@@ -300,6 +300,26 @@ class GameConsumer(_BaseGameConsumerMixin, AsyncJsonWebsocketConsumer):
                 self.room_group_name,
                 self.channel_name,
             )
+
+    async def roles_assigned(self, event):
+        """Reçoit roles_assigned du groupe et transmet au client."""
+        await self._forward_to_client("roles_assigned", {
+            "players": event["players"],
+        })
+
+    async def game_in_progress(self, event):
+        """Reçoit game_in_progress du groupe et transmet au client."""
+        await self._forward_to_client("game_in_progress", {
+            "game_id": event["game_id"],
+            "game_ends_at": event["game_ends_at"],
+        })
+
+    async def game_finished(self, event):
+        """Reçoit game_finished du groupe et transmet au client."""
+        await self._forward_to_client("game_finished", {
+            "game_id": event["game_id"],
+            "scores": event["scores"],
+        })
 
     async def position_updated(self, event):
         """Reçoit position_updated du groupe et transmet au client."""
