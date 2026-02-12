@@ -40,6 +40,32 @@ X_FRAME_OPTIONS = 'DENY'
 # Static files - servir via Nginx ou CDN en production
 STATIC_ROOT = config('STATIC_ROOT', default=BASE_DIR / 'staticfiles')
 
+# Redis — requis pour WebSocket (channel layers) et cache partagé (lobby_service)
+# Fail-fast : pas de fallback vers InMemoryChannelLayer/LocMemCache (non partagé entre workers)
+_REDIS_URL_REQUIRED_MSG = (
+    'REDIS_URL doit être défini en production pour les WebSockets. '
+    'Exemple : redis://localhost:6379/0'
+)
+_redis_url = config('REDIS_URL', default='')
+if not _redis_url:
+    raise ValueError(_REDIS_URL_REQUIRED_MSG)
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {'hosts': [_redis_url]},
+    },
+}
+
+# Cache partagé requis pour lobby_service (exclusions en attente)
+# Sans CACHES explicite : LocMemCache par process → incohérences multi-workers
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+        'LOCATION': _redis_url,
+    },
+}
+
 # Logging pour la production
 LOGGING = {
     'version': 1,

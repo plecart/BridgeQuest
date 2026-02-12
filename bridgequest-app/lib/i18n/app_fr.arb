@@ -108,101 +108,90 @@
   "@homeLogoutButton": {
     "description": "Bouton de déconnexion"
   },
-  "logDebugSsoAttempt": "Tentative de connexion SSO avec provider: {provider}",
-  "@logDebugSsoAttempt": {
-    "description": "Message de log debug pour tentative SSO",
+  "homeCreateGameButton": "Créer une partie",
+  "@homeCreateGameButton": {
+    "description": "Bouton créer une partie"
+  },
+  "homeJoinGameButton": "Rejoindre une partie",
+  "@homeJoinGameButton": {
+    "description": "Bouton rejoindre une partie"
+  },
+  "homeGameCodeLabel": "Code de la partie",
+  "@homeGameCodeLabel": {
+    "description": "Label code de la partie"
+  },
+  "homeJoinGameSubmit": "Rejoindre",
+  "@homeJoinGameSubmit": {
+    "description": "Bouton valider rejoindre partie"
+  },
+  "lobbyTitle": "Salle d'attente",
+  "@lobbyTitle": {
+    "description": "Titre page lobby"
+  },
+  "lobbyPlayersTitle": "Joueurs connectés",
+  "@lobbyPlayersTitle": {
+    "description": "Titre liste joueurs"
+  },
+  "lobbyNoPlayers": "Aucun joueur",
+  "@lobbyNoPlayers": {
+    "description": "Liste vide de joueurs"
+  },
+  "lobbyStartGameButton": "Lancer la partie",
+  "@lobbyStartGameButton": {
+    "description": "Bouton lancer partie (admin)"
+  },
+  "lobbyGameCode": "Code : {code}",
+  "@lobbyGameCode": {
+    "description": "Affichage code partie",
     "placeholders": {
-      "provider": {
+      "code": {
         "type": "String"
       }
     }
   },
-  "logDebugUserAuthenticated": "Utilisateur authentifié: {email}",
-  "@logDebugUserAuthenticated": {
-    "description": "Message de log debug utilisateur connecté",
+  "lobbyConnecting": "Connexion en cours...",
+  "@lobbyConnecting": {
+    "description": "État connexion lobby"
+  },
+  "lobbyErrorWebSocket": "Erreur de connexion au serveur",
+  "@lobbyErrorWebSocket": {
+    "description": "Erreur WebSocket lobby"
+  },
+  "lobbyGameDeleted": "La partie a été supprimée",
+  "@lobbyGameDeleted": {
+    "description": "Partie supprimée"
+  },
+  "lobbyGameStarted": "Partie lancée !",
+  "@lobbyGameStarted": {
+    "description": "Partie lancée"
+  },
+  "lobbyStartGameError": "Impossible de lancer la partie",
+  "@lobbyStartGameError": {
+    "description": "Erreur lancement partie"
+  },
+  "lobbyRetry": "Réessayer",
+  "@lobbyRetry": {
+    "description": "Bouton réessayer en cas d'erreur lobby"
+  },
+  "lobbyPlayerFallbackName": "Joueur {playerId}",
+  "@lobbyPlayerFallbackName": {
+    "description": "Nom affiché quand username vide",
     "placeholders": {
-      "email": {
-        "type": "String"
-      }
-    }
-  },
-  "logContextSsoLogin": "connexion SSO",
-  "@logContextSsoLogin": {
-    "description": "Contexte d'erreur pour les logs (connexion SSO)"
-  },
-  "logErrorApiUserFetch": "Erreur API lors de la récupération de l'utilisateur",
-  "@logErrorApiUserFetch": {
-    "description": "Message de log erreur API récupération utilisateur"
-  },
-  "logErrorUnexpectedUserFetch": "Erreur inattendue lors de la récupération de l'utilisateur",
-  "@logErrorUnexpectedUserFetch": {
-    "description": "Message de log erreur inattendue récupération utilisateur"
-  },
-  "logDebugLogoutError": "Erreur ignorée lors de la déconnexion: {error}",
-  "@logDebugLogoutError": {
-    "description": "Message de log debug erreur déconnexion ignorée",
-    "placeholders": {
-      "error": {
-        "type": "String"
-      }
-    }
-  },
-  "logErrorApiContext": "Erreur API lors de la {context}",
-  "@logErrorApiContext": {
-    "description": "Message de log erreur API avec contexte",
-    "placeholders": {
-      "context": {
-        "type": "String"
-      }
-    }
-  },
-  "logErrorUnexpectedContext": "Erreur inattendue lors de la {context}",
-  "@logErrorUnexpectedContext": {
-    "description": "Message de log erreur inattendue avec contexte",
-    "placeholders": {
-      "context": {
-        "type": "String"
-      }
-    }
-  },
-  "logErrorUserParse": "Erreur lors du parsing de l'utilisateur",
-  "@logErrorUserParse": {
-    "description": "Message de log erreur parsing utilisateur"
-  },
-  "logErrorApiStatus": "Erreur API - Status: {statusCode}",
-  "@logErrorApiStatus": {
-    "description": "Message de log erreur API avec code status",
-    "placeholders": {
-      "statusCode": {
+      "playerId": {
         "type": "int"
       }
     }
   },
-  "logDebugApiUrlEnv": "API Base URL (env): {url}",
-  "@logDebugApiUrlEnv": {
-    "description": "Message de log URL API depuis env",
-    "placeholders": {
-      "url": {
-        "type": "String"
-      }
-    }
+  "commonDialogCancel": "Annuler",
+  "@commonDialogCancel": {
+    "description": "Bouton annuler dialogue"
   },
-  "logDebugApiUrlAndroid": "API Base URL (Android): {url}",
-  "@logDebugApiUrlAndroid": {
-    "description": "Message de log URL API Android",
-    "placeholders": {
-      "url": {
-        "type": "String"
-      }
-    }
+  "errorGameNotFound": "Partie introuvable",
+  "@errorGameNotFound": {
+    "description": "Erreur partie introuvable"
   },
-  "logDebugApiUrlDefault": "API Base URL (default): {url}",
-  "@logDebugApiUrlDefault": {
-    "description": "Message de log URL API par défaut",
-    "placeholders": {
-      "url": {
-        "type": "String"
-      }
-    }
+  "errorGameInvalidCode": "Code de partie invalide",
+  "@errorGameInvalidCode": {
+    "description": "Erreur code invalide"
   }
 }

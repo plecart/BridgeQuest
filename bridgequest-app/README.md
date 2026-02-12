@@ -46,6 +46,24 @@ make test              # Lance les tests
 make analyze           # Analyse le code
 make format            # Formate le code
 make clean             # Nettoie les fichiers générés
+make emulator          # Démarre l'émulateur Android
+```
+
+### Configuration de l'émulateur Android
+
+La commande `make emulator` utilise la commande `emulator` (Android SDK). Elle doit être dans votre PATH.
+
+**Si `emulator` n'est pas dans le PATH :**
+- Définir `ANDROID_HOME` (ex: `C:\Users\VOTRE_USER\AppData\Local\Android\Sdk` sur Windows)
+- Ajouter `$ANDROID_HOME/emulator` au PATH, ou exécuter :
+  ```bash
+  make emulator EMULATOR_CMD=$ANDROID_HOME/emulator/emulator
+  ```
+  (sur Windows avec Git Bash : `EMULATOR_CMD=$ANDROID_HOME/emulator/emulator.exe`)
+
+**Pour utiliser un AVD différent :**
+```bash
+make emulator EMULATOR_AVD=Nom_De_Votre_AVD
 ```
 
 ## Structure du projet
@@ -65,16 +83,6 @@ lib/
 │   └── theme/         # Thème de l'application
 └── providers/         # State management (Provider)
 ```
-
-## Authentification API
-
-L'application utilise une **authentification token-based OAuth2/JWT** (pas d'authentification par cookies ni `dio_cookie_manager`) :
-
-- Les tokens (access + refresh) sont stockés via [TokenManager] et `flutter_secure_storage`.
-- Les requêtes API envoient le token dans l'en-tête `Authorization: Bearer <token>`.
-- [ApiService] gère l'ajout du token, le refresh sur 401 et les réessais.
-
-Voir `lib/data/services/api_service.dart` et `lib/data/services/token_manager.dart`.
 
 ## Développement
 

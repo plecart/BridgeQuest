@@ -1,6 +1,4 @@
 import 'dart:io';
-
-import 'app_localizations_holder.dart';
 import '../utils/logger.dart';
 
 /// Configuration de l'API
@@ -8,32 +6,32 @@ class ApiConfig {
   ApiConfig._();
 
   /// URL de base de l'API backend
-  /// 
+  ///
   /// Sur Android, utilise 10.0.2.2 au lieu de localhost pour accéder à la machine hôte.
   /// Cette adresse IP spéciale permet à l'émulateur Android d'accéder à localhost de la machine hôte.
   static String get baseUrl {
     // envUrl ne peut pas être const car String.fromEnvironment n'est pas évalué à la compilation
-    final envUrl = const String.fromEnvironment( // ignore: prefer_const_declarations
+    const envUrl = String.fromEnvironment(
+      // ignore: prefer_const_declarations
       'API_BASE_URL',
       defaultValue: '',
     );
-    
+
     if (envUrl.isNotEmpty) {
-      final l10n = AppLocalizationsHolder.current;
-      AppLogger.debug(l10n?.logDebugApiUrlEnv(envUrl) ?? 'logDebugApiUrlEnv($envUrl)');
+      AppLogger.debug('API Base URL (env): $envUrl');
       return envUrl;
     }
 
+    // Pour Android, utiliser 10.0.2.2 au lieu de localhost
     if (Platform.isAndroid) {
       const url = 'http://10.0.2.2:8000';
-      final l10n = AppLocalizationsHolder.current;
-      AppLogger.debug(l10n?.logDebugApiUrlAndroid(url) ?? 'logDebugApiUrlAndroid($url)');
+      AppLogger.debug('API Base URL (Android): $url');
       return url;
     }
 
+    // Pour iOS/autres plateformes, utiliser localhost
     const url = 'http://localhost:8000';
-    final l10n = AppLocalizationsHolder.current;
-    AppLogger.debug(l10n?.logDebugApiUrlDefault(url) ?? 'logDebugApiUrlDefault($url)');
+    AppLogger.debug('API Base URL (default): $url');
     return url;
   }
 
@@ -45,4 +43,24 @@ class ApiConfig {
   static const String authTokenRefresh = '/api/auth/token/refresh/';
   static const String authMe = '/api/auth/me/';
   static const String authLogout = '/api/auth/logout/';
+
+  /// Endpoints des parties
+  static const String gamesCreate = '/api/games/';
+  static const String gamesJoin = '/api/games/join/';
+
+  /// Path pour détail et joueurs d'une partie
+  static String gameDetail(int id) => '/api/games/$id/';
+  static String gamePlayers(int id) => '/api/games/$id/players/';
+  static String gameStart(int id) => '/api/games/$id/start/';
+
+  /// URL WebSocket pour la salle d'attente (lobby).
+  ///
+  /// [gameId] : ID de la partie
+  /// [token] : Token JWT pour l'authentification (passé en query ?token=xxx)
+  static String lobbyWebSocketUrl(int gameId, String token) {
+    final base = baseUrl
+        .replaceFirst('http://', 'ws://')
+        .replaceFirst('https://', 'wss://');
+    return '$base/ws/lobby/$gameId/?token=${Uri.encodeQueryComponent(token)}';
+  }
 }

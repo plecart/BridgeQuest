@@ -6,10 +6,9 @@ depuis l'application mobile Flutter.
 """
 import requests
 from django.conf import settings
-
-from utils.exceptions import BridgeQuestException, HTTP_SERVER_ERROR
+from utils.exceptions import BridgeQuestException
 from utils.messages import ErrorMessages
-from utils.sso_validation import REQUEST_TIMEOUT_SECONDS, require_non_empty_sso_token
+from utils.sso_validation import REQUEST_TIMEOUT_SECONDS, require_non_empty_sso_token, require_sso_config
 
 # Constantes de configuration
 GOOGLE_TOKEN_INFO_URL = 'https://oauth2.googleapis.com/tokeninfo'
@@ -43,19 +42,15 @@ def validate_google_token(token):
 def _get_google_client_ids():
     """
     Récupère la liste des Client IDs Google autorisés depuis la configuration.
-    
+
     Returns:
         list: Liste des Client IDs autorisés
-        
+
     Raises:
         BridgeQuestException: Si la configuration est manquante
     """
     google_client_ids = getattr(settings, 'GOOGLE_CLIENT_IDS', None)
-    if not google_client_ids:
-        raise BridgeQuestException(
-            ErrorMessages.AUTH_SSO_CONFIG_ERROR,
-            status_code=HTTP_SERVER_ERROR,
-        )
+    require_sso_config(google_client_ids)
     return google_client_ids
 
 
@@ -80,17 +75,17 @@ def _fetch_token_info(token):
         )
         
         if response.status_code != 200:
-            raise BridgeQuestException(ErrorMessages.AUTH_SSO_TOKEN_VALIDATION_FAILED)
+            raise BridgeQuestException(message_key=ErrorMessages.AUTH_SSO_TOKEN_VALIDATION_FAILED)
         
         token_info = response.json()
         
         if 'error' in token_info:
-            raise BridgeQuestException(ErrorMessages.AUTH_SSO_TOKEN_VALIDATION_FAILED)
+            raise BridgeQuestException(message_key=ErrorMessages.AUTH_SSO_TOKEN_VALIDATION_FAILED)
         
         return token_info
         
     except requests.RequestException as e:
-        raise BridgeQuestException(ErrorMessages.AUTH_SSO_TOKEN_VALIDATION_FAILED) from e
+        raise BridgeQuestException(message_key=ErrorMessages.AUTH_SSO_TOKEN_VALIDATION_FAILED) from e
 
 
 def _validate_token_audience(token_info, google_client_ids):
@@ -106,7 +101,7 @@ def _validate_token_audience(token_info, google_client_ids):
     """
     token_audience = token_info.get('aud')
     if not token_audience or token_audience not in google_client_ids:
-        raise BridgeQuestException(ErrorMessages.AUTH_SSO_TOKEN_VALIDATION_FAILED)
+        raise BridgeQuestException(message_key=ErrorMessages.AUTH_SSO_TOKEN_VALIDATION_FAILED)
 
 
 def _extract_user_data(token_info):
@@ -124,7 +119,7 @@ def _extract_user_data(token_info):
     """
     email = token_info.get('email')
     if not email:
-        raise BridgeQuestException(ErrorMessages.USER_EMAIL_REQUIRED)
+        raise BridgeQuestException(message_key=ErrorMessages.USER_EMAIL_REQUIRED)
     
     return {
         'email': email,

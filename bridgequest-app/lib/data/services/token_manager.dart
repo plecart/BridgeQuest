@@ -1,38 +1,39 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 /// Gestionnaire des tokens JWT pour l'authentification OAuth2
-/// 
+///
 /// Ce gestionnaire stocke et récupère les tokens d'accès et de rafraîchissement
 /// de manière sécurisée en utilisant flutter_secure_storage.
-/// 
+///
 /// Les tokens sont stockés dans le Keychain (iOS) ou Keystore (Android),
 /// offrant une sécurité maximale pour les données sensibles.
-/// 
+///
 /// Le token d'accès est mis en cache en mémoire pour éviter les accès répétés
 /// au stockage sécurisé, améliorant les performances.
 class TokenManager {
   static const String _accessTokenKey = 'jwt_access_token';
   static const String _refreshTokenKey = 'jwt_refresh_token';
-  
+
   final FlutterSecureStorage _storage;
-  
+
   // Cache en mémoire pour éviter les accès répétés au stockage sécurisé
   String? _cachedAccessToken;
   bool _cacheInitialized = false;
 
   TokenManager({
     FlutterSecureStorage? storage,
-  }) : _storage = storage ?? const FlutterSecureStorage(
-          aOptions: AndroidOptions(
-            encryptedSharedPreferences: true,
-          ),
-          iOptions: IOSOptions(
-            accessibility: KeychainAccessibility.first_unlock_this_device,
-          ),
-        );
+  }) : _storage = storage ??
+            const FlutterSecureStorage(
+              aOptions: AndroidOptions(
+                encryptedSharedPreferences: true,
+              ),
+              iOptions: IOSOptions(
+                accessibility: KeychainAccessibility.first_unlock_this_device,
+              ),
+            );
 
   /// Retourne le token d'accès actuel
-  /// 
+  ///
   /// Utilise un cache en mémoire pour éviter les accès répétés au stockage sécurisé.
   /// Retourne null si aucun token n'est stocké.
   Future<String?> getAccessToken() async {
@@ -40,7 +41,7 @@ class TokenManager {
     if (_cacheInitialized) {
       return _cachedAccessToken;
     }
-    
+
     // Charger depuis le stockage sécurisé une seule fois
     _cachedAccessToken = await _storage.read(key: _accessTokenKey);
     _cacheInitialized = true;
@@ -48,17 +49,17 @@ class TokenManager {
   }
 
   /// Retourne le token de rafraîchissement actuel
-  /// 
+  ///
   /// Retourne null si aucun token n'est stocké.
   Future<String?> getRefreshToken() async {
     return await _storage.read(key: _refreshTokenKey);
   }
 
   /// Sauvegarde les tokens d'accès et de rafraîchissement
-  /// 
+  ///
   /// [accessToken] : Le token d'accès JWT
   /// [refreshToken] : Le token de rafraîchissement JWT
-  /// 
+  ///
   /// Le cache est mis à jour immédiatement pour améliorer les performances,
   /// puis les tokens sont sauvegardés de manière asynchrone dans le stockage sécurisé.
   Future<void> saveTokens({
@@ -84,7 +85,7 @@ class TokenManager {
   }
 
   /// Met à jour uniquement le token d'accès
-  /// 
+  ///
   /// Utilisé lors du refresh token lorsque seul le access_token change.
   /// Le cache est mis à jour immédiatement pour améliorer les performances.
   Future<void> updateAccessToken(String accessToken) async {
@@ -93,7 +94,7 @@ class TokenManager {
   }
 
   /// Supprime tous les tokens stockés
-  /// 
+  ///
   /// Utilisé lors de la déconnexion pour nettoyer les tokens.
   /// Le cache est vidé immédiatement, puis les tokens sont supprimés du stockage.
   Future<void> clearTokens() async {
@@ -102,7 +103,7 @@ class TokenManager {
   }
 
   /// Vide le cache en mémoire
-  /// 
+  ///
   /// Utilisé lors de la déconnexion pour marquer le cache comme vide.
   void _clearCache() {
     _cachedAccessToken = null;
@@ -110,7 +111,7 @@ class TokenManager {
   }
 
   /// Supprime les tokens du stockage sécurisé
-  /// 
+  ///
   /// Supprime les deux tokens (access et refresh) de manière parallèle.
   Future<void> _deleteTokensFromStorage() async {
     await Future.wait([
@@ -118,9 +119,9 @@ class TokenManager {
       _storage.delete(key: _refreshTokenKey),
     ]);
   }
-  
+
   /// Invalide le cache en mémoire
-  /// 
+  ///
   /// Force le rechargement depuis le stockage sécurisé lors du prochain appel.
   /// Diffère de [_clearCache] car elle marque le cache comme non initialisé,
   /// permettant un rechargement depuis le stockage.
@@ -130,7 +131,7 @@ class TokenManager {
   }
 
   /// Vérifie si un token d'accès est disponible
-  /// 
+  ///
   /// Retourne true si un token d'accès est stocké, false sinon.
   Future<bool> hasAccessToken() async {
     final token = await getAccessToken();

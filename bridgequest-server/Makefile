@@ -44,13 +44,21 @@ help: ## Affiche cette aide
 # Serveur
 # ============================================================================
 
-server: ## Démarre le serveur Django de développement
-	$(call msg-start,Démarrage du serveur Django)
-	$(PYTHON) $(MANAGE) runserver
+DAPHNE_PORT = 8000
+DAPHNE_APP = bridgequest.asgi:application
+# Pas de --access-log Daphne : la ligne complète (incluant ?token=...) expose les JWT.
+# Le middleware AccessLogMiddleware enregistre en console avec chemins redactés.
+DAPHNE_OPTS = -b 0.0.0.0
 
-server-8001: ## Démarre le serveur Django sur le port 8001
-	$(call msg-start,Démarrage du serveur Django sur le port 8001)
-	$(PYTHON) $(MANAGE) runserver 8001
+server: ## Démarre le serveur (Daphne : HTTP + WebSocket)
+	$(call msg-start,Démarrage du serveur Daphne)
+	@mkdir -p logs
+	$(PYTHON) -m daphne $(DAPHNE_OPTS) -p $(DAPHNE_PORT) $(DAPHNE_APP)
+
+server-8001: ## Démarre le serveur sur le port 8001 (si 8000 est occupé)
+	$(call msg-start,Démarrage du serveur Daphne sur le port 8001)
+	@mkdir -p logs
+	$(PYTHON) -m daphne $(DAPHNE_OPTS) -p 8001 $(DAPHNE_APP)
 
 run: server ## Alias pour server (cohérence avec Flutter)
 

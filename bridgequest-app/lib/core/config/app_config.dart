@@ -21,10 +21,10 @@ class AppConfig {
   static const bool isDebug = bool.fromEnvironment('dart.vm.product') == false;
 
   /// Client ID Web Google Sign-In (pour obtenir l'idToken côté serveur)
-  /// 
+  ///
   /// IMPORTANT: Pour Android, il faut utiliser un Client ID Web comme serverClientId.
   /// Le Client ID Android est utilisé automatiquement par le plugin Google Sign-In.
-  /// 
+  ///
   /// Throws [ConfigurationException] si la variable d'environnement n'est pas définie.
   static String get googleSignInWebClientId {
     final clientId = dotenv.env['GOOGLE_SIGN_IN_WEB_CLIENT_ID'];

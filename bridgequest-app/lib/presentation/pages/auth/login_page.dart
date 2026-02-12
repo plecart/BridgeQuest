@@ -57,7 +57,10 @@ class _LoginPageState extends State<LoginPage> {
               if (authProvider.isLoading) _buildLoadingIndicator(),
               if (authProvider.errorMessage != null)
                 ErrorMessage(
-                  message: ErrorTranslator.translate(authProvider.errorMessage!, l10n),
+                  message: ErrorTranslator.translate(
+                    authProvider.errorMessage!,
+                    l10n,
+                  ),
                 ),
             ],
           ),

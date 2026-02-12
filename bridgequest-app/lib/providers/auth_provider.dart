@@ -84,7 +84,7 @@ class AuthProvider extends ChangeNotifier {
   }
 
   /// Définit un message d'erreur à partir d'une exception
-  /// 
+  ///
   /// Stocke le code de traduction (pas le message traduit) pour permettre
   /// la traduction dans la couche de présentation selon la locale.
   void _setErrorFromException(dynamic exception) {

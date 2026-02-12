@@ -3,8 +3,6 @@ Vues API pour l'authentification dans le module Accounts.
 
 Ces vues gèrent les endpoints d'authentification SSO mobile.
 """
-import logging
-
 from django.contrib.auth import get_user_model
 from django.utils.translation import gettext_lazy as _
 from rest_framework import status
@@ -20,26 +18,22 @@ from accounts.services.google_auth_service import validate_google_token
 from accounts.services.jwt_service import generate_tokens_for_user
 from utils.exceptions import BridgeQuestException
 from utils.messages import ErrorMessages, Messages
+from utils.responses import error_response
 
 User = get_user_model()
-logger = logging.getLogger(__name__)
 
-
-# ---------------------------------------------------------------------------
-# Helpers privés (validation, construction de réponses)
-# ---------------------------------------------------------------------------
 
 def _validate_sso_token(provider, token):
     """
     Valide un token SSO selon le provider.
-
+    
     Args:
         provider: Le fournisseur SSO ('google' ou 'apple')
         token: Le token à valider
-
+        
     Returns:
         dict: Les données SSO validées
-
+        
     Raises:
         BridgeQuestException: Si le provider est invalide ou la validation échoue
     """
@@ -48,17 +42,17 @@ def _validate_sso_token(provider, token):
     elif provider == 'apple':
         return validate_apple_token(token)
     else:
-        raise BridgeQuestException(ErrorMessages.AUTH_SSO_PROVIDER_INVALID)
+        raise BridgeQuestException(message_key=ErrorMessages.AUTH_SSO_PROVIDER_INVALID)
 
 
 def _build_login_response(user, tokens):
     """
     Construit la réponse de connexion avec les informations utilisateur et les tokens JWT.
-
+    
     Args:
         user: L'instance User authentifiée
         tokens: Dictionnaire contenant 'access' et 'refresh' tokens
-
+        
     Returns:
         dict: Données de réponse formatées
     """
@@ -70,57 +64,6 @@ def _build_login_response(user, tokens):
         'message': _(Messages.SSO_LOGIN_SUCCESS)
     }
 
-
-def _build_error_response(error_message, status_code):
-    """
-    Construit une réponse d'erreur standardisée.
-
-    Args:
-        error_message: Le message d'erreur à retourner
-        status_code: Le code de statut HTTP
-
-    Returns:
-        Response: Réponse d'erreur formatée
-    """
-    return Response(
-        {'error': error_message},
-        status=status_code
-    )
-
-
-def _build_validation_error_response(errors):
-    """
-    Construit une réponse d'erreur de validation.
-
-    Args:
-        errors: Les erreurs de validation du serializer
-
-    Returns:
-        Response: Réponse d'erreur de validation formatée
-    """
-    return Response(errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-def _handle_sso_unexpected_error(provider):
-    """
-    Log une erreur SSO inattendue et retourne une réponse 500.
-
-    Args:
-        provider: Le fournisseur SSO concerné (pour le log)
-
-    Returns:
-        Response: Réponse d'erreur 500 avec message générique
-    """
-    logger.exception(_(Messages.LOG_AUTH_SSO_UNEXPECTED), provider)
-    return _build_error_response(
-        _(ErrorMessages.AUTH_SSO_FAILED),
-        status.HTTP_500_INTERNAL_SERVER_ERROR,
-    )
-
-
-# ---------------------------------------------------------------------------
-# Vues API
-# ---------------------------------------------------------------------------
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
@@ -169,9 +112,28 @@ def sso_login_view(request):
         )
         
     except BridgeQuestException as e:
-        return _build_error_response(str(e), e.status_code)
+        return error_response(e, e.status_code)
     except Exception:
-        return _handle_sso_unexpected_error(provider)
+        return error_response(
+            _(ErrorMessages.AUTH_SSO_FAILED),
+            status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
+
+
+def _build_validation_error_response(errors):
+    """
+    Construit une réponse d'erreur de validation.
+    
+    Args:
+        errors: Les erreurs de validation du serializer
+        
+    Returns:
+        Response: Réponse d'erreur de validation formatée
+    """
+    return Response(
+        errors,
+        status=status.HTTP_400_BAD_REQUEST
+    )
 
 
 @api_view(['GET'])
@@ -226,7 +188,7 @@ def user_profile_view(request, user_id):
         serializer = UserPublicSerializer(user)
         return Response(serializer.data, status=status.HTTP_200_OK)
     except User.DoesNotExist:
-        return _build_error_response(
+        return error_response(
             _(ErrorMessages.USER_NOT_FOUND),
-            status.HTTP_404_NOT_FOUND
+            status.HTTP_404_NOT_FOUND,
         )

@@ -15,8 +15,10 @@ djangorestframework-simplejwt>=5.3.0  # JWT tokens pour OAuth2
 # WebSocket (pour la synchronisation temps réel)
 channels>=4.0.0
 channels-redis>=4.1.0
+daphne>=4.0.0  # Serveur ASGI pour HTTP + WebSocket
 
 # Utilitaires
+whitenoise>=6.6.0  # Serve les fichiers statiques (CSS/JS) avec Daphne/ASGI
 python-decouple>=3.8  # Gestion des variables d'environnement
 django-cors-headers>=4.3.0  # CORS pour l'API
 

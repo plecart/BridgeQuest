@@ -1,16 +1,14 @@
 import 'dart:async';
 
 import 'package:dio/dio.dart';
-
 import '../../core/config/api_config.dart';
-import '../../core/config/app_localizations_holder.dart';
 import '../../core/exceptions/app_exceptions.dart';
 import '../../core/utils/logger.dart';
 import 'token_manager.dart';
 
-/// Service pour les appels API REST avec authentification OAuth2/JWT.
+/// Service pour les appels API REST avec authentification OAuth2/JWT
 ///
-/// Gère les requêtes HTTP vers l'API backend en utilisant
+/// Ce service gère toutes les requêtes HTTP vers l'API backend en utilisant
 /// des tokens JWT pour l'authentification. Les tokens sont automatiquement
 /// ajoutés aux headers et rafraîchis si nécessaire.
 class ApiService {
@@ -26,8 +24,12 @@ class ApiService {
           BaseOptions(
             baseUrl: baseUrl,
             headers: const {'Content-Type': 'application/json'},
-            connectTimeout: Duration(seconds: ApiConfig.timeoutSeconds), // ignore: prefer_const_constructors
-            receiveTimeout: Duration(seconds: ApiConfig.timeoutSeconds), // ignore: prefer_const_constructors
+            connectTimeout: const Duration(
+              seconds: ApiConfig.timeoutSeconds,
+            ), // ignore: prefer_const_constructors
+            receiveTimeout: const Duration(
+              seconds: ApiConfig.timeoutSeconds,
+            ), // ignore: prefer_const_constructors
             // Duration ne peut pas être const car ApiConfig.timeoutSeconds n'est pas une constante compile-time
           ),
         ) {
@@ -35,10 +37,11 @@ class ApiService {
     _preloadToken();
   }
 
-  /// Précharge le token en mémoire pour éviter les accès bloquants au stockage.
+  /// Précharge le token en mémoire pour éviter les accès bloquants au stockage
   ///
-  /// Charge le token de manière asynchrone au démarrage. Le Future n'est pas
-  /// attendu pour ne pas bloquer l'initialisation.
+  /// Cette méthode charge le token de manière asynchrone au démarrage pour
+  /// améliorer les performances des requêtes suivantes.
+  /// Le Future n'est pas attendu pour ne pas bloquer l'initialisation.
   void _preloadToken() {
     // ignore: unawaited_futures
     // Le Future est intentionnellement non attendu pour ne pas bloquer l'initialisation
@@ -72,24 +75,23 @@ class ApiService {
     return _isUnauthorizedError(error) && !_isRefreshRequest(error);
   }
 
-  /// Vérifie si l'erreur est une erreur d'authentification (401).
+  /// Vérifie si l'erreur est une erreur d'authentification (401)
   bool _isUnauthorizedError(DioException error) {
     return error.response?.statusCode == 401;
   }
 
   /// Vérifie si la requête en erreur cible l'endpoint de refresh.
   ///
-  /// Ne pas retry sur cette route évite un cycle : un 401 sur le refresh
+  /// Ne pas retry sur cette route évite un cycle infini : un 401 sur le refresh
   /// repasserait par l'intercepteur et rappellerait le refresh.
   bool _isRefreshRequest(DioException error) {
     return error.requestOptions.path == ApiConfig.authTokenRefresh;
   }
 
-  /// Réessaie une requête après avoir rafraîchi le token (auth JWT Bearer, pas de cookies).
+  /// Réessaie une requête après avoir rafraîchi le token.
   ///
-  /// Retourne true si la requête a été réessayée (succès ou échec propagé), false si
-  /// le refresh a échoué. En cas d'erreur sur la requête réessayée, propage cette erreur
-  /// pour que l'appelant reçoive le bon statut (ex. 500, 404) et non le 401 d'origine.
+  /// Retourne true si l'erreur a été traitée (retry effectué ou échec propagé),
+  /// false si le refresh a échoué et qu'on n'a pas retry.
   Future<bool> _retryRequestAfterRefresh(
     DioException error,
     ErrorInterceptorHandler handler,
@@ -104,24 +106,22 @@ class ApiService {
       final response = await _dio.fetch(opts);
       handler.resolve(response);
       return true;
-    } catch (e, stackTrace) {
-      handler.reject(_toDioException(e, stackTrace, opts));
+    } catch (e) {
+      _rejectWithRetryError(opts, e, handler);
       return true;
     }
   }
 
-  /// Convertit une exception quelconque en [DioException] pour propagation dans l'intercepteur.
-  DioException _toDioException(
-    Object error,
-    StackTrace? stackTrace,
-    RequestOptions requestOptions,
+  /// Propage l'erreur du retry (500/404/etc.) plutôt que le 401 d'origine.
+  void _rejectWithRetryError(
+    RequestOptions opts,
+    dynamic error,
+    ErrorInterceptorHandler handler,
   ) {
-    if (error is DioException) return error;
-    return DioException(
-      requestOptions: requestOptions,
-      error: error,
-      stackTrace: stackTrace,
-    );
+    final retryError = error is DioException
+        ? error
+        : DioException(requestOptions: opts, error: error);
+    handler.reject(retryError);
   }
 
   /// Ajoute le token d'authentification au header si disponible
@@ -132,10 +132,12 @@ class ApiService {
     }
   }
 
-  /// Rafraîchit le token d'accès si nécessaire.
+  /// Rafraîchit le token d'accès si nécessaire
   ///
   /// Retourne true si le token a été rafraîchi avec succès, false sinon.
-  /// Les requêtes concurrentes recevant un 401 attendent le même Future de refresh.
+  /// Si plusieurs requêtes reçoivent un 401 simultanément, elles partagent le même
+  /// refresh et attendent toutes sa complétion (évite les refresh en parallèle et
+  /// les échecs inutiles quand une requête arrive pendant un refresh en cours).
   Future<bool> _refreshTokenIfNeeded() async {
     if (_refreshFuture != null) {
       return _refreshFuture!;
@@ -143,6 +145,7 @@ class ApiService {
 
     final completer = Completer<bool>();
     _refreshFuture = completer.future;
+
     try {
       final result = await _performTokenRefresh();
       completer.complete(result);
@@ -155,10 +158,10 @@ class ApiService {
     }
   }
 
-  /// Effectue le rafraîchissement du token d'accès.
+  /// Effectue le rafraîchissement du token d'accès
   ///
-  /// Retourne true si le refresh réussit, false sinon. En cas d'erreur, supprime
-  /// les tokens pour forcer une nouvelle authentification.
+  /// Retourne true si le refresh réussit, false sinon.
+  /// En cas d'erreur, supprime les tokens pour forcer une nouvelle authentification.
   Future<bool> _performTokenRefresh() async {
     final refreshToken = await _tokenManager.getRefreshToken();
     if (refreshToken == null) {
@@ -185,10 +188,11 @@ class ApiService {
     }
   }
 
-  /// Requête GET.
+  /// Requête GET
   ///
-  /// [path] Chemin de l'endpoint (relatif à baseUrl).
-  /// [queryParameters] Paramètres de requête optionnels.
+  /// [path] : Chemin de l'endpoint (relatif à baseUrl)
+  /// [queryParameters] : Paramètres de requête optionnels
+  ///
   /// Throws [AppException] si une erreur survient.
   Future<Response> get(
     String path, {
@@ -199,10 +203,11 @@ class ApiService {
     );
   }
 
-  /// Requête POST.
+  /// Requête POST
   ///
-  /// [path] Chemin de l'endpoint (relatif à baseUrl).
-  /// [data] Données à envoyer dans le body.
+  /// [path] : Chemin de l'endpoint (relatif à baseUrl)
+  /// [data] : Données à envoyer dans le body
+  ///
   /// Throws [AppException] si une erreur survient.
   Future<Response> post(
     String path, {
@@ -211,10 +216,11 @@ class ApiService {
     return _executeRequest(() => _dio.post(path, data: data));
   }
 
-  /// Requête PUT.
+  /// Requête PUT
   ///
-  /// [path] Chemin de l'endpoint (relatif à baseUrl).
-  /// [data] Données à envoyer dans le body.
+  /// [path] : Chemin de l'endpoint (relatif à baseUrl)
+  /// [data] : Données à envoyer dans le body
+  ///
   /// Throws [AppException] si une erreur survient.
   Future<Response> put(
     String path, {
@@ -223,18 +229,20 @@ class ApiService {
     return _executeRequest(() => _dio.put(path, data: data));
   }
 
-  /// Requête DELETE.
+  /// Requête DELETE
   ///
-  /// [path] Chemin de l'endpoint (relatif à baseUrl).
+  /// [path] : Chemin de l'endpoint (relatif à baseUrl)
+  ///
   /// Throws [AppException] si une erreur survient.
   Future<Response> delete(String path) async {
     return _executeRequest(() => _dio.delete(path));
   }
 
-  /// Requête PATCH.
+  /// Requête PATCH
   ///
-  /// [path] Chemin de l'endpoint (relatif à baseUrl).
-  /// [data] Données à envoyer dans le body.
+  /// [path] : Chemin de l'endpoint (relatif à baseUrl)
+  /// [data] : Données à envoyer dans le body
+  ///
   /// Throws [AppException] si une erreur survient.
   Future<Response> patch(
     String path, {
@@ -255,93 +263,73 @@ class ApiService {
   /// Convertit une erreur Dio en exception personnalisée
   AppException _handleDioError(DioException error) {
     if (_isTimeoutError(error)) {
-      return _createTimeoutException();
+      return _createNetworkException('Connection timeout', 'error.api.timeout');
     }
-
     if (_isConnectionError(error)) {
-      return _createConnectionException();
+      return _createNetworkException(
+        'Network connection error',
+        'error.network',
+      );
     }
-
     if (error.response != null) {
       return _createApiException(error);
     }
-
-    return _createUnknownNetworkException();
-  }
-
-  /// Vérifie si l'erreur est un timeout
-  bool _isTimeoutError(DioException error) {
-    return error.type == DioExceptionType.connectionTimeout ||
-        error.type == DioExceptionType.receiveTimeout ||
-        error.type == DioExceptionType.sendTimeout;
-  }
-
-  /// Vérifie si l'erreur est une erreur de connexion
-  bool _isConnectionError(DioException error) {
-    return error.type == DioExceptionType.connectionError;
-  }
-
-  /// Crée une exception réseau avec un code l10n (message = code pour [ErrorTranslator])
-  NetworkException _createNetworkException(String code) {
-    return NetworkException(code, code: code);
-  }
-
-  /// Crée une exception de timeout
-  NetworkException _createTimeoutException() =>
-      _createNetworkException('error.api.timeout');
-
-  /// Crée une exception de connexion
-  NetworkException _createConnectionException() =>
-      _createNetworkException('error.network');
-
-  /// Crée une exception réseau inconnue
-  NetworkException _createUnknownNetworkException() =>
-      _createNetworkException('error.api.unknown');
-
-  /// Crée une exception API à partir d'une erreur Dio.
-  ///
-  /// Les erreurs 401/403 ne sont pas loggées (cas normaux, ex. vérification au démarrage).
-  ApiException _createApiException(DioException error) {
-    final statusCode = error.response!.statusCode!;
-    final errorData = error.response!.data;
-    
-    _logApiErrorIfNeeded(statusCode, errorData);
-    final errorMessage = _extractErrorMessage(errorData);
-
-    return ApiException(
-      errorMessage,
-      code: 'error.api.generic',
-      statusCode: statusCode,
+    return _createNetworkException(
+      'Unknown network error',
+      'error.api.unknown',
     );
   }
 
-  /// Log une erreur API si nécessaire (401/403 non loggés).
+  bool _isTimeoutError(DioException error) =>
+      error.type == DioExceptionType.connectionTimeout ||
+      error.type == DioExceptionType.receiveTimeout ||
+      error.type == DioExceptionType.sendTimeout;
+
+  bool _isConnectionError(DioException error) =>
+      error.type == DioExceptionType.connectionError;
+
+  NetworkException _createNetworkException(String message, String code) =>
+      NetworkException(message, code: code);
+
+  /// Crée une exception API à partir d'une erreur Dio
+  ///
+  /// Le [message] est technique (anglais) pour les logs. Le [code] sert à l'affichage localisé.
+  /// Les erreurs 401/403 (authentification) ne sont pas loggées car elles peuvent être
+  /// des cas normaux (ex: vérification de l'état d'authentification au démarrage).
+  ApiException _createApiException(DioException error) {
+    final statusCode = error.response!.statusCode!;
+    final errorData = error.response!.data;
+    final serverMessage = _extractServerErrorMessage(errorData);
+
+    _logApiErrorIfNeeded(statusCode, errorData);
+
+    return ApiException(
+      'API error: $statusCode',
+      code: 'error.api.generic',
+      statusCode: statusCode,
+      serverMessage: serverMessage,
+    );
+  }
+
+  /// Extrait le message d'erreur du body de réponse API (format {"error": "..."}).
+  String? _extractServerErrorMessage(dynamic data) {
+    if (data is Map && data.containsKey('error')) {
+      final error = data['error'];
+      if (error is String && error.isNotEmpty) return error;
+    }
+    return null;
+  }
+
+  /// Log une erreur API si nécessaire
+  ///
+  /// Les erreurs 401/403 (authentification) ne sont pas loggées car ce sont des cas normaux
+  /// lors de la vérification de l'état d'authentification.
   void _logApiErrorIfNeeded(int statusCode, dynamic errorData) {
     if (statusCode != 401 && statusCode != 403) {
-      final l10n = AppLocalizationsHolder.current;
       AppLogger.error(
-        l10n?.logErrorApiStatus(statusCode) ?? 'logErrorApiStatus($statusCode)',
+        'API error - Status: $statusCode',
         errorData,
       );
     }
-  }
-
-  /// Extrait le message d'erreur de la réponse (Map avec error/message/detail ou String).
-  String _extractErrorMessage(dynamic errorData) {
-    if (errorData is Map<String, dynamic>) {
-      return _extractErrorMessageFromMap(errorData);
-    }
-    if (errorData is String) {
-      return errorData;
-    }
-    return 'error.api.generic';
-  }
-
-  /// Extrait le message depuis une Map (error, message, detail ou code l10n par défaut).
-  String _extractErrorMessageFromMap(Map<String, dynamic> errorData) {
-    return errorData['error']?.toString() ??
-        errorData['message']?.toString() ??
-        errorData['detail']?.toString() ??
-        'error.api.generic';
   }
 }

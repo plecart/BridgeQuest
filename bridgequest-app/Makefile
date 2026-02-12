@@ -1,4 +1,4 @@
-.PHONY: help install run test test-unit test-widget clean i18n analyze format format-check check build-android build-android-release build-ios build-ios-release deps-outdated deps-upgrade setup run-ios
+.PHONY: help install run test test-unit test-widget clean i18n analyze format format-check check build-android build-android-release build-ios build-ios-release deps-outdated deps-upgrade setup run-ios run-android emulator
 
 # ============================================================================
 # Variables
@@ -68,6 +68,21 @@ run-ios: ## Lance l'application Flutter sur iOS (macOS uniquement)
 	$(call msg-start,Lancement sur iOS)
 	$(FLUTTER) run -d ios
 
+run-android: ## Lance l'application Flutter sur l'émulateur Android (emulator-5554)
+	$(call msg-start,Lancement sur l'émulateur Android)
+	$(FLUTTER) run -d emulator-5554
+
+# Émulateur Android : utilise 'emulator' (doit être dans PATH).
+# Pour surcharger le chemin : make emulator EMULATOR_CMD=/chemin/vers/emulator
+# Pour surcharger l'AVD : make emulator EMULATOR_AVD=Mon_AVD
+EMULATOR_AVD ?= Medium_Phone_API_36.1
+EMULATOR_CMD ?= emulator
+
+emulator: ## Démarre l'émulateur Android (voir README pour la configuration)
+	$(call msg-start,Démarrage de l'émulateur Android)
+	$(EMULATOR_CMD) -avd $(EMULATOR_AVD)
+	$(call msg-done,Émulateur lancé)
+
 # ============================================================================
 # Qualité de code
 # ============================================================================
@@ -99,15 +114,15 @@ test: ## Lance tous les tests Flutter
 	$(FLUTTER) test
 	$(call msg-done,Tests terminés)
 
-test-unit: ## Lance les tests unitaires uniquement (tag: unit)
-	$(call msg-start,Lancement des tests unitaires)
-	$(FLUTTER) test --tags=unit
-	$(call msg-done,Tests unitaires terminés)
-
-test-widget: ## Lance les tests de widgets uniquement (tag: widget)
+test-widget: ## Lance uniquement les tests de widgets
 	$(call msg-start,Lancement des tests de widgets)
-	$(FLUTTER) test --tags=widget
+	$(FLUTTER) test --tags widget
 	$(call msg-done,Tests de widgets terminés)
+
+test-unit: ## Lance uniquement les tests unitaires (exclut les tests de widgets)
+	$(call msg-start,Lancement des tests unitaires)
+	$(FLUTTER) test --exclude-tags widget
+	$(call msg-done,Tests unitaires terminés)
 
 # ============================================================================
 # Build

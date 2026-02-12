@@ -1,6 +1,22 @@
 """
 Services du module Games.
-
-Les services de logique métier seront importés ici lorsqu'ils seront créés.
 """
-# Exemple: from .game_service import create_game
+from .game_service import (
+    create_game,
+    generate_game_code,
+    get_game_by_code,
+    get_game_by_id,
+    get_player_in_game,
+    join_game,
+    start_game,
+)
+
+__all__ = [
+    "create_game",
+    "generate_game_code",
+    "get_game_by_code",
+    "get_game_by_id",
+    "get_player_in_game",
+    "join_game",
+    "start_game",
+]

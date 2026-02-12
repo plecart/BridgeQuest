@@ -36,7 +36,8 @@ DATABASES = {
 
 CACHES = {
     'default': {
-        'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+        # LocMemCache requis pour les tests du lobby_service (exclusion après déconnexion)
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
     }
 }
 
@@ -89,6 +90,11 @@ LOGGING = {
         'bridgequest': {
             'handlers': ['console'],
             'level': 'ERROR',
+            'propagate': False,
+        },
+        'bridgequest.access': {
+            'handlers': ['console'],
+            'level': 'ERROR',  # Pas d'access logs pendant les tests
             'propagate': False,
         },
     },

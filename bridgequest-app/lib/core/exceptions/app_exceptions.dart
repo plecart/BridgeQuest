@@ -1,47 +1,57 @@
-/// Exception de base pour l'application
+/// Exception de base pour l'application.
+///
+/// [message] : Message technique (anglais) pour les logs.
+/// [code] : Clé de traduction pour l'affichage localisé.
+/// [serverMessage] : Message déjà traduit renvoyé par le serveur (prioritaire).
 abstract class AppException implements Exception {
   final String message;
   final String? code;
+  final String? serverMessage;
 
-  AppException(this.message, {this.code});
+  AppException(this.message, {this.code, this.serverMessage});
+
+  /// Message à afficher à l'utilisateur.
+  ///
+  /// Priorité : serverMessage > code (pour traduction) > message technique.
+  String get displayMessage => serverMessage ?? code ?? message;
 
   @override
   String toString() => message;
 }
 
-/// Exception d'authentification
+/// Exception d'authentification.
 class AuthException extends AppException {
-  AuthException(super.message, {super.code});
+  AuthException(super.message, {super.code, super.serverMessage});
 }
 
-/// Exception réseau
+/// Exception réseau.
 class NetworkException extends AppException {
-  NetworkException(super.message, {super.code});
+  NetworkException(super.message, {super.code, super.serverMessage});
 }
 
-/// Exception API (réponse HTTP d'erreur).
-///
-/// Utiliser [isClientError] / [isServerError] pour adapter le message
-/// (voir CODING_STANDARDS_FLUTTER.md : 4xx = message API, 5xx = message générique).
+/// Exception API.
 class ApiException extends AppException {
   final int? statusCode;
 
-  ApiException(super.message, {super.code, this.statusCode});
-
-  /// True si le code HTTP indique une erreur client (4xx).
-  bool get isClientError =>
-      statusCode != null && statusCode! >= 400 && statusCode! < 500;
-
-  /// True si le code HTTP indique une erreur serveur (5xx).
-  bool get isServerError => statusCode != null && statusCode! >= 500;
+  ApiException(
+    super.message, {
+    super.code,
+    this.statusCode,
+    super.serverMessage,
+  });
 }
 
-/// Exception de validation
+/// Exception de validation.
 class ValidationException extends AppException {
-  ValidationException(super.message, {super.code});
+  ValidationException(super.message, {super.code, super.serverMessage});
 }
 
-/// Exception de configuration
+/// Exception de configuration.
 class ConfigurationException extends AppException {
-  ConfigurationException(super.message, {super.code});
+  ConfigurationException(super.message, {super.code, super.serverMessage});
+}
+
+/// Exception liée aux parties de jeu.
+class GameException extends AppException {
+  GameException(super.message, {super.code, super.serverMessage});
 }

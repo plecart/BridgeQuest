@@ -2,37 +2,7 @@
 Base settings for Bridge Quest project.
 
 These settings are shared across all environments (development, production, etc.)
-Symbols below are exported for ``from .base import *`` in environment modules.
 """
-__all__ = [
-    'BASE_DIR',
-    'SECRET_KEY',
-    'INSTALLED_APPS',
-    'AUTH_USER_MODEL',
-    'MIDDLEWARE',
-    'ROOT_URLCONF',
-    'TEMPLATES',
-    'WSGI_APPLICATION',
-    'DATABASES',
-    'AUTH_PASSWORD_VALIDATORS',
-    'LANGUAGE_CODE',
-    'TIME_ZONE',
-    'USE_I18N',
-    'USE_TZ',
-    'STATIC_URL',
-    'STATIC_ROOT',
-    'MEDIA_URL',
-    'MEDIA_ROOT',
-    'DEFAULT_AUTO_FIELD',
-    'REST_FRAMEWORK',
-    'CORS_ALLOWED_ORIGINS',
-    'CORS_ALLOW_CREDENTIALS',
-    'AUTHENTICATION_BACKENDS',
-    'APPLE_CLIENT_ID',
-    'GOOGLE_CLIENT_IDS',
-    'SIMPLE_JWT',
-]
-
 from datetime import timedelta
 from pathlib import Path
 
@@ -45,7 +15,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 SECRET_KEY = config('SECRET_KEY', default='django-insecure-dev-key-change-in-production')
 
 # Application definition
+# daphne doit être en premier pour gérer HTTP et WebSocket
 INSTALLED_APPS = [
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -54,8 +26,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     
     # Third-party apps
+    'channels',
     'rest_framework',
-    'rest_framework_simplejwt.token_blacklist',  # requis si SIMPLE_JWT['BLACKLIST_AFTER_ROTATION']
     'corsheaders',
     
     # Local apps
@@ -72,6 +44,7 @@ AUTH_USER_MODEL = 'accounts.User'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',  # CORS middleware (avant CommonMiddleware)
     'django.middleware.common.CommonMiddleware',
@@ -79,6 +52,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'utils.middleware.AccessLogMiddleware',  # Logs HTTP unifiés (format cohérent avec Daphne)
 ]
 
 ROOT_URLCONF = 'bridgequest.urls'
@@ -100,6 +74,16 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'bridgequest.wsgi.application'
+ASGI_APPLICATION = 'bridgequest.asgi.application'
+
+# Channel layers pour WebSocket (synchronisation temps réel)
+# En développement : InMemoryChannelLayer (pas de Redis requis)
+# En production : configurer channels_redis avec REDIS_URL
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels.layers.InMemoryChannelLayer',
+    },
+}
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases

@@ -1,14 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
-import '../../core/config/app_localizations_holder.dart';
-import '../../i18n/app_localizations.dart';
 import '../../providers/auth_provider.dart';
 import '../pages/auth/login_page.dart';
 import '../pages/menu/home_page.dart';
 
 /// Widget qui gère la navigation conditionnelle selon l'état d'authentification
-/// 
+///
 /// Affiche la page de connexion si l'utilisateur n'est pas authentifié,
 /// sinon affiche la page d'accueil.
 class AuthWrapper extends StatefulWidget {
@@ -28,7 +25,7 @@ class _AuthWrapperState extends State<AuthWrapper> {
   }
 
   /// Initialise l'authentification après le premier frame
-  /// 
+  ///
   /// Utilise [addPostFrameCallback] avec un délai pour éviter de bloquer
   /// le thread principal au démarrage et permettre au premier frame de s'afficher.
   void _initializeAuth() {
@@ -64,11 +61,6 @@ class _AuthWrapperState extends State<AuthWrapper> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    if (l10n != null) {
-      AppLocalizationsHolder.setCurrent(l10n);
-    }
-
     if (_isInitializing) {
       return const Scaffold(
         body: Center(child: CircularProgressIndicator()),

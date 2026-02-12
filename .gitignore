@@ -2,6 +2,8 @@
 bridgequest-doc/
 
 # Python / Django
+# Artefacts pip (redirection accidentelle, ex: typo "pip install pkg>=1.0" créant fichier =1.0)
+=*
 __pycache__/
 *.py[cod]
 *$py.class
@@ -33,8 +35,9 @@ local_settings.py
 db.sqlite3
 db.sqlite3-journal
 /media
-/staticfiles
 /static
+/staticfiles
+**/staticfiles/
 
 # Environnements virtuels
 venv/
@@ -73,6 +76,7 @@ venv.bak/
 *.freezed.dart
 *.mocks.dart
 # Coverage
+.coverage
 coverage/
 test/.test_coverage.dart
 

@@ -61,9 +61,19 @@ LOGGING = {
             'level': 'INFO',
             'propagate': False,
         },
+        'daphne': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
         'bridgequest': {
             'handlers': ['console'],
             'level': 'DEBUG',
+            'propagate': False,
+        },
+        'bridgequest.access': {
+            'handlers': ['console'],
+            'level': 'INFO',
             'propagate': False,
         },
     },

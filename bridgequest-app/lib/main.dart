@@ -10,10 +10,10 @@ import 'presentation/theme/app_theme.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   // Charger les variables d'environnement
   await dotenv.load(fileName: '.env');
-  
+
   runApp(const BridgeQuestApp());
 }
 

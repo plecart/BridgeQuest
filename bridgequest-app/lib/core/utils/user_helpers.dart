@@ -5,7 +5,7 @@ class UserHelpers {
   UserHelpers._();
 
   /// Obtient les initiales de l'utilisateur
-  /// 
+  ///
   /// Retourne les initiales basées sur le prénom/nom ou le username.
   /// Retourne '?' si aucune information n'est disponible.
   static String getInitials(User user) {
@@ -23,7 +23,7 @@ class UserHelpers {
   }
 
   /// Obtient le nom d'affichage de l'utilisateur
-  /// 
+  ///
   /// Priorité : Prénom + Nom > Prénom > Username
   static String getDisplayName(User user) {
     if (user.firstName != null && user.lastName != null) {

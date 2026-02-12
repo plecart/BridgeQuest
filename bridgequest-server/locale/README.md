@@ -63,8 +63,8 @@ msgstr "Parties de jeu"
 msgid "validation.game.code.alphanumeric"
 msgstr "Le code de partie doit être alphanumérique."
 
-msgid "error.game.name.required"
-msgstr "Le nom de la partie est requis."
+msgid "error.game.not_found"
+msgstr "Partie introuvable."
 ```
 
 ## Workflow
