@@ -30,6 +30,15 @@ class GameViewsTestCase(TestCase):
         """Authentifie le client avec l'utilisateur spécifié."""
         self.client.force_authenticate(user=user or self.user)
 
+    def _post_join_game(self, code, user=None):
+        """Envoie une requête POST pour rejoindre une partie via son code."""
+        self._authenticate_client(user)
+        return self.client.post(
+            '/api/games/join/',
+            {'code': code},
+            format='json',
+        )
+
     def test_create_game_authenticated_success(self):
         """Test de création de partie avec utilisateur authentifié."""
         self._authenticate_client()
@@ -61,12 +70,7 @@ class GameViewsTestCase(TestCase):
         game = Game.objects.create(code='ABC123')
         Player.objects.create(game=game, user=self.user, is_admin=True)
 
-        self._authenticate_client(self.other_user)
-        response = self.client.post(
-            '/api/games/join/',
-            {'code': 'ABC123'},
-            format='json',
-        )
+        response = self._post_join_game('ABC123', user=self.other_user)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['code'], 'ABC123')
         self.assertTrue(
@@ -78,23 +82,19 @@ class GameViewsTestCase(TestCase):
         game = Game.objects.create(code='XYZ789')
         Player.objects.create(game=game, user=self.user, is_admin=True)
 
-        self._authenticate_client(self.other_user)
-        response = self.client.post(
-            '/api/games/join/',
-            {'code': 'xyz789'},
-            format='json',
-        )
+        response = self._post_join_game('xyz789', user=self.other_user)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['code'], 'XYZ789')
 
     def test_join_game_code_not_found(self):
         """Test de jonction avec code inexistant."""
-        self._authenticate_client()
-        response = self.client.post(
-            '/api/games/join/',
-            {'code': '000000'},
-            format='json',
-        )
+        response = self._post_join_game('000000')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('error', response.data)
+
+    def test_join_game_code_invalid_format_rejected(self):
+        """Test que les codes non alphanumériques sont rejetés par le serializer."""
+        response = self._post_join_game('AB-123')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn('error', response.data)
 
@@ -103,12 +103,7 @@ class GameViewsTestCase(TestCase):
         game = Game.objects.create(code='DEF456')
         Player.objects.create(game=game, user=self.user, is_admin=True)
 
-        self._authenticate_client()
-        response = self.client.post(
-            '/api/games/join/',
-            {'code': 'DEF456'},
-            format='json',
-        )
+        response = self._post_join_game('DEF456')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn('error', response.data)
 

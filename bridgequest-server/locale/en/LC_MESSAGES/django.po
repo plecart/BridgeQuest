@@ -99,6 +99,25 @@ msgstr "Players"
 msgid "{user} in {game}"
 msgstr "{user} in {game}"
 
+#: locations/models/position.py - utils/messages.py - ModelMessages
+msgid "model.position.player"
+msgstr "Player"
+
+msgid "model.position.latitude"
+msgstr "Latitude"
+
+msgid "model.position.longitude"
+msgstr "Longitude"
+
+msgid "model.position.recorded_at"
+msgstr "Recorded at"
+
+msgid "Position"
+msgstr "Position"
+
+msgid "Positions"
+msgstr "Positions"
+
 #: games/services/game_service.py - ErrorMessages
 msgid "error.game.not_found"
 msgstr "Game not found."
@@ -117,3 +136,9 @@ msgstr "You are not in this game."
 
 msgid "error.player.not_admin"
 msgstr "Only the administrator can start the game."
+
+msgid "error.position.game_not_active"
+msgstr "This game is not active."
+
+msgid "error.position.coordinates_invalid"
+msgstr "Invalid coordinates."

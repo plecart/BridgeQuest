@@ -3,12 +3,14 @@ Serializers pour le module Games.
 
 Ces serializers gèrent la sérialisation/désérialisation des données de parties.
 """
-from rest_framework import serializers
+from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
+from rest_framework import serializers
 
 from accounts.serializers.user_serializers import UserPublicSerializer
 from games.models import Game, Player
 from utils.messages import ModelMessages
+from utils.validators import validate_game_code
 
 
 class GameSerializer(serializers.ModelSerializer):
@@ -40,10 +42,15 @@ class JoinGameSerializer(serializers.Serializer):
     )
 
     def validate_code(self, value):
-        """Normalise le code (majuscules)."""
-        if not value or len(value.strip()) != 6:
+        """Valide le format alphanumérique et normalise le code (majuscules)."""
+        if not value:
             return value
-        return value.strip().upper()
+        normalized = value.strip()
+        try:
+            validate_game_code(normalized)
+        except ValidationError as e:
+            raise serializers.ValidationError(e.messages[0] if e.messages else str(e))
+        return normalized.upper()
 
 
 class PlayerSerializer(serializers.ModelSerializer):

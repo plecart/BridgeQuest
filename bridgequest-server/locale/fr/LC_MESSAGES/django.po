@@ -102,6 +102,25 @@ msgstr "Joueurs"
 msgid "{user} in {game}"
 msgstr "{user} dans {game}"
 
+#: locations/models/position.py - utils/messages.py - ModelMessages
+msgid "model.position.player"
+msgstr "Joueur"
+
+msgid "model.position.latitude"
+msgstr "Latitude"
+
+msgid "model.position.longitude"
+msgstr "Longitude"
+
+msgid "model.position.recorded_at"
+msgstr "Enregistré le"
+
+msgid "Position"
+msgstr "Position"
+
+msgid "Positions"
+msgstr "Positions"
+
 #: games/services/game_service.py - ErrorMessages
 msgid "error.game.not_found"
 msgstr "Partie introuvable."
@@ -120,3 +139,9 @@ msgstr "Vous n'êtes pas dans cette partie."
 
 msgid "error.player.not_admin"
 msgstr "Seul l'administrateur peut lancer la partie."
+
+msgid "error.position.game_not_active"
+msgstr "Cette partie n'est pas active."
+
+msgid "error.position.coordinates_invalid"
+msgstr "Coordonnées invalides."

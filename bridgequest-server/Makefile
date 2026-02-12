@@ -46,9 +46,9 @@ help: ## Affiche cette aide
 
 DAPHNE_PORT = 8000
 DAPHNE_APP = bridgequest.asgi:application
-DAPHNE_ACCESS_LOG = logs/access.log
-# Options communes Daphne (access-log vers fichier : middleware enregistre en console)
-DAPHNE_OPTS = -b 0.0.0.0 --access-log $(DAPHNE_ACCESS_LOG)
+# Pas de --access-log Daphne : la ligne complète (incluant ?token=...) expose les JWT.
+# Le middleware AccessLogMiddleware enregistre en console avec chemins redactés.
+DAPHNE_OPTS = -b 0.0.0.0
 
 server: ## Démarre le serveur (Daphne : HTTP + WebSocket)
 	$(call msg-start,Démarrage du serveur Daphne)
