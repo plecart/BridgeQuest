@@ -4,7 +4,7 @@ Service d'authentification pour Bridge Quest.
 Ce service gère toute la logique métier liée à l'authentification SSO mobile.
 """
 from django.contrib.auth import get_user_model
-from django.utils.translation import gettext_lazy as _
+
 from utils.exceptions import BridgeQuestException
 from utils.messages import ErrorMessages
 

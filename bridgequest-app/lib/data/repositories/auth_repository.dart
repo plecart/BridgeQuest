@@ -107,21 +107,18 @@ class AuthRepository {
     }
   }
 
-  /// Gère les exceptions API lors de la récupération de l'utilisateur
+  /// Gère les exceptions API lors de la récupération de l'utilisateur.
   ///
-  /// Les erreurs 401/403 sont normales si l'utilisateur n'est pas connecté.
-  /// Le message est technique (anglais) pour les logs ; le code sert à l'affichage localisé.
+  /// Pour 401/403 : forcer _codeNotAuthenticated (ApiService retourne toujours
+  /// 'error.api.generic', statusCode est la source de vérité pour l'affichage).
   Never _handleApiExceptionForCurrentUser(ApiException e) {
     if (_isAuthenticationError(e)) {
-      throw _authException(
-        'User not authenticated',
-        e.code ?? _codeNotAuthenticated,
-      );
+      throw _authException('User not authenticated', _codeNotAuthenticated);
     }
     AppLogger.error('API error while fetching user', e);
     throw _authException(
       'API error while fetching user',
-      e.code ?? _codeGeneric,
+      _resolveApiErrorCode(e),
     );
   }
 
@@ -142,10 +139,13 @@ class AuthRepository {
   }) =>
       AuthException(message, code: code, serverMessage: serverMessage);
 
-  /// Vérifie si l'erreur est une erreur d'authentification (401/403)
+  /// Vérifie si l'erreur est une erreur d'authentification (401/403).
   bool _isAuthenticationError(ApiException e) {
     return e.statusCode == 401 || e.statusCode == 403;
   }
+
+  /// Extrait le code d'erreur d'une ApiException (fallback _codeGeneric).
+  String _resolveApiErrorCode(ApiException e) => e.code ?? _codeGeneric;
 
   /// Déconnecte l'utilisateur et supprime les tokens JWT
   ///
@@ -181,7 +181,7 @@ class AuthRepository {
       AppLogger.error('API error during $errorContext', e);
       throw _authException(
         'API error during $errorContext',
-        e.code ?? _codeGeneric,
+        _resolveApiErrorCode(e),
         serverMessage: e.serverMessage,
       );
     } catch (e) {
