@@ -145,6 +145,7 @@ class ErrorMessages:
     SETTINGS_GAME_NOT_WAITING = "error.settings.game_not_waiting"
 
     # Lifecycle errors
+    GAME_NOT_ENOUGH_PLAYERS = "error.game.not_enough_players"
     GAME_NOT_DEPLOYMENT = "error.game.not_deployment"
     GAME_NOT_IN_PROGRESS = "error.game.not_in_progress"
 

@@ -17,24 +17,47 @@ from games.services import game_broadcast, lobby_broadcast
 from utils.exceptions import GameException
 from utils.messages import ErrorMessages
 
+_MIN_PLAYERS_TO_START = 2
+
+
+def _require_enough_players(game):
+    """
+    Vérifie que la partie a assez de joueurs pour démarrer.
+
+    Minimum 2 joueurs requis pour garantir au moins 1 Humain et 1 Esprit.
+
+    Args:
+        game: La partie.
+
+    Raises:
+        GameException: Si le nombre de joueurs est insuffisant.
+    """
+    player_count = game.players.count()
+    if player_count < _MIN_PLAYERS_TO_START:
+        raise GameException(
+            message_key=ErrorMessages.GAME_NOT_ENOUGH_PLAYERS,
+        )
+
 
 def begin_deployment(game):
     """
     Lance la phase de déploiement (WAITING → DEPLOYMENT).
 
-    Calcule ``deployment_ends_at`` à partir du paramètre
-    ``deployment_duration`` (en minutes) et diffuse ``game_started``
-    aux clients du lobby. Les clients doivent ensuite se
+    Vérifie qu'il y a au moins 2 joueurs, calcule ``deployment_ends_at``
+    à partir du paramètre ``deployment_duration`` (en minutes) et diffuse
+    ``game_started`` aux clients du lobby. Les clients doivent ensuite se
     déconnecter du lobby et se connecter au canal ``ws/game/``.
 
     Args:
-        game: La partie (state doit être WAITING).
+        game: La partie (state doit être WAITING, min 2 joueurs).
 
     Raises:
-        GameException: Si la partie n'est pas en WAITING.
+        GameException: Si la partie n'est pas en WAITING ou pas assez de joueurs.
     """
     if game.state != GameState.WAITING:
         raise GameException(message_key=ErrorMessages.GAME_ALREADY_STARTED)
+
+    _require_enough_players(game)
 
     settings = game.settings
     now = timezone.now()
