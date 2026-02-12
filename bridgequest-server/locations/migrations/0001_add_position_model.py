@@ -9,7 +9,7 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ("games", "0002_add_position_model"),
+        ("games", "0001_add_game_and_player_models"),
     ]
 
     operations = [
