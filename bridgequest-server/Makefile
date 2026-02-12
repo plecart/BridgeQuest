@@ -1,4 +1,4 @@
-.PHONY: help server run migrate install test clean makemessages makemessages-fr makemessages-en compilemessages i18n shell createsuperuser check clean-db reset-db test-quiet test-unit
+.PHONY: help server run lifecycle migrate install test clean makemessages makemessages-fr makemessages-en compilemessages i18n shell createsuperuser check clean-db reset-db test-quiet test-unit
 
 # ============================================================================
 # Variables
@@ -61,6 +61,10 @@ server-8001: ## Démarre le serveur sur le port 8001 (si 8000 est occupé)
 	$(PYTHON) -m daphne $(DAPHNE_OPTS) -p 8001 $(DAPHNE_APP)
 
 run: server ## Alias pour server (cohérence avec Flutter)
+
+lifecycle: ## Lance la boucle de traitement du cycle de vie des parties
+	$(call msg-start,Démarrage du process_lifecycle)
+	$(PYTHON) $(MANAGE) process_lifecycle
 
 # ============================================================================
 # Base de données
