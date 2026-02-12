@@ -88,9 +88,10 @@ class ApiService {
     return error.requestOptions.path == ApiConfig.authTokenRefresh;
   }
 
-  /// Réessaie une requête après avoir rafraîchi le token
+  /// Réessaie une requête après avoir rafraîchi le token.
   ///
-  /// Retourne true si la requête a été réessayée avec succès, false sinon.
+  /// Retourne true si l'erreur a été traitée (retry effectué ou échec propagé),
+  /// false si le refresh a échoué et qu'on n'a pas retry.
   Future<bool> _retryRequestAfterRefresh(
     DioException error,
     ErrorInterceptorHandler handler,
@@ -106,8 +107,21 @@ class ApiService {
       handler.resolve(response);
       return true;
     } catch (e) {
-      return false;
+      _rejectWithRetryError(opts, e, handler);
+      return true;
     }
+  }
+
+  /// Propage l'erreur du retry (500/404/etc.) plutôt que le 401 d'origine.
+  void _rejectWithRetryError(
+    RequestOptions opts,
+    dynamic error,
+    ErrorInterceptorHandler handler,
+  ) {
+    final retryError = error is DioException
+        ? error
+        : DioException(requestOptions: opts, error: error);
+    handler.reject(retryError);
   }
 
   /// Ajoute le token d'authentification au header si disponible

@@ -5,6 +5,7 @@ Contient la logique métier : enregistrement et récupération des positions.
 """
 from decimal import Decimal
 
+from django.db.models import OuterRef, Subquery
 from rest_framework import status
 
 from games.models import GameState
@@ -38,7 +39,10 @@ def _require_game_active(game):
 
 def _validate_coordinates(latitude, longitude):
     """
-    Valide que les coordonnées sont dans les plages WGS84.
+    Valide et convertit les coordonnées en Decimal (plages WGS84).
+
+    Returns:
+        tuple[Decimal, Decimal]: (latitude, longitude) validées.
 
     Raises:
         LocationException: Si les coordonnées sont invalides.
@@ -51,6 +55,8 @@ def _validate_coordinates(latitude, longitude):
 
     if not (_LAT_MIN <= lat <= _LAT_MAX and _LNG_MIN <= lng <= _LNG_MAX):
         raise LocationException(message_key=ErrorMessages.POSITION_COORDINATES_INVALID)
+
+    return lat, lng
 
 
 def update_position(game_id, user, latitude, longitude):
@@ -75,12 +81,12 @@ def update_position(game_id, user, latitude, longitude):
     _require_game_active(game)
 
     player = get_player_in_game(game, user)
-    _validate_coordinates(latitude, longitude)
+    lat, lng = _validate_coordinates(latitude, longitude)
 
     return Position.objects.create(
         player=player,
-        latitude=Decimal(str(latitude)),
-        longitude=Decimal(str(longitude)),
+        latitude=lat,
+        longitude=lng,
     )
 
 
@@ -91,21 +97,22 @@ def get_latest_positions_for_game(game):
     Utilisé pour afficher les positions sur la carte et récupérer l'état
     après une déconnexion.
 
+    Utilise une Subquery pour ne récupérer que la dernière position par joueur
+    en base, évitant de charger tout l'historique (scalable avec le temps).
+
     Args:
         game: Instance de Game.
 
     Returns:
         list[Position]: Liste des dernières positions par joueur (une par joueur).
     """
-    positions = (
+    latest_per_player = Position.objects.filter(
+        player=OuterRef("player")
+    ).order_by("-recorded_at")
+
+    return list(
         Position.objects.filter(player__game=game)
+        .filter(pk=Subquery(latest_per_player.values("pk")[:1]))
         .select_related("player", "player__user")
-        .order_by("player", "-recorded_at")
+        .order_by("player")
     )
-    seen = set()
-    result = []
-    for pos in positions:
-        if pos.player_id not in seen:
-            seen.add(pos.player_id)
-            result.append(pos)
-    return result

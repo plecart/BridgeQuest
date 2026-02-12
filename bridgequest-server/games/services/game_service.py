@@ -6,6 +6,7 @@ Contient la logique métier : création, jonction, récupération.
 import random
 import string
 
+from django.db import IntegrityError
 from rest_framework import status
 
 from games.models import Game, GameState, Player, PlayerRole
@@ -25,21 +26,6 @@ def generate_game_code():
         str: Code alphanumérique majuscule de 6 caractères.
     """
     return "".join(random.choices(_CODE_CHARS, k=_CODE_LENGTH))
-
-
-def _ensure_unique_code(code):
-    """
-    Garantit l'unicité du code en régénérant si nécessaire.
-
-    Args:
-        code: Code à vérifier.
-
-    Returns:
-        str: Code unique.
-    """
-    while Game.objects.filter(code=code).exists():
-        code = generate_game_code()
-    return code
 
 
 def _add_player_to_game(game, user, *, is_admin=False):
@@ -80,20 +66,50 @@ def _normalize_game_code(code):
     return normalized
 
 
+_MAX_CREATE_ATTEMPTS = 10
+
+
+def _try_create_game_with_code(code, admin_user):
+    """
+    Tente de créer une partie avec le code donné.
+
+    Returns:
+        Game: La partie créée.
+
+    Raises:
+        IntegrityError: Si le code existe déjà (race).
+    """
+    game = Game.objects.create(code=code)
+    _add_player_to_game(game, admin_user, is_admin=True)
+    return game
+
+
 def create_game(admin_user):
     """
     Crée une nouvelle partie avec l'utilisateur comme administrateur.
+
+    Gère les créations concurrentes : en cas de collision de code (race),
+    régénère et réessaie jusqu'à réussite ou épuisement des tentatives.
 
     Args:
         admin_user: Utilisateur créateur (sera admin de la partie).
 
     Returns:
         Game: La partie créée.
+
+    Raises:
+        GameException: Si toutes les tentatives échouent (collision extrême).
     """
-    code = _ensure_unique_code(generate_game_code())
-    game = Game.objects.create(code=code)
-    _add_player_to_game(game, admin_user, is_admin=True)
-    return game
+    for _ in range(_MAX_CREATE_ATTEMPTS):
+        code = generate_game_code()
+        try:
+            return _try_create_game_with_code(code, admin_user)
+        except IntegrityError:
+            continue
+    raise GameException(
+        message_key=ErrorMessages.INTERNAL_ERROR,
+        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+    )
 
 
 def get_game_by_id(game_id):
