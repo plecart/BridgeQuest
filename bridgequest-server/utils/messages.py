@@ -69,6 +69,8 @@ class ModelMessages:
     GAME_STATE_DEPLOYMENT = "model.game.state.deployment"
     GAME_STATE_IN_PROGRESS = "model.game.state.in_progress"
     GAME_STATE_FINISHED = "model.game.state.finished"
+    GAME_DEPLOYMENT_ENDS_AT = "model.game.deployment_ends_at"
+    GAME_GAME_ENDS_AT = "model.game.game_ends_at"
     GAME_CREATED_AT = "model.game.created_at"
     GAME_UPDATED_AT = "model.game.updated_at"
     GAME_VERBOSE_NAME = "Game"
@@ -80,12 +82,24 @@ class ModelMessages:
     PLAYER_IS_ADMIN = "model.player.is_admin"
     PLAYER_ROLE = "model.player.role"
     PLAYER_SCORE = "model.player.score"
+    PLAYER_CONVERTED_AT = "model.player.converted_at"
     PLAYER_JOINED_AT = "model.player.joined_at"
     PLAYER_VERBOSE_NAME = "Player"
     PLAYER_VERBOSE_NAME_PLURAL = "Players"
     PLAYER_STR_DISPLAY = "{user} in {game}"
     PLAYER_ROLE_HUMAN = "model.player.role.human"
     PLAYER_ROLE_SPIRIT = "model.player.role.spirit"
+
+    # GameSettings
+    SETTINGS_VERBOSE_NAME = "Game Settings"
+    SETTINGS_VERBOSE_NAME_PLURAL = "Game Settings"
+    SETTINGS_STR_DISPLAY = "Settings for {game}"
+    SETTINGS_GAME = "model.settings.game"
+    SETTINGS_GAME_DURATION = "model.settings.game_duration"
+    SETTINGS_DEPLOYMENT_DURATION = "model.settings.deployment_duration"
+    SETTINGS_SPIRIT_PERCENTAGE = "model.settings.spirit_percentage"
+    SETTINGS_POINTS_PER_MINUTE = "model.settings.points_per_minute"
+    SETTINGS_CONVERSION_POINTS_PERCENTAGE = "model.settings.conversion_points_percentage"
 
     # Position
     POSITION_PLAYER = "model.position.player"
@@ -126,6 +140,10 @@ class ErrorMessages:
     PLAYER_ALREADY_IN_GAME = "error.player.already_in_game"
     PLAYER_NOT_ADMIN = "error.player.not_admin"
     
+    # Settings errors
+    SETTINGS_NOT_FOUND = "error.settings.not_found"
+    SETTINGS_GAME_NOT_WAITING = "error.settings.game_not_waiting"
+
     # Interaction errors
     QR_CODE_INVALID = "error.interaction.qr_code.invalid"
     QR_CODE_ALREADY_SCANNED = "error.interaction.qr_code.already_scanned"

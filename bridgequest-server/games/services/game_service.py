@@ -9,7 +9,7 @@ import string
 from django.db import IntegrityError
 from rest_framework import status
 
-from games.models import Game, GameState, Player, PlayerRole
+from games.models import Game, GameSettings, GameState, Player, PlayerRole
 from games.services import lobby_broadcast
 from utils.exceptions import GameException, PlayerException
 from utils.messages import ErrorMessages
@@ -73,6 +73,8 @@ def _try_create_game_with_code(code, admin_user):
     """
     Tente de créer une partie avec le code donné.
 
+    Crée automatiquement les settings par défaut (OneToOne).
+
     Returns:
         Game: La partie créée.
 
@@ -80,6 +82,7 @@ def _try_create_game_with_code(code, admin_user):
         IntegrityError: Si le code existe déjà (race).
     """
     game = Game.objects.create(code=code)
+    GameSettings.objects.create(game=game)
     _add_player_to_game(game, admin_user, is_admin=True)
     return game
 
