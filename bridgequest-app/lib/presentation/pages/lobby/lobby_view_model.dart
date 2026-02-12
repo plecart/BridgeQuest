@@ -55,7 +55,7 @@ class LobbyViewModel extends ChangeNotifier {
 
   /// Indique si l'utilisateur local est admin.
   ///
-  /// Déterminé depuis l'événement WebSocket "connected".
+  /// Mis à jour par "connected" et "admin_transferred".
   bool get isAdmin => _currentPlayer?.isAdmin ?? false;
 
   LobbyPlayer? _currentPlayer;
@@ -120,6 +120,7 @@ class LobbyViewModel extends ChangeNotifier {
         _removePlayer(e.player.playerId);
         break;
       case LobbyAdminTransferredEvent e:
+        _updateCurrentPlayerIfNewAdmin(e.newAdmin);
         _updateAdmin(e.newAdmin);
         break;
       case LobbyGameDeletedEvent _:
@@ -167,6 +168,18 @@ class LobbyViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Met à jour _currentPlayer si l'utilisateur local est le nouveau admin.
+  ///
+  /// Permet à l'UI d'afficher le bouton "Lancer la partie" immédiatement.
+  void _updateCurrentPlayerIfNewAdmin(LobbyPlayer newAdmin) {
+    if (_isLocalPlayer(newAdmin) && newAdmin.isAdmin) {
+      _currentPlayer = newAdmin;
+    }
+  }
+
+  bool _isLocalPlayer(LobbyPlayer player) =>
+      _currentPlayer?.playerId == player.playerId;
+
   void _setConnecting(bool value) {
     _isConnecting = value;
     notifyListeners();
@@ -189,7 +202,7 @@ class LobbyViewModel extends ChangeNotifier {
 
   /// Lance la partie (admin uniquement).
   Future<void> startGame() async {
-    if (!(_currentPlayer?.isAdmin ?? false)) return;
+    if (!isAdmin) return;
     _isStarting = true;
     _clearError();
     notifyListeners();
@@ -208,6 +221,14 @@ class LobbyViewModel extends ChangeNotifier {
   /// Déconnecte du WebSocket (à appeler au démontage de la page).
   void disconnect() {
     _lobbyWebSocketService.disconnect();
+  }
+
+  /// Signale une sortie volontaire au serveur puis déconnecte.
+  ///
+  /// À appeler quand l'utilisateur quitte volontairement (bouton retour).
+  /// Le transfert des droits admin se fait immédiatement, sans attendre 30 s.
+  void leaveAndDisconnect() {
+    _lobbyWebSocketService.leaveAndDisconnect();
   }
 
   /// Consomme le résultat de navigation (après que la page ait navigué).

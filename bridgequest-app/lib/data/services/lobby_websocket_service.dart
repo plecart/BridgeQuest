@@ -67,6 +67,9 @@ class LobbyErrorEvent extends LobbyEvent {
   final int? closeCode;
 }
 
+/// Type de message pour signaler une sortie volontaire (exclusion immédiate).
+const _leaveMessageType = 'leave';
+
 /// Service de connexion WebSocket au canal lobby.
 ///
 /// Gère la connexion, la réception des événements et la fermeture.
@@ -214,5 +217,23 @@ class LobbyWebSocketService {
     _subscription = null;
     _channel?.sink.close();
     _channel = null;
+  }
+
+  /// Envoie le message de sortie volontaire puis ferme la connexion.
+  ///
+  /// À appeler quand l'utilisateur quitte volontairement (retour, déconnexion).
+  /// Permet au serveur d'exclure immédiatement sans attendre les 30 s.
+  void leaveAndDisconnect() {
+    _sendLeaveMessageIfConnected();
+    disconnect();
+  }
+
+  void _sendLeaveMessageIfConnected() {
+    if (_channel == null) return;
+    try {
+      _channel!.sink.add(jsonEncode({'type': _leaveMessageType}));
+    } catch (_) {
+      // Ignorer si la connexion est déjà fermée
+    }
   }
 }

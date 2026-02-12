@@ -28,11 +28,6 @@ class Game(models.Model):
     FINISHED (terminée).
     """
 
-    name = models.CharField(
-        max_length=100,
-        verbose_name=_(ModelMessages.GAME_NAME),
-    )
-
     code = models.CharField(
         max_length=6,
         unique=True,
@@ -64,4 +59,4 @@ class Game(models.Model):
 
     def __str__(self):
         """Représentation string de la partie."""
-        return self.name
+        return self.code

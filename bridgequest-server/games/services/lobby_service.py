@@ -3,6 +3,9 @@ Service de gestion de la salle d'attente.
 
 Logique métier : exclusion des joueurs après déconnexion (délai 30 s),
 transfert des droits admin, suppression de la partie si vide.
+
+Sortie volontaire : le client envoie {"type": "leave"} avant de se déconnecter
+(bouton retour, etc.) → exclusion immédiate sans délai. Coupure réseau → 30 s.
 """
 from django.core.cache import cache
 from django.utils import timezone

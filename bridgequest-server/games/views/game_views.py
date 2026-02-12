@@ -9,7 +9,6 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from games.serializers import (
-    CreateGameSerializer,
     GameSerializer,
     JoinGameSerializer,
     PlayerSerializer,
@@ -48,17 +47,10 @@ def create_game_view(request):
     Crée une nouvelle partie.
 
     L'utilisateur authentifié devient administrateur de la partie.
-    Body: {"name": "Nom de la partie"}
+    Body: {} (aucun champ requis)
     """
-    serializer = CreateGameSerializer(data=request.data)
-    if not serializer.is_valid():
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
     try:
-        game = create_game(
-            serializer.validated_data["name"],
-            request.user,
-        )
+        game = create_game(request.user)
         return Response(
             GameSerializer(game).data,
             status=status.HTTP_201_CREATED,

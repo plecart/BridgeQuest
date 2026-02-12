@@ -21,7 +21,7 @@ class PlayerPayloadTestCase(TestCase):
             username="testuser",
             email="test@test.com",
         )
-        self.game = Game.objects.create(name="Test", code="ABC123")
+        self.game = Game.objects.create(code="ABC123")
         self.player = Player.objects.create(
             user=self.user,
             game=self.game,

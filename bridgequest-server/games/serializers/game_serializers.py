@@ -8,47 +8,20 @@ from django.utils.translation import gettext_lazy as _
 
 from accounts.serializers.user_serializers import UserPublicSerializer
 from games.models import Game, Player
-from utils.messages import ErrorMessages, ModelMessages
+from utils.messages import ModelMessages
 
 
 class GameSerializer(serializers.ModelSerializer):
     """
     Serializer pour le modèle Game.
 
-    Expose les champs : id, code, name, state, created_at, updated_at.
+    Expose les champs : id, code, state, created_at, updated_at.
     """
 
     class Meta:
         model = Game
-        fields = ['id', 'code', 'name', 'state', 'created_at', 'updated_at']
+        fields = ['id', 'code', 'state', 'created_at', 'updated_at']
         read_only_fields = ['id', 'code', 'state', 'created_at', 'updated_at']
-
-    name = serializers.CharField(
-        label=_(ModelMessages.GAME_NAME),
-        help_text=_(ModelMessages.GAME_NAME),
-        max_length=100,
-    )
-
-
-class CreateGameSerializer(serializers.Serializer):
-    """
-    Serializer pour la création d'une partie.
-
-    Accepte uniquement le nom de la partie.
-    """
-
-    name = serializers.CharField(
-        label=_(ModelMessages.GAME_NAME),
-        help_text=_(ModelMessages.GAME_NAME),
-        max_length=100,
-        trim_whitespace=True,
-    )
-
-    def validate_name(self, value):
-        """Valide que le nom n'est pas vide après trim."""
-        if not value or not value.strip():
-            raise serializers.ValidationError(_(ErrorMessages.GAME_NAME_REQUIRED))
-        return value.strip()
 
 
 class JoinGameSerializer(serializers.Serializer):

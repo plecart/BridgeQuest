@@ -38,9 +38,6 @@ msgid "admin.user.permissions"
 msgstr "Permissions"
 
 #: games/models/game.py - utils/messages.py - ModelMessages
-msgid "model.game.name"
-msgstr "Name"
-
 msgid "model.game.code"
 msgstr "Code"
 
@@ -103,9 +100,6 @@ msgid "{user} in {game}"
 msgstr "{user} in {game}"
 
 #: games/services/game_service.py - ErrorMessages
-msgid "error.game.name.required"
-msgstr "Game name is required."
-
 msgid "error.game.not_found"
 msgstr "Game not found."
 

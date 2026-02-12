@@ -17,8 +17,6 @@ from utils.exceptions import GameException, PlayerException
 
 User = get_user_model()
 
-_GAME_NAME = "Ma partie"
-
 
 class GameServiceTestCase(TestCase):
     """Base pour les tests du service game."""
@@ -66,34 +64,15 @@ class CreateGameTestCase(GameServiceTestCase):
         user = self._create_user()
 
         # Act
-        game = create_game(_GAME_NAME, user)
+        game = create_game(user)
 
         # Assert
         self.assertIsNotNone(game)
-        self.assertEqual(game.name, _GAME_NAME)
         self.assertEqual(len(game.code), 6)
         self.assertEqual(game.state, GameState.WAITING)
         player = Player.objects.get(game=game, user=user)
         self.assertTrue(player.is_admin)
         self.assertEqual(Player.objects.filter(game=game).count(), 1)
-
-    def test_create_game_empty_name_raises_exception(self):
-        """Test qu'un nom vide lève GameException."""
-        # Arrange
-        user = self._create_user()
-
-        # Act & Assert
-        with self.assertRaises(GameException):
-            create_game("", user)
-
-    def test_create_game_whitespace_name_raises_exception(self):
-        """Test qu'un nom avec uniquement des espaces lève GameException."""
-        # Arrange
-        user = self._create_user()
-
-        # Act & Assert
-        with self.assertRaises(GameException):
-            create_game("   ", user)
 
 
 class GetGameByIdTestCase(GameServiceTestCase):
@@ -102,7 +81,7 @@ class GetGameByIdTestCase(GameServiceTestCase):
     def test_get_game_by_id_success(self):
         """Test de récupération réussie par ID."""
         # Arrange
-        game = Game.objects.create(name=_GAME_NAME, code="ABC123")
+        game = Game.objects.create(code="ABC123")
 
         # Act
         result = get_game_by_id(game.pk)
@@ -123,7 +102,7 @@ class GetGameByCodeTestCase(GameServiceTestCase):
     def test_get_game_by_code_success(self):
         """Test de récupération réussie par code."""
         # Arrange
-        game = Game.objects.create(name=_GAME_NAME, code="XYZ789")
+        game = Game.objects.create(code="XYZ789")
 
         # Act
         result = get_game_by_code("XYZ789")
@@ -134,7 +113,7 @@ class GetGameByCodeTestCase(GameServiceTestCase):
     def test_get_game_by_code_case_insensitive(self):
         """Test que la recherche est insensible à la casse."""
         # Arrange
-        game = Game.objects.create(name=_GAME_NAME, code="ABC123")
+        game = Game.objects.create(code="ABC123")
 
         # Act
         result = get_game_by_code("abc123")
@@ -175,7 +154,7 @@ class JoinGameTestCase(GameServiceTestCase):
         # Arrange
         admin = self._create_user(username="admin")
         joiner = self._create_user(username="joiner", email="joiner@example.com")
-        game = create_game(_GAME_NAME, admin)
+        game = create_game(admin)
 
         # Act
         player = join_game(game.code, joiner)
@@ -200,7 +179,7 @@ class JoinGameTestCase(GameServiceTestCase):
         """Test qu'un utilisateur déjà dans la partie lève PlayerException."""
         # Arrange
         user = self._create_user()
-        game = create_game(_GAME_NAME, user)
+        game = create_game(user)
 
         # Act & Assert
         with self.assertRaises(PlayerException):
@@ -211,7 +190,7 @@ class JoinGameTestCase(GameServiceTestCase):
         # Arrange
         admin = self._create_user()
         joiner = self._create_user(username="joiner", email="joiner@example.com")
-        game = create_game(_GAME_NAME, admin)
+        game = create_game(admin)
         game.state = GameState.IN_PROGRESS
         game.save()
 
@@ -227,7 +206,7 @@ class StartGameTestCase(GameServiceTestCase):
         """Test de lancement réussi par l'administrateur."""
         # Arrange
         admin = self._create_user()
-        game = create_game(_GAME_NAME, admin)
+        game = create_game(admin)
 
         # Act
         result = start_game(game.id, admin)
@@ -240,7 +219,7 @@ class StartGameTestCase(GameServiceTestCase):
         # Arrange
         admin = self._create_user()
         joiner = self._create_user(username="joiner", email="joiner@example.com")
-        game = create_game(_GAME_NAME, admin)
+        game = create_game(admin)
         join_game(game.code, joiner)
 
         # Act & Assert
@@ -252,7 +231,7 @@ class StartGameTestCase(GameServiceTestCase):
         # Arrange
         admin = self._create_user()
         outsider = self._create_user(username="outsider", email="out@example.com")
-        game = create_game(_GAME_NAME, admin)
+        game = create_game(admin)
 
         # Act & Assert
         with self.assertRaises(PlayerException):
@@ -262,7 +241,7 @@ class StartGameTestCase(GameServiceTestCase):
         """Test qu'on ne peut pas lancer une partie déjà commencée."""
         # Arrange
         admin = self._create_user()
-        game = create_game(_GAME_NAME, admin)
+        game = create_game(admin)
         game.state = GameState.DEPLOYMENT
         game.save()
 

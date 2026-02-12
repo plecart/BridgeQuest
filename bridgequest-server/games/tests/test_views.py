@@ -35,13 +35,12 @@ class GameViewsTestCase(TestCase):
         self._authenticate_client()
         response = self.client.post(
             '/api/games/',
-            {'name': 'Ma partie'},
+            {},
             format='json',
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertIn('id', response.data)
         self.assertIn('code', response.data)
-        self.assertEqual(response.data['name'], 'Ma partie')
         self.assertEqual(response.data['state'], 'WAITING')
         self.assertEqual(len(response.data['code']), 6)
 
@@ -49,7 +48,7 @@ class GameViewsTestCase(TestCase):
         """Test de création de partie sans authentification."""
         response = self.client.post(
             '/api/games/',
-            {'name': 'Ma partie'},
+            {},
             format='json',
         )
         self.assertIn(
@@ -57,20 +56,9 @@ class GameViewsTestCase(TestCase):
             [status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN],
         )
 
-    def test_create_game_empty_name_validation_error(self):
-        """Test de création avec nom vide."""
-        self._authenticate_client()
-        response = self.client.post(
-            '/api/games/',
-            {'name': ''},
-            format='json',
-        )
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn('name', response.data)
-
     def test_join_game_authenticated_success(self):
         """Test de jonction à une partie via code."""
-        game = Game.objects.create(name='Partie existante', code='ABC123')
+        game = Game.objects.create(code='ABC123')
         Player.objects.create(game=game, user=self.user, is_admin=True)
 
         self._authenticate_client(self.other_user)
@@ -87,7 +75,7 @@ class GameViewsTestCase(TestCase):
 
     def test_join_game_code_insensitive_to_case(self):
         """Test que le code est insensible à la casse."""
-        game = Game.objects.create(name='Partie', code='XYZ789')
+        game = Game.objects.create(code='XYZ789')
         Player.objects.create(game=game, user=self.user, is_admin=True)
 
         self._authenticate_client(self.other_user)
@@ -112,7 +100,7 @@ class GameViewsTestCase(TestCase):
 
     def test_join_game_already_in_game(self):
         """Test de jonction quand l'utilisateur est déjà dans la partie."""
-        game = Game.objects.create(name='Partie', code='DEF456')
+        game = Game.objects.create(code='DEF456')
         Player.objects.create(game=game, user=self.user, is_admin=True)
 
         self._authenticate_client()
@@ -126,14 +114,14 @@ class GameViewsTestCase(TestCase):
 
     def test_game_detail_authenticated_success(self):
         """Test de récupération des détails d'une partie."""
-        game = Game.objects.create(name='Partie', code='GHI012')
+        game = Game.objects.create(code='GHI012')
         Player.objects.create(game=game, user=self.user, is_admin=True)
 
         self._authenticate_client()
         response = self.client.get(f'/api/games/{game.id}/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['id'], game.id)
-        self.assertEqual(response.data['name'], game.name)
+        self.assertEqual(response.data['code'], game.code)
 
     def test_game_detail_not_found(self):
         """Test de récupération d'une partie inexistante."""
@@ -143,7 +131,7 @@ class GameViewsTestCase(TestCase):
 
     def test_game_players_list_success(self):
         """Test de récupération de la liste des joueurs."""
-        game = Game.objects.create(name='Partie', code='JKL345')
+        game = Game.objects.create(code='JKL345')
         Player.objects.create(game=game, user=self.user, is_admin=True)
         Player.objects.create(game=game, user=self.other_user, is_admin=False)
 
@@ -154,7 +142,7 @@ class GameViewsTestCase(TestCase):
 
     def test_game_start_admin_success(self):
         """Test de lancement de partie par l'administrateur."""
-        game = Game.objects.create(name='Partie', code='MNO678')
+        game = Game.objects.create(code='MNO678')
         Player.objects.create(game=game, user=self.user, is_admin=True)
 
         self._authenticate_client()
@@ -164,7 +152,7 @@ class GameViewsTestCase(TestCase):
 
     def test_game_start_not_admin_forbidden(self):
         """Test de lancement par un joueur non-admin."""
-        game = Game.objects.create(name='Partie', code='PQR901')
+        game = Game.objects.create(code='PQR901')
         Player.objects.create(game=game, user=self.user, is_admin=True)
         Player.objects.create(game=game, user=self.other_user, is_admin=False)
 
@@ -175,7 +163,7 @@ class GameViewsTestCase(TestCase):
 
     def test_game_start_not_in_game_forbidden(self):
         """Test de lancement par un utilisateur non présent dans la partie."""
-        game = Game.objects.create(name='Partie', code='STU234')
+        game = Game.objects.create(code='STU234')
         Player.objects.create(game=game, user=self.user, is_admin=True)
 
         self._authenticate_client(self.other_user)
@@ -186,7 +174,6 @@ class GameViewsTestCase(TestCase):
     def test_game_start_already_started_bad_request(self):
         """Test de lancement d'une partie déjà commencée."""
         game = Game.objects.create(
-            name='Partie',
             code='VWX567',
             state=GameState.DEPLOYMENT,
         )
@@ -206,7 +193,7 @@ class GameViewsTestCase(TestCase):
 
     def test_game_start_unauthenticated_forbidden(self):
         """Test de lancement sans authentification."""
-        game = Game.objects.create(name='Partie', code='YZA890')
+        game = Game.objects.create(code='YZA890')
         Player.objects.create(game=game, user=self.user, is_admin=True)
 
         response = self.client.post(f'/api/games/{game.id}/start/')

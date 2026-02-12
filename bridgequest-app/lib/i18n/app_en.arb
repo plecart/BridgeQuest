@@ -116,17 +116,9 @@
   "@homeJoinGameButton": {
     "description": "Join game button"
   },
-  "homeGameNameLabel": "Game name",
-  "@homeGameNameLabel": {
-    "description": "Game name label"
-  },
   "homeGameCodeLabel": "Game code",
   "@homeGameCodeLabel": {
     "description": "Game code label"
-  },
-  "homeCreateGameSubmit": "Create",
-  "@homeCreateGameSubmit": {
-    "description": "Create game submit button"
   },
   "homeJoinGameSubmit": "Join",
   "@homeJoinGameSubmit": {

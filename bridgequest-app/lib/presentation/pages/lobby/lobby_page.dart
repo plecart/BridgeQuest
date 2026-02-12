@@ -8,6 +8,7 @@ import '../../../data/services/lobby_websocket_service.dart';
 import '../../../data/services/token_manager.dart';
 import '../../../i18n/app_localizations.dart';
 import '../../theme/app_text_styles.dart';
+import '../../widgets/loading_button.dart';
 import '../menu/home_page.dart';
 import 'lobby_view_model.dart';
 
@@ -86,20 +87,29 @@ class _LobbyContent extends StatelessWidget {
     return Consumer<LobbyViewModel>(
       builder: (context, vm, _) {
         _scheduleNavigationIfNeeded(context, vm);
-        return Scaffold(
-          appBar: AppBar(
-            title: Text(vm.game.name),
-            leading: IconButton(
-              icon: const Icon(Icons.arrow_back),
-              onPressed: () => onNavigateToMenu(),
+        return PopScope(
+          canPop: false,
+          onPopInvokedWithResult: (didPop, _) {
+            if (!didPop) _handleBackPressed(vm);
+          },
+          child: Scaffold(
+            appBar: AppBar(
+              title: Text(vm.game.code),
+              leading: IconButton(
+                icon: const Icon(Icons.arrow_back),
+                onPressed: () => _handleBackPressed(vm),
+              ),
             ),
-          ),
-          body: SafeArea(
-            child: _buildBody(context, vm),
+            body: SafeArea(child: _buildBody(context, vm)),
           ),
         );
       },
     );
+  }
+
+  void _handleBackPressed(LobbyViewModel vm) {
+    vm.leaveAndDisconnect();
+    onNavigateToMenu();
   }
 
   void _scheduleNavigationIfNeeded(BuildContext context, LobbyViewModel vm) {
@@ -121,45 +131,52 @@ class _LobbyContent extends StatelessWidget {
 
   Widget _buildBody(BuildContext context, LobbyViewModel vm) {
     final l10n = AppLocalizations.of(context)!;
+    if (vm.isConnecting) return _buildLoadingState(l10n);
+    if (vm.errorKey != null) return _buildErrorState(context, vm, l10n);
+    return _buildLobbyContent(context, vm, l10n);
+  }
 
-    if (vm.isConnecting) {
-      return Center(
+  Widget _buildLoadingState(AppLocalizations l10n) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const CircularProgressIndicator(),
+          const SizedBox(height: 16),
+          Text(l10n.lobbyConnecting),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildErrorState(
+      BuildContext context, LobbyViewModel vm, AppLocalizations l10n) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const CircularProgressIndicator(),
+            Icon(Icons.error_outline, size: 48, color: Colors.red[300]),
             const SizedBox(height: 16),
-            Text(l10n.lobbyConnecting),
+            Text(
+              _translateError(vm.errorKey!, l10n),
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.red[700]),
+            ),
+            const SizedBox(height: 24),
+            OutlinedButton(
+              onPressed: () => vm.initialize(),
+              child: Text(l10n.lobbyRetry),
+            ),
           ],
         ),
-      );
-    }
+      ),
+    );
+  }
 
-    if (vm.errorKey != null) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.error_outline, size: 48, color: Colors.red[300]),
-              const SizedBox(height: 16),
-              Text(
-                _translateError(vm.errorKey!, l10n),
-                textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.red[700]),
-              ),
-              const SizedBox(height: 24),
-              OutlinedButton(
-                onPressed: () => vm.initialize(),
-                child: Text(l10n.lobbyRetry),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-
+  Widget _buildLobbyContent(
+      BuildContext context, LobbyViewModel vm, AppLocalizations l10n) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24),
       child: Column(
@@ -179,15 +196,10 @@ class _LobbyContent extends StatelessWidget {
           _buildPlayerList(context, vm.players),
           if (vm.isAdmin) ...[
             const SizedBox(height: 32),
-            ElevatedButton(
-              onPressed: vm.isStarting ? null : () => vm.startGame(),
-              child: vm.isStarting
-                  ? const SizedBox(
-                      height: 24,
-                      width: 24,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : Text(l10n.lobbyStartGameButton),
+            LoadingButton(
+              label: l10n.lobbyStartGameButton,
+              isLoading: vm.isStarting,
+              onPressed: () => vm.startGame(),
             ),
           ],
         ],

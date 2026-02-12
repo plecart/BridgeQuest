@@ -81,25 +81,18 @@ def _normalize_game_code(code):
     return normalized
 
 
-def create_game(name, admin_user):
+def create_game(admin_user):
     """
     Crée une nouvelle partie avec l'utilisateur comme administrateur.
 
     Args:
-        name: Nom de la partie.
         admin_user: Utilisateur créateur (sera admin de la partie).
 
     Returns:
         Game: La partie créée.
-
-    Raises:
-        GameException: Si le nom est vide.
     """
-    if not name or not name.strip():
-        raise GameException(_(ErrorMessages.GAME_NAME_REQUIRED))
-
     code = _ensure_unique_code(generate_game_code())
-    game = Game.objects.create(name=name.strip(), code=code)
+    game = Game.objects.create(code=code)
     _add_player_to_game(game, admin_user, is_admin=True)
     return game
 

@@ -116,17 +116,9 @@
   "@homeJoinGameButton": {
     "description": "Bouton rejoindre une partie"
   },
-  "homeGameNameLabel": "Nom de la partie",
-  "@homeGameNameLabel": {
-    "description": "Label nom de la partie"
-  },
   "homeGameCodeLabel": "Code de la partie",
   "@homeGameCodeLabel": {
     "description": "Label code de la partie"
-  },
-  "homeCreateGameSubmit": "Créer",
-  "@homeCreateGameSubmit": {
-    "description": "Bouton valider création partie"
   },
   "homeJoinGameSubmit": "Rejoindre",
   "@homeJoinGameSubmit": {

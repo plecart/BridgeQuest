@@ -18,12 +18,12 @@ class GameRepository {
   ///
   /// L'utilisateur authentifié devient administrateur.
   /// Throws [GameException] si la création échoue.
-  Future<Game> createGame({required String name}) async {
+  Future<Game> createGame() async {
     return _executeApiCall(
       () => _requestGame(
         () => _apiService.post(
           ApiConfig.gamesCreate,
-          data: {'name': name.trim()},
+          data: <String, dynamic>{},
         ),
       ),
       'create game',

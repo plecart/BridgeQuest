@@ -27,7 +27,7 @@ class LobbyServiceExclusionTestCase(TestCase):
             username="player2",
             email="player2@test.com",
         )
-        self.game = Game.objects.create(name="Test", code="ABC123")
+        self.game = Game.objects.create(code="ABC123")
         self.admin_player = Player.objects.create(
             user=self.admin,
             game=self.game,

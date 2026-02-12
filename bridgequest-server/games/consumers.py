@@ -27,6 +27,15 @@ _WS_CLOSE_UNAUTHORIZED = 4001
 _WS_CLOSE_NOT_IN_GAME = 4002
 _WS_CLOSE_WRONG_CHANNEL = 4003
 
+# Message client : sortie volontaire → exclusion immédiate (sans délai 30 s)
+_WS_MESSAGE_LEAVE = "leave"
+
+_CLOSE_CODES_SKIP_EXCLUSION = (
+    _WS_CLOSE_UNAUTHORIZED,
+    _WS_CLOSE_NOT_IN_GAME,
+    _WS_CLOSE_WRONG_CHANNEL,
+)
+
 
 class _BaseGameConsumerMixin:
     """
@@ -103,6 +112,7 @@ class LobbyConsumer(_BaseGameConsumerMixin, AsyncJsonWebsocketConsumer):
             return
 
         self.player = player
+        self._voluntarily_left = False
 
         await self.channel_layer.group_add(
             self.room_group_name,
@@ -129,13 +139,36 @@ class LobbyConsumer(_BaseGameConsumerMixin, AsyncJsonWebsocketConsumer):
             },
         )
 
+    def _is_voluntary_leave_message(self, content):
+        """Vérifie si le message indique une sortie volontaire."""
+        return isinstance(content, dict) and content.get("type") == _WS_MESSAGE_LEAVE
+
+    async def _handle_voluntary_leave(self):
+        """Exclut immédiatement le joueur (sortie volontaire, sans délai 30 s)."""
+        self._voluntarily_left = True
+        await database_sync_to_async(exclude_player_from_lobby)(
+            self.game_id, self.player.id
+        )
+
+    async def receive_json(self, content):
+        """Gère les messages client : leave (sortie volontaire) ou echo."""
+        if self._is_voluntary_leave_message(content):
+            await self._handle_voluntary_leave()
+        else:
+            await super().receive_json(content)
+
+    def _should_schedule_exclusion(self, close_code):
+        """Indique si une déconnexion doit déclencher le délai d'exclusion (30 s)."""
+        return (
+            self._joined_group
+            and hasattr(self, "player")
+            and close_code not in _CLOSE_CODES_SKIP_EXCLUSION
+            and not getattr(self, "_voluntarily_left", False)
+        )
+
     async def disconnect(self, close_code):
         """Quitte le groupe, diffuse joueur quitte et planifie exclusion si délai dépassé."""
-        if self._joined_group and hasattr(self, "player") and close_code not in (
-            _WS_CLOSE_UNAUTHORIZED,
-            _WS_CLOSE_NOT_IN_GAME,
-            _WS_CLOSE_WRONG_CHANNEL,
-        ):
+        if self._should_schedule_exclusion(close_code):
             await self._broadcast_player_left()
             await self._schedule_player_exclusion()
         if self._joined_group:

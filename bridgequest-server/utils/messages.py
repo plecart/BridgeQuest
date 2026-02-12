@@ -63,7 +63,6 @@ class ModelMessages:
     USER_VERBOSE_NAME_PLURAL = "Users"
     
     # Game
-    GAME_NAME = "model.game.name"
     GAME_CODE = "model.game.code"
     GAME_STATE = "model.game.state"
     GAME_STATE_WAITING = "model.game.state.waiting"
@@ -118,7 +117,6 @@ class ErrorMessages:
     USER_EMAIL_INVALID = "error.user.email_invalid"
     
     # Game errors
-    GAME_NAME_REQUIRED = "error.game.name.required"
     GAME_NOT_FOUND = "error.game.not_found"
     GAME_CODE_NOT_FOUND = "error.game.code.not_found"
     GAME_ALREADY_STARTED = "error.game.already_started"

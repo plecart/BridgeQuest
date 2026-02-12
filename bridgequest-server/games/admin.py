@@ -9,9 +9,9 @@ from games.models import Game, Player
 class GameAdmin(admin.ModelAdmin):
     """Configuration de l'admin pour le modèle Game."""
 
-    list_display = ["name", "code", "state", "created_at"]
+    list_display = ["code", "state", "created_at"]
     list_filter = ["state"]
-    search_fields = ["name", "code"]
+    search_fields = ["code"]
     readonly_fields = ["created_at", "updated_at"]
     date_hierarchy = "created_at"
 

@@ -39,9 +39,6 @@ msgid "admin.user.permissions"
 msgstr "Permissions"
 
 #: games/models/game.py - utils/messages.py - ModelMessages
-msgid "model.game.name"
-msgstr "Nom"
-
 msgid "model.game.code"
 msgstr "Code"
 
@@ -106,9 +103,6 @@ msgid "{user} in {game}"
 msgstr "{user} dans {game}"
 
 #: games/services/game_service.py - ErrorMessages
-msgid "error.game.name.required"
-msgstr "Le nom de la partie est requis."
-
 msgid "error.game.not_found"
 msgstr "Partie introuvable."
 
