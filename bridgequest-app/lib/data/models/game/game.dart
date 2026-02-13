@@ -1,3 +1,5 @@
+import '../../../core/constants/game_constants.dart';
+
 /// Modèle représentant une partie de Bridge Quest.
 class Game {
   final int id;
@@ -26,8 +28,14 @@ class Game {
   }
 
   /// Indique si la partie est en salle d'attente.
-  bool get isWaiting => state == 'WAITING';
+  bool get isWaiting => state == GameState.waiting;
+
+  /// Indique si la partie est en déploiement.
+  bool get isDeployment => state == GameState.deployment;
+
+  /// Indique si la partie est en cours.
+  bool get isInProgress => state == GameState.inProgress;
 
   /// Indique si la partie est terminée.
-  bool get isFinished => state == 'FINISHED';
+  bool get isFinished => state == GameState.finished;
 }

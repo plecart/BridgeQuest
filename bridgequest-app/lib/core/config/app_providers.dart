@@ -2,6 +2,7 @@ import 'package:provider/provider.dart';
 import 'package:provider/single_child_widget.dart';
 import '../config/api_config.dart';
 import '../../data/services/api_service.dart';
+import '../../data/services/game_websocket_service.dart';
 import '../../data/services/lobby_websocket_service.dart';
 import '../../data/services/token_manager.dart';
 import '../../data/repositories/auth_repository.dart';
@@ -30,10 +31,12 @@ class AppProviders {
       apiService: apiService,
     );
     final lobbyWebSocketService = LobbyWebSocketService();
+    final gameWebSocketService = GameWebSocketService();
 
     return [
       Provider<TokenManager>.value(value: tokenManager),
       Provider<LobbyWebSocketService>.value(value: lobbyWebSocketService),
+      Provider<GameWebSocketService>.value(value: gameWebSocketService),
       Provider<ApiService>.value(value: apiService),
       Provider<AuthRepository>.value(value: authRepository),
       Provider<GameRepository>.value(value: gameRepository),
