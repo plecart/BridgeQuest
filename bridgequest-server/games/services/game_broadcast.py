@@ -19,18 +19,21 @@ def get_game_group_name(game_id):
     return f"game_{game_id}"
 
 
-def _send_to_game(game_id, event_type, **event_payload):
+def _send_to_game(target_game_id, event_type, **event_payload):
     """
     Envoie un événement au groupe game.
 
+    Le paramètre ``target_game_id`` est nommé différemment de ``game_id``
+    pour éviter un conflit avec le champ ``game_id`` du payload.
+
     Args:
-        game_id: Identifiant de la partie (pour le nom du groupe).
+        target_game_id: Identifiant de la partie (pour le nom du groupe).
         event_type: Type de l'événement.
         **event_payload: Données de l'événement envoyées aux clients.
     """
     channel_layer = get_channel_layer()
     async_to_sync(channel_layer.group_send)(
-        get_game_group_name(game_id),
+        get_game_group_name(target_game_id),
         {"type": event_type, **event_payload},
     )
 

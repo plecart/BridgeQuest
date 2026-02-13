@@ -203,16 +203,28 @@ class StartGameTestCase(GameServiceTestCase):
     """Tests pour start_game."""
 
     def test_start_game_success(self):
-        """Test de lancement réussi par l'administrateur."""
+        """Test de lancement réussi par l'administrateur (min 2 joueurs)."""
         # Arrange
         admin = self._create_user()
+        joiner = self._create_user(username="joiner", email="joiner@example.com")
         game = create_game(admin)
+        join_game(game.code, joiner)
 
         # Act
         result = start_game(game.id, admin)
 
         # Assert
         self.assertEqual(result.state, GameState.DEPLOYMENT)
+
+    def test_start_game_not_enough_players_raises_exception(self):
+        """Test qu'on ne peut pas lancer une partie avec 1 seul joueur."""
+        # Arrange
+        admin = self._create_user()
+        game = create_game(admin)
+
+        # Act & Assert
+        with self.assertRaises(GameException):
+            start_game(game.id, admin)
 
     def test_start_game_not_admin_raises_exception(self):
         """Test qu'un joueur non-admin lève PlayerException."""

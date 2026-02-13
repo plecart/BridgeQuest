@@ -11,7 +11,9 @@ class LobbyBroadcastTestCase(TestCase):
 
     def test_broadcast_game_started_does_not_raise(self):
         """Test que broadcast_game_started s'exécute sans erreur."""
-        lobby_broadcast.broadcast_game_started(game_id=1)
+        lobby_broadcast.broadcast_game_started(
+            game_id=1, deployment_ends_at="2026-01-01T00:00:00Z",
+        )
 
     def test_broadcast_player_excluded_does_not_raise(self):
         """Test que broadcast_player_excluded s'exécute sans erreur."""
@@ -26,3 +28,10 @@ class LobbyBroadcastTestCase(TestCase):
     def test_broadcast_game_deleted_does_not_raise(self):
         """Test que broadcast_game_deleted s'exécute sans erreur."""
         lobby_broadcast.broadcast_game_deleted(game_id=1)
+
+    def test_broadcast_settings_updated_does_not_raise(self):
+        """Test que broadcast_settings_updated s'exécute sans erreur."""
+        settings_data = {"game_duration": 30, "points_per_minute": 10}
+        lobby_broadcast.broadcast_settings_updated(
+            game_id=1, settings_data=settings_data,
+        )
