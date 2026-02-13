@@ -5,6 +5,7 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 
 import '../../core/config/api_config.dart';
 import '../../core/utils/logger.dart';
+import '../models/game/game_settings.dart';
 import '../models/game/lobby_player.dart';
 
 /// Événements reçus du canal WebSocket lobby.
@@ -57,9 +58,17 @@ class LobbyGameStartedEvent extends LobbyEvent {
   const LobbyGameStartedEvent({
     required this.gameId,
     required this.state,
+    required this.deploymentEndsAt,
   });
   final int gameId;
   final String state;
+  final String deploymentEndsAt;
+}
+
+/// Paramètres de la partie modifiés par l'admin.
+class LobbySettingsUpdatedEvent extends LobbyEvent {
+  const LobbySettingsUpdatedEvent({required this.settings});
+  final GameSettings settings;
 }
 
 /// Erreur ou fermeture inattendue.
@@ -142,6 +151,9 @@ class LobbyWebSocketService {
         case 'game_started':
           _emitGameStarted(decoded, onEvent);
           break;
+        case 'settings_updated':
+          _emitSettingsUpdated(decoded, onEvent);
+          break;
         case 'echo':
           // Ignorer les echo de test
           break;
@@ -220,8 +232,28 @@ class LobbyWebSocketService {
   ) {
     final gameId = decoded['game_id'] as int?;
     final state = decoded['state'] as String?;
-    if (gameId == null || state == null) return;
-    onEvent(LobbyGameStartedEvent(gameId: gameId, state: state));
+    final deploymentEndsAt = decoded['deployment_ends_at'] as String?;
+    if (gameId == null || state == null || deploymentEndsAt == null) return;
+    onEvent(
+      LobbyGameStartedEvent(
+        gameId: gameId,
+        state: state,
+        deploymentEndsAt: deploymentEndsAt,
+      ),
+    );
+  }
+
+  void _emitSettingsUpdated(
+    Map<String, dynamic> decoded,
+    void Function(LobbyEvent) onEvent,
+  ) {
+    final settingsJson = decoded['settings'] as Map<String, dynamic>?;
+    if (settingsJson == null) return;
+    onEvent(
+      LobbySettingsUpdatedEvent(
+        settings: GameSettings.fromJson(settingsJson),
+      ),
+    );
   }
 
   /// Ferme la connexion WebSocket.

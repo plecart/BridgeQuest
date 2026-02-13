@@ -66,9 +66,9 @@ class _LobbyPageState extends State<LobbyPage> {
     );
   }
 
-  void _navigateToGame(int gameId) {
+  void _navigateToGame(int gameId, {required String deploymentEndsAt}) {
     if (!mounted) return;
-    // TODO(Sprint 3): Naviguer vers GameMapPage(gameId: gameId)
+    // TODO(Sprint 3): Naviguer vers DeploymentPage(gameId, deploymentEndsAt)
     // Pour l'instant, revenir au menu
     _navigateToMenu();
   }
@@ -81,7 +81,8 @@ class _LobbyContent extends StatelessWidget {
   });
 
   final VoidCallback onNavigateToMenu;
-  final void Function(int gameId) onNavigateToGame;
+  final void Function(int gameId, {required String deploymentEndsAt})
+      onNavigateToGame;
 
   @override
   Widget build(BuildContext context) {
@@ -128,7 +129,7 @@ class _LobbyContent extends StatelessWidget {
           onNavigateToMenu();
           break;
         case LobbyNavigateToGame e:
-          onNavigateToGame(e.gameId);
+          onNavigateToGame(e.gameId, deploymentEndsAt: e.deploymentEndsAt);
           break;
       }
     });

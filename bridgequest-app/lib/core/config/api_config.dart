@@ -48,19 +48,38 @@ class ApiConfig {
   static const String gamesCreate = '/api/games/';
   static const String gamesJoin = '/api/games/join/';
 
-  /// Path pour détail et joueurs d'une partie
+  /// Path pour détail, joueurs et paramètres d'une partie
   static String gameDetail(int id) => '/api/games/$id/';
   static String gamePlayers(int id) => '/api/games/$id/players/';
   static String gameStart(int id) => '/api/games/$id/start/';
+  static String gameSettings(int id) => '/api/games/$id/settings/';
+
+  // ---------------------------------------------------------------------------
+  // WebSocket URLs
+  // ---------------------------------------------------------------------------
+
+  /// Construit l'URL WebSocket de base à partir de [baseUrl].
+  ///
+  /// Remplace le schéma HTTP par le schéma WS correspondant.
+  static String get _wsBaseUrl {
+    return baseUrl
+        .replaceFirst('http://', 'ws://')
+        .replaceFirst('https://', 'wss://');
+  }
 
   /// URL WebSocket pour la salle d'attente (lobby).
   ///
-  /// [gameId] : ID de la partie
-  /// [token] : Token JWT pour l'authentification (passé en query ?token=xxx)
+  /// [gameId] : ID de la partie.
+  /// [token] : Token JWT pour l'authentification (passé en query ?token=xxx).
   static String lobbyWebSocketUrl(int gameId, String token) {
-    final base = baseUrl
-        .replaceFirst('http://', 'ws://')
-        .replaceFirst('https://', 'wss://');
-    return '$base/ws/lobby/$gameId/?token=${Uri.encodeQueryComponent(token)}';
+    return '$_wsBaseUrl/ws/lobby/$gameId/?token=${Uri.encodeQueryComponent(token)}';
+  }
+
+  /// URL WebSocket pour la partie en cours (game).
+  ///
+  /// [gameId] : ID de la partie.
+  /// [token] : Token JWT pour l'authentification (passé en query ?token=xxx).
+  static String gameWebSocketUrl(int gameId, String token) {
+    return '$_wsBaseUrl/ws/game/$gameId/?token=${Uri.encodeQueryComponent(token)}';
   }
 }

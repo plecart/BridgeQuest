@@ -11,13 +11,17 @@ sealed class LobbyNavigationResult {
   const LobbyNavigationResult();
 }
 
-/// La partie a été lancée → naviguer vers la carte de jeu.
+/// La partie a été lancée -> naviguer vers la page de déploiement.
 class LobbyNavigateToGame extends LobbyNavigationResult {
-  const LobbyNavigateToGame({required this.gameId});
+  const LobbyNavigateToGame({
+    required this.gameId,
+    required this.deploymentEndsAt,
+  });
   final int gameId;
+  final String deploymentEndsAt;
 }
 
-/// La partie a été supprimée → naviguer vers le menu.
+/// La partie a été supprimée -> naviguer vers le menu.
 class LobbyNavigateToMenu extends LobbyNavigationResult {
   const LobbyNavigateToMenu();
 }
@@ -128,7 +132,15 @@ class LobbyViewModel extends ChangeNotifier {
         _setNavigationResult(const LobbyNavigateToMenu());
         break;
       case LobbyGameStartedEvent e:
-        _setNavigationResult(LobbyNavigateToGame(gameId: e.gameId));
+        _setNavigationResult(
+          LobbyNavigateToGame(
+            gameId: e.gameId,
+            deploymentEndsAt: e.deploymentEndsAt,
+          ),
+        );
+        break;
+      case LobbySettingsUpdatedEvent _:
+        // Géré dans la tâche J (UI settings lobby).
         break;
       case LobbyErrorEvent _:
         _setError('lobbyErrorWebSocket');
@@ -191,6 +203,12 @@ class LobbyViewModel extends ChangeNotifier {
   }
 
   /// Lance la partie (admin uniquement).
+  ///
+  /// Le REST POST /start/ déclenche la transition WAITING -> DEPLOYMENT
+  /// côté serveur. La navigation n'est **pas** faite ici : c'est
+  /// l'événement WebSocket `game_started` (reçu par tous les joueurs,
+  /// admin inclus) qui transporte `deploymentEndsAt` et déclenche
+  /// la navigation vers la page de déploiement.
   Future<void> startGame() async {
     if (!isAdmin) return;
     _isStarting = true;
@@ -199,7 +217,7 @@ class LobbyViewModel extends ChangeNotifier {
 
     try {
       await _gameRepository.startGame(_game.id);
-      _setNavigationResult(LobbyNavigateToGame(gameId: _game.id));
+      // Navigation déclenchée par l'événement WS game_started.
     } catch (e) {
       _setError('lobbyStartGameError');
     } finally {
