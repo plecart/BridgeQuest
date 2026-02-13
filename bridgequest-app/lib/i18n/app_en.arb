@@ -318,5 +318,33 @@
   "lobbySettingsUpdateError": "Unable to update settings",
   "@lobbySettingsUpdateError": {
     "description": "Settings update error"
+  },
+  "deploymentTitle": "Deployment",
+  "@deploymentTitle": {
+    "description": "Deployment page title"
+  },
+  "deploymentSubtitle": "Position yourself on the field!",
+  "@deploymentSubtitle": {
+    "description": "Deployment page subtitle"
+  },
+  "deploymentCountdown": "Starting in",
+  "@deploymentCountdown": {
+    "description": "Label above countdown"
+  },
+  "deploymentConnecting": "Connecting to game...",
+  "@deploymentConnecting": {
+    "description": "Deployment connecting state"
+  },
+  "deploymentErrorWebSocket": "Game connection error",
+  "@deploymentErrorWebSocket": {
+    "description": "Deployment WebSocket error"
+  },
+  "deploymentRetry": "Retry",
+  "@deploymentRetry": {
+    "description": "Deployment retry button"
+  },
+  "deploymentRolesAssigned": "Roles assigned!",
+  "@deploymentRolesAssigned": {
+    "description": "Message when roles are assigned"
   }
 }

@@ -221,5 +221,33 @@
   "lobbySettingsUpdateError": "Impossible de modifier les paramètres",
   "@lobbySettingsUpdateError": {
     "description": "Erreur mise à jour paramètres"
+  },
+  "deploymentTitle": "Déploiement",
+  "@deploymentTitle": {
+    "description": "Titre page déploiement"
+  },
+  "deploymentSubtitle": "Positionnez-vous sur le terrain !",
+  "@deploymentSubtitle": {
+    "description": "Sous-titre page déploiement"
+  },
+  "deploymentCountdown": "Début dans",
+  "@deploymentCountdown": {
+    "description": "Label au-dessus du compte à rebours"
+  },
+  "deploymentConnecting": "Connexion à la partie...",
+  "@deploymentConnecting": {
+    "description": "État connexion déploiement"
+  },
+  "deploymentErrorWebSocket": "Erreur de connexion à la partie",
+  "@deploymentErrorWebSocket": {
+    "description": "Erreur WebSocket déploiement"
+  },
+  "deploymentRetry": "Réessayer",
+  "@deploymentRetry": {
+    "description": "Bouton réessayer déploiement"
+  },
+  "deploymentRolesAssigned": "Rôles attribués !",
+  "@deploymentRolesAssigned": {
+    "description": "Message quand les rôles sont attribués"
   }
 }

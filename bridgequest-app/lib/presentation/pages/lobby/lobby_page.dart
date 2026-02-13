@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../../core/utils/error_translator.dart';
 import '../../../data/models/game/game.dart';
 import '../../../data/models/game/lobby_player.dart';
 import '../../../data/repositories/game_repository.dart';
@@ -9,7 +8,10 @@ import '../../../data/services/lobby_websocket_service.dart';
 import '../../../data/services/token_manager.dart';
 import '../../../i18n/app_localizations.dart';
 import '../../theme/app_text_styles.dart';
+import '../../widgets/connecting_indicator.dart';
+import '../../widgets/error_state_view.dart';
 import '../../widgets/loading_button.dart';
+import '../deployment/deployment_page.dart';
 import '../menu/home_page.dart';
 import 'lobby_view_model.dart';
 import 'widgets/lobby_settings_card.dart';
@@ -69,9 +71,14 @@ class _LobbyPageState extends State<LobbyPage> {
 
   void _navigateToGame(int gameId, {required String deploymentEndsAt}) {
     if (!mounted) return;
-    // TODO(Sprint 3): Naviguer vers DeploymentPage(gameId, deploymentEndsAt)
-    // Pour l'instant, revenir au menu
-    _navigateToMenu();
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+        builder: (_) => DeploymentPage(
+          gameId: gameId,
+          deploymentEndsAt: deploymentEndsAt,
+        ),
+      ),
+    );
   }
 }
 
@@ -138,57 +145,17 @@ class _LobbyContent extends StatelessWidget {
 
   Widget _buildBody(BuildContext context, LobbyViewModel vm) {
     final l10n = AppLocalizations.of(context)!;
-    if (vm.isConnecting) return _buildLoadingState(l10n);
-    if (vm.errorKey != null) return _buildErrorState(context, vm, l10n);
+    if (vm.isConnecting) {
+      return ConnectingIndicator(message: l10n.lobbyConnecting);
+    }
+    if (vm.errorKey != null) {
+      return ErrorStateView(
+        errorKey: vm.errorKey!,
+        retryLabel: l10n.lobbyRetry,
+        onRetry: () => vm.initialize(),
+      );
+    }
     return _buildLobbyContent(context, vm, l10n);
-  }
-
-  Widget _buildLoadingState(AppLocalizations l10n) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const CircularProgressIndicator(),
-          const SizedBox(height: 16),
-          Text(l10n.lobbyConnecting),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildErrorState(
-    BuildContext context,
-    LobbyViewModel vm,
-    AppLocalizations l10n,
-  ) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.error_outline,
-              size: 48,
-              color: Theme.of(context).colorScheme.error,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              ErrorTranslator.translate(vm.errorKey!, l10n),
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.error,
-              ),
-            ),
-            const SizedBox(height: 24),
-            OutlinedButton(
-              onPressed: () => vm.initialize(),
-              child: Text(l10n.lobbyRetry),
-            ),
-          ],
-        ),
-      ),
-    );
   }
 
   Widget _buildLobbyContent(

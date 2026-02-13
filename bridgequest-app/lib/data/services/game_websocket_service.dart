@@ -90,19 +90,23 @@ class GameErrorEvent extends GameEvent {
 ///
 /// Gère la connexion, la réception des événements et la fermeture.
 /// Utilisé pendant les phases DEPLOYMENT et IN_PROGRESS.
-/// Ne gère pas la reconnexion automatique ; le ViewModel peut le faire.
+///
+/// Le callback [_onEvent] peut être remplacé sans reconnexion via
+/// [setEventHandler], permettant la transition DeploymentPage -> GamePage
+/// sur la même connexion WebSocket.
 class GameWebSocketService {
   WebSocketChannel? _channel;
   StreamSubscription? _subscription;
+  void Function(GameEvent)? _onEvent;
 
   /// Indique si le canal est connecté.
   bool get isConnected => _channel != null;
 
   /// Connecte au canal game et démarre l'écoute des événements.
   ///
-  /// [gameId] : ID de la partie
-  /// [accessToken] : Token JWT pour l'authentification
-  /// [onEvent] : Callback appelé à chaque événement reçu
+  /// [gameId] : ID de la partie.
+  /// [accessToken] : Token JWT pour l'authentification.
+  /// [onEvent] : Callback appelé à chaque événement reçu.
   ///
   /// Ferme une éventuelle connexion existante avant de se connecter.
   void connect({
@@ -111,20 +115,26 @@ class GameWebSocketService {
     required void Function(GameEvent) onEvent,
   }) {
     disconnect();
+    _onEvent = onEvent;
 
     final url = ApiConfig.gameWebSocketUrl(gameId, accessToken);
     AppLogger.debug('Game WebSocket connecting to game $gameId');
 
     _channel = WebSocketChannel.connect(Uri.parse(url));
     _subscription = _channel!.stream.listen(
-      (data) => _handleMessage(data, onEvent),
-      onError: (error) {
-        AppLogger.error('Game WebSocket error', error);
-        onEvent(GameErrorEvent(message: error.toString()));
-      },
+      _handleMessage,
+      onError: _handleError,
       onDone: _clearConnection,
       cancelOnError: false,
     );
+  }
+
+  /// Remplace le handler d'événements sans reconnecter.
+  ///
+  /// Utilisé lors de la transition DeploymentPage -> GamePage pour que
+  /// le nouveau ViewModel reçoive les événements sur la connexion existante.
+  void setEventHandler(void Function(GameEvent) onEvent) {
+    _onEvent = onEvent;
   }
 
   /// Ferme la connexion WebSocket.
@@ -137,8 +147,13 @@ class GameWebSocketService {
   // Dispatch des messages
   // ---------------------------------------------------------------------------
 
-  void _handleMessage(dynamic data, void Function(GameEvent) onEvent) {
-    if (data is! String) return;
+  void _handleError(dynamic error) {
+    AppLogger.error('Game WebSocket error', error);
+    _onEvent?.call(GameErrorEvent(message: error.toString()));
+  }
+
+  void _handleMessage(dynamic data) {
+    if (data is! String || _onEvent == null) return;
     try {
       final decoded = jsonDecode(data);
       if (decoded is! Map<String, dynamic>) return;
@@ -147,19 +162,19 @@ class GameWebSocketService {
 
       switch (type) {
         case 'connected':
-          _emitConnected(decoded, onEvent);
+          _emitConnected(decoded);
           break;
         case 'roles_assigned':
-          _emitRolesAssigned(decoded, onEvent);
+          _emitRolesAssigned(decoded);
           break;
         case 'game_in_progress':
-          _emitGameInProgress(decoded, onEvent);
+          _emitGameInProgress(decoded);
           break;
         case 'game_finished':
-          _emitGameFinished(decoded, onEvent);
+          _emitGameFinished(decoded);
           break;
         case 'position_updated':
-          _emitPositionUpdated(decoded, onEvent);
+          _emitPositionUpdated(decoded);
           break;
         case 'echo':
           // Ignorer les echo de test
@@ -169,7 +184,7 @@ class GameWebSocketService {
       }
     } catch (e) {
       AppLogger.error('Game WebSocket message parse error', e);
-      onEvent(GameErrorEvent(message: e.toString()));
+      _onEvent?.call(GameErrorEvent(message: e.toString()));
     }
   }
 
@@ -177,10 +192,7 @@ class GameWebSocketService {
   // Parsing et émission des événements
   // ---------------------------------------------------------------------------
 
-  void _emitConnected(
-    Map<String, dynamic> decoded,
-    void Function(GameEvent) onEvent,
-  ) {
+  void _emitConnected(Map<String, dynamic> decoded) {
     final gameId = decoded['game_id'] as int?;
     final playerJson = decoded['player'] as Map<String, dynamic>?;
     if (gameId == null || playerJson == null) return;
@@ -190,7 +202,7 @@ class GameWebSocketService {
     final username = playerJson['username'] as String? ?? '';
     if (playerId == null || userId == null) return;
 
-    onEvent(
+    _onEvent!(
       GameConnectedEvent(
         gameId: gameId,
         playerId: playerId,
@@ -200,10 +212,7 @@ class GameWebSocketService {
     );
   }
 
-  void _emitRolesAssigned(
-    Map<String, dynamic> decoded,
-    void Function(GameEvent) onEvent,
-  ) {
+  void _emitRolesAssigned(Map<String, dynamic> decoded) {
     final playersJson = decoded['players'] as List?;
     if (playersJson == null) return;
 
@@ -212,26 +221,20 @@ class GameWebSocketService {
         .map(GamePlayerRole.fromJson)
         .toList();
 
-    onEvent(GameRolesAssignedEvent(players: players));
+    _onEvent!(GameRolesAssignedEvent(players: players));
   }
 
-  void _emitGameInProgress(
-    Map<String, dynamic> decoded,
-    void Function(GameEvent) onEvent,
-  ) {
+  void _emitGameInProgress(Map<String, dynamic> decoded) {
     final gameId = decoded['game_id'] as int?;
     final gameEndsAt = decoded['game_ends_at'] as String?;
     if (gameId == null || gameEndsAt == null) return;
 
-    onEvent(
+    _onEvent!(
       GameInProgressEvent(gameId: gameId, gameEndsAt: gameEndsAt),
     );
   }
 
-  void _emitGameFinished(
-    Map<String, dynamic> decoded,
-    void Function(GameEvent) onEvent,
-  ) {
+  void _emitGameFinished(Map<String, dynamic> decoded) {
     final gameId = decoded['game_id'] as int?;
     final scoresJson = decoded['scores'] as List?;
     if (gameId == null || scoresJson == null) return;
@@ -241,13 +244,10 @@ class GameWebSocketService {
         .map(GameScoreEntry.fromJson)
         .toList();
 
-    onEvent(GameFinishedEvent(gameId: gameId, scores: scores));
+    _onEvent!(GameFinishedEvent(gameId: gameId, scores: scores));
   }
 
-  void _emitPositionUpdated(
-    Map<String, dynamic> decoded,
-    void Function(GameEvent) onEvent,
-  ) {
+  void _emitPositionUpdated(Map<String, dynamic> decoded) {
     final playerId = decoded['player_id'] as int?;
     final userJson = decoded['user'] as Map<String, dynamic>?;
     final latitude = decoded['latitude'] as String?;
@@ -261,7 +261,7 @@ class GameWebSocketService {
       return;
     }
 
-    onEvent(
+    _onEvent!(
       GamePositionUpdatedEvent(
         playerId: playerId,
         userId: userJson['id'] as int? ?? 0,
@@ -281,5 +281,6 @@ class GameWebSocketService {
     _subscription?.cancel();
     _subscription = null;
     _channel = null;
+    _onEvent = null;
   }
 }
