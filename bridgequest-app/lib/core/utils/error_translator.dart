@@ -34,6 +34,8 @@ class ErrorTranslator {
         return l10n.lobbyErrorWebSocket;
       case 'lobbyStartGameError':
         return l10n.lobbyStartGameError;
+      case 'lobbySettingsUpdateError':
+        return l10n.lobbySettingsUpdateError;
       case 'error.response.invalidFormat':
         return l10n.errorResponseInvalidFormat;
       case 'error.response.unstructuredData':

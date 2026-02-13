@@ -290,5 +290,33 @@
         "type": "String"
       }
     }
+  },
+  "lobbySettingsTitle": "Game settings",
+  "@lobbySettingsTitle": {
+    "description": "Settings section title in lobby"
+  },
+  "lobbySettingsGameDuration": "Game duration (min)",
+  "@lobbySettingsGameDuration": {
+    "description": "Game duration label"
+  },
+  "lobbySettingsDeploymentDuration": "Deployment duration (min)",
+  "@lobbySettingsDeploymentDuration": {
+    "description": "Deployment duration label"
+  },
+  "lobbySettingsSpiritPercentage": "Spirit percentage (%)",
+  "@lobbySettingsSpiritPercentage": {
+    "description": "Spirit percentage label"
+  },
+  "lobbySettingsPointsPerMinute": "Points per minute",
+  "@lobbySettingsPointsPerMinute": {
+    "description": "Passive points per minute label"
+  },
+  "lobbySettingsConversionPercentage": "Conversion bonus (%)",
+  "@lobbySettingsConversionPercentage": {
+    "description": "Conversion points percentage label"
+  },
+  "lobbySettingsUpdateError": "Unable to update settings",
+  "@lobbySettingsUpdateError": {
+    "description": "Settings update error"
   }
 }

@@ -12,6 +12,7 @@ import '../../theme/app_text_styles.dart';
 import '../../widgets/loading_button.dart';
 import '../menu/home_page.dart';
 import 'lobby_view_model.dart';
+import 'widgets/lobby_settings_card.dart';
 
 /// Page salle d'attente d'une partie.
 ///
@@ -212,6 +213,17 @@ class _LobbyContent extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           _buildPlayerList(context, vm.players),
+          if (vm.settings != null) ...[
+            const SizedBox(height: 24),
+            LobbySettingsCard(
+              settings: vm.settings!,
+              isAdmin: vm.isAdmin,
+              isUpdating: vm.isUpdatingSettings,
+              onSettingChanged: vm.isAdmin
+                  ? (key, value) => vm.updateSetting(key, value)
+                  : null,
+            ),
+          ],
           if (vm.isAdmin) ...[
             const SizedBox(height: 32),
             LoadingButton(
@@ -259,5 +271,4 @@ class _LobbyContent extends StatelessWidget {
           : null,
     );
   }
-
 }

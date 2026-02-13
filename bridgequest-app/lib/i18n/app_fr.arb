@@ -193,5 +193,33 @@
   "errorGameInvalidCode": "Code de partie invalide",
   "@errorGameInvalidCode": {
     "description": "Erreur code invalide"
+  },
+  "lobbySettingsTitle": "Paramètres de la partie",
+  "@lobbySettingsTitle": {
+    "description": "Titre section paramètres lobby"
+  },
+  "lobbySettingsGameDuration": "Durée de la partie (min)",
+  "@lobbySettingsGameDuration": {
+    "description": "Label durée de la partie"
+  },
+  "lobbySettingsDeploymentDuration": "Durée du déploiement (min)",
+  "@lobbySettingsDeploymentDuration": {
+    "description": "Label durée du déploiement"
+  },
+  "lobbySettingsSpiritPercentage": "Pourcentage d'Esprits (%)",
+  "@lobbySettingsSpiritPercentage": {
+    "description": "Label pourcentage esprits"
+  },
+  "lobbySettingsPointsPerMinute": "Points par minute",
+  "@lobbySettingsPointsPerMinute": {
+    "description": "Label points passifs par minute"
+  },
+  "lobbySettingsConversionPercentage": "Bonus de conversion (%)",
+  "@lobbySettingsConversionPercentage": {
+    "description": "Label pourcentage de points de conversion"
+  },
+  "lobbySettingsUpdateError": "Impossible de modifier les paramètres",
+  "@lobbySettingsUpdateError": {
+    "description": "Erreur mise à jour paramètres"
   }
 }
