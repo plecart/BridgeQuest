@@ -391,5 +391,30 @@
   "gameRetry": "Retry",
   "@gameRetry": {
     "description": "Game page retry button"
+  },
+  "resultsTitle": "Results",
+  "@resultsTitle": {
+    "description": "Results page title"
+  },
+  "resultsSubtitle": "Game over!",
+  "@resultsSubtitle": {
+    "description": "Results page subtitle"
+  },
+  "resultsBackToMenu": "Back to menu",
+  "@resultsBackToMenu": {
+    "description": "Back to menu button from results"
+  },
+  "resultsScorePoints": "{score} pts",
+  "@resultsScorePoints": {
+    "description": "Score displayed in points",
+    "placeholders": {
+      "score": {
+        "type": "int"
+      }
+    }
+  },
+  "resultsNoScores": "No scores available",
+  "@resultsNoScores": {
+    "description": "Message when scores list is empty"
   }
 }

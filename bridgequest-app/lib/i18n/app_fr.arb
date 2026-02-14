@@ -294,5 +294,30 @@
   "gameRetry": "Réessayer",
   "@gameRetry": {
     "description": "Bouton réessayer page de jeu"
+  },
+  "resultsTitle": "Résultats",
+  "@resultsTitle": {
+    "description": "Titre page résultats"
+  },
+  "resultsSubtitle": "Partie terminée !",
+  "@resultsSubtitle": {
+    "description": "Sous-titre page résultats"
+  },
+  "resultsBackToMenu": "Retour au menu",
+  "@resultsBackToMenu": {
+    "description": "Bouton retour au menu depuis les résultats"
+  },
+  "resultsScorePoints": "{score} pts",
+  "@resultsScorePoints": {
+    "description": "Score affiché en points",
+    "placeholders": {
+      "score": {
+        "type": "int"
+      }
+    }
+  },
+  "resultsNoScores": "Aucun score disponible",
+  "@resultsNoScores": {
+    "description": "Message quand la liste des scores est vide"
   }
 }

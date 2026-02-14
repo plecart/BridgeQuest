@@ -6,6 +6,7 @@ import '../../../data/services/game_websocket_service.dart';
 import '../../../i18n/app_localizations.dart';
 import '../../widgets/error_state_view.dart';
 import '../menu/home_page.dart';
+import '../results/results_page.dart';
 import 'game_view_model.dart';
 
 /// Page principale de jeu affichée pendant la phase IN_PROGRESS.
@@ -73,9 +74,14 @@ class _GamePageState extends State<GamePage> {
 
   void _navigateToResults(GameNavigateToResults result) {
     if (!mounted) return;
-    // TODO(Sprint 3 - Task N): Naviguer vers ResultsPage
-    // Pour l'instant, revenir au menu.
-    _navigateToMenu();
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+        builder: (_) => ResultsPage(
+          gameId: result.gameId,
+          scores: result.scores,
+        ),
+      ),
+    );
   }
 }
 
@@ -328,10 +334,7 @@ class _GameContent extends StatelessWidget {
       ),
       trailing: Chip(
         label: Text(
-          _localizedRoleName(
-            player.isSpirit ? 'spirit' : 'human',
-            l10n,
-          ),
+          player.isSpirit ? l10n.gameRoleSpirit : l10n.gameRoleHuman,
         ),
         backgroundColor: player.isSpirit
             ? Theme.of(context).colorScheme.errorContainer
