@@ -7,6 +7,7 @@ import '../../../i18n/app_localizations.dart';
 import '../../theme/app_text_styles.dart';
 import '../../widgets/connecting_indicator.dart';
 import '../../widgets/error_state_view.dart';
+import '../game/game_page.dart';
 import '../menu/home_page.dart';
 import 'deployment_view_model.dart';
 
@@ -73,9 +74,16 @@ class _DeploymentPageState extends State<DeploymentPage> {
   void _navigateToGame(DeploymentNavigateToGame result) {
     if (!mounted) return;
     _navigatedForward = true;
-    // TODO(Sprint 3 - Task M): Naviguer vers GamePage
-    // Pour l'instant, revenir au menu.
-    _navigateToMenu();
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+        builder: (_) => GamePage(
+          gameId: result.gameId,
+          gameEndsAt: result.gameEndsAt,
+          roles: result.roles,
+          currentPlayerId: result.currentPlayerId,
+        ),
+      ),
+    );
   }
 }
 

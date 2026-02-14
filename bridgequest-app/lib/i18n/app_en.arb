@@ -346,5 +346,50 @@
   "deploymentRolesAssigned": "Roles assigned!",
   "@deploymentRolesAssigned": {
     "description": "Message when roles are assigned"
+  },
+  "gameTitle": "Game in progress",
+  "@gameTitle": {
+    "description": "Game page title"
+  },
+  "gameCountdownLabel": "Time remaining",
+  "@gameCountdownLabel": {
+    "description": "Label above countdown"
+  },
+  "gameYourRole": "Your role",
+  "@gameYourRole": {
+    "description": "Player role section label"
+  },
+  "gameRoleHuman": "Human",
+  "@gameRoleHuman": {
+    "description": "Human role name"
+  },
+  "gameRoleSpirit": "Spirit",
+  "@gameRoleSpirit": {
+    "description": "Spirit role name"
+  },
+  "gameRoleUnknown": "Unknown",
+  "@gameRoleUnknown": {
+    "description": "Unknown role (fallback)"
+  },
+  "gamePlayersTitle": "Players ({count})",
+  "@gamePlayersTitle": {
+    "description": "Players list title with count",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "gameConnecting": "Connecting to game...",
+  "@gameConnecting": {
+    "description": "Game page connecting state"
+  },
+  "gameErrorWebSocket": "Game connection error",
+  "@gameErrorWebSocket": {
+    "description": "Game WebSocket error"
+  },
+  "gameRetry": "Retry",
+  "@gameRetry": {
+    "description": "Game page retry button"
   }
 }

@@ -1,7 +1,6 @@
-import 'dart:async';
-
 import 'package:flutter/foundation.dart';
 
+import '../../../core/utils/countdown_controller.dart';
 import '../../../data/models/game/game_player_role.dart';
 import '../../../data/services/game_websocket_service.dart';
 import '../../../data/services/token_manager.dart';
@@ -21,10 +20,12 @@ class DeploymentNavigateToGame extends DeploymentNavigationResult {
     required this.gameId,
     required this.gameEndsAt,
     required this.roles,
+    required this.currentPlayerId,
   });
   final int gameId;
   final String gameEndsAt;
   final List<GamePlayerRole> roles;
+  final int currentPlayerId;
 }
 
 /// Erreur fatale -> retour au menu.
@@ -48,21 +49,22 @@ class DeploymentViewModel extends ChangeNotifier {
     required GameWebSocketService gameWebSocketService,
     required TokenManager tokenManager,
   })  : _gameId = gameId,
-        _deploymentEndsAt = DateTime.parse(deploymentEndsAt).toLocal(),
         _gameWebSocketService = gameWebSocketService,
-        _tokenManager = tokenManager;
+        _tokenManager = tokenManager,
+        _countdown = CountdownController(
+          targetTime: DateTime.parse(deploymentEndsAt).toLocal(),
+        );
 
   final int _gameId;
-  final DateTime _deploymentEndsAt;
   final GameWebSocketService _gameWebSocketService;
   final TokenManager _tokenManager;
+  final CountdownController _countdown;
 
   bool _isConnecting = true;
   String? _errorKey;
-  Duration _remainingTime = Duration.zero;
   List<GamePlayerRole>? _roles;
+  int? _connectedPlayerId;
   DeploymentNavigationResult? _navigationResult;
-  Timer? _countdownTimer;
 
   // ---------------------------------------------------------------------------
   // Getters
@@ -71,17 +73,12 @@ class DeploymentViewModel extends ChangeNotifier {
   int get gameId => _gameId;
   bool get isConnecting => _isConnecting;
   String? get errorKey => _errorKey;
-  Duration get remainingTime => _remainingTime;
+  Duration get remainingTime => _countdown.remainingTime;
   List<GamePlayerRole>? get roles => _roles;
   DeploymentNavigationResult? get navigationResult => _navigationResult;
 
   /// Minutes et secondes formatées du compte à rebours.
-  String get countdownText {
-    final minutes = _remainingTime.inMinutes;
-    final seconds = _remainingTime.inSeconds % 60;
-    return '${minutes.toString().padLeft(2, '0')}:'
-        '${seconds.toString().padLeft(2, '0')}';
-  }
+  String get countdownText => _countdown.countdownText;
 
   // ---------------------------------------------------------------------------
   // Cycle de vie
@@ -91,7 +88,8 @@ class DeploymentViewModel extends ChangeNotifier {
   Future<void> initialize() async {
     _setConnecting(true);
     _clearError();
-    _startCountdown();
+    _countdown.onTick = () => notifyListeners();
+    _countdown.start();
 
     try {
       await _connectWebSocket();
@@ -105,8 +103,7 @@ class DeploymentViewModel extends ChangeNotifier {
   /// Libère les ressources (timer). Ne déconnecte **pas** le WebSocket
   /// si la navigation va vers GamePage (même connexion réutilisée).
   void disposeResources({bool keepConnection = false}) {
-    _countdownTimer?.cancel();
-    _countdownTimer = null;
+    _countdown.stop();
     if (!keepConnection) {
       _gameWebSocketService.disconnect();
     }
@@ -142,8 +139,8 @@ class DeploymentViewModel extends ChangeNotifier {
 
   void _handleGameEvent(GameEvent event) {
     switch (event) {
-      case GameConnectedEvent _:
-        // Connexion établie, rien de spécial à faire.
+      case GameConnectedEvent e:
+        _connectedPlayerId = e.playerId;
         break;
       case GameRolesAssignedEvent e:
         _handleRolesAssigned(e.players);
@@ -167,34 +164,15 @@ class DeploymentViewModel extends ChangeNotifier {
   }
 
   void _handleGameInProgress(GameInProgressEvent event) {
-    _countdownTimer?.cancel();
+    _countdown.stop();
     _setNavigationResult(
       DeploymentNavigateToGame(
         gameId: event.gameId,
         gameEndsAt: event.gameEndsAt,
         roles: _roles ?? [],
+        currentPlayerId: _connectedPlayerId ?? 0,
       ),
     );
-  }
-
-  // ---------------------------------------------------------------------------
-  // Compte à rebours
-  // ---------------------------------------------------------------------------
-
-  void _startCountdown() {
-    _updateRemainingTime();
-    _countdownTimer?.cancel();
-    _countdownTimer = Timer.periodic(
-      const Duration(seconds: 1),
-      (_) => _updateRemainingTime(),
-    );
-  }
-
-  void _updateRemainingTime() {
-    final now = DateTime.now();
-    final remaining = _deploymentEndsAt.difference(now);
-    _remainingTime = remaining.isNegative ? Duration.zero : remaining;
-    notifyListeners();
   }
 
   // ---------------------------------------------------------------------------

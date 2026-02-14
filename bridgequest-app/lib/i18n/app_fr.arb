@@ -249,5 +249,50 @@
   "deploymentRolesAssigned": "Rôles attribués !",
   "@deploymentRolesAssigned": {
     "description": "Message quand les rôles sont attribués"
+  },
+  "gameTitle": "Partie en cours",
+  "@gameTitle": {
+    "description": "Titre page de jeu"
+  },
+  "gameCountdownLabel": "Temps restant",
+  "@gameCountdownLabel": {
+    "description": "Label au-dessus du compte à rebours"
+  },
+  "gameYourRole": "Votre rôle",
+  "@gameYourRole": {
+    "description": "Label section rôle du joueur"
+  },
+  "gameRoleHuman": "Humain",
+  "@gameRoleHuman": {
+    "description": "Nom du rôle humain"
+  },
+  "gameRoleSpirit": "Esprit",
+  "@gameRoleSpirit": {
+    "description": "Nom du rôle esprit"
+  },
+  "gameRoleUnknown": "Inconnu",
+  "@gameRoleUnknown": {
+    "description": "Rôle inconnu (fallback)"
+  },
+  "gamePlayersTitle": "Joueurs ({count})",
+  "@gamePlayersTitle": {
+    "description": "Titre liste joueurs avec nombre",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "gameConnecting": "Connexion à la partie...",
+  "@gameConnecting": {
+    "description": "État connexion page de jeu"
+  },
+  "gameErrorWebSocket": "Erreur de connexion au jeu",
+  "@gameErrorWebSocket": {
+    "description": "Erreur WebSocket jeu"
+  },
+  "gameRetry": "Réessayer",
+  "@gameRetry": {
+    "description": "Bouton réessayer page de jeu"
   }
 }
