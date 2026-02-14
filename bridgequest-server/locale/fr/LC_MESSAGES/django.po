@@ -145,3 +145,176 @@ msgstr "Cette partie n'est pas active."
 
 msgid "error.position.coordinates_invalid"
 msgstr "Coordonnées invalides."
+
+#: games/services/lifecycle_service.py - ErrorMessages (Sprint 3)
+msgid "error.game.not_enough_players"
+msgstr "Pas assez de joueurs pour lancer la partie."
+
+msgid "error.game.not_deployment"
+msgstr "La partie n'est pas en phase de déploiement."
+
+msgid "error.game.not_in_progress"
+msgstr "La partie n'est pas en cours."
+
+#: games/views/game_views.py - ErrorMessages (Sprint 3)
+msgid "error.settings.not_found"
+msgstr "Paramètres de la partie introuvables."
+
+msgid "error.settings.game_not_waiting"
+msgstr "Les paramètres ne peuvent être modifiés que pendant la phase d'attente."
+
+#: games/models/game.py - ModelMessages (Sprint 3)
+msgid "model.game.deployment_ends_at"
+msgstr "Fin du déploiement"
+
+msgid "model.game.game_ends_at"
+msgstr "Fin de la partie"
+
+#: games/models/player.py - ModelMessages (Sprint 3)
+msgid "model.player.converted_at"
+msgstr "Converti le"
+
+#: games/models/game_settings.py - ModelMessages (Sprint 3)
+msgid "Game Settings"
+msgstr "Paramètres de partie"
+
+msgid "Settings for {game}"
+msgstr "Paramètres pour {game}"
+
+msgid "model.settings.game"
+msgstr "Partie"
+
+msgid "model.settings.game_duration"
+msgstr "Durée de la partie"
+
+msgid "model.settings.deployment_duration"
+msgstr "Durée du déploiement"
+
+msgid "model.settings.spirit_percentage"
+msgstr "Pourcentage d'Esprits"
+
+msgid "model.settings.points_per_minute"
+msgstr "Points par minute"
+
+msgid "model.settings.conversion_points_percentage"
+msgstr "Pourcentage de points de conversion"
+
+#: accounts/models/user.py - ModelMessages
+msgid "model.user.username"
+msgstr "Nom d'utilisateur"
+
+msgid "model.user.email"
+msgstr "Email"
+
+msgid "model.user.first_name"
+msgstr "Prénom"
+
+msgid "model.user.last_name"
+msgstr "Nom"
+
+msgid "model.user.avatar"
+msgstr "Avatar"
+
+msgid "model.user.created_at"
+msgstr "Créé le"
+
+msgid "model.user.updated_at"
+msgstr "Modifié le"
+
+#: accounts/admin.py - Messages
+msgid "admin.user.personal_info"
+msgstr "Informations personnelles"
+
+msgid "admin.user.important_dates"
+msgstr "Dates importantes"
+
+#: accounts/views/auth_views.py - Messages
+msgid "auth.logout.success"
+msgstr "Déconnexion réussie."
+
+msgid "auth.sso.login.success"
+msgstr "Connexion réussie."
+
+#: accounts/serializers - Messages
+msgid "serializer.sso.provider.help_text"
+msgstr "Fournisseur SSO (google, apple)"
+
+msgid "serializer.sso.token.help_text"
+msgstr "Token d'identification du fournisseur SSO"
+
+#: games/validators.py - Messages
+msgid "validation.game.code.alphanumeric"
+msgstr "Le code ne doit contenir que des lettres et des chiffres."
+
+msgid "validation.game.code.length"
+msgstr "Le code doit faire exactement 6 caractères."
+
+#: accounts/services - ErrorMessages
+msgid "error.auth.invalid_credentials"
+msgstr "Identifiants invalides."
+
+msgid "error.auth.account_exists"
+msgstr "Ce compte existe déjà."
+
+msgid "error.auth.account_not_found"
+msgstr "Compte introuvable."
+
+msgid "error.auth.token_invalid"
+msgstr "Token invalide."
+
+msgid "error.auth.token_expired"
+msgstr "Token expiré."
+
+msgid "error.auth.sso_failed"
+msgstr "Échec de l'authentification SSO."
+
+msgid "error.auth.sso.provider_invalid"
+msgstr "Fournisseur SSO invalide."
+
+msgid "error.auth.sso.token_required"
+msgstr "Token SSO requis."
+
+msgid "error.auth.sso.token_validation_failed"
+msgstr "Échec de la validation du token SSO."
+
+msgid "error.auth.sso.config_error"
+msgstr "Erreur de configuration SSO."
+
+msgid "error.user.not_found"
+msgstr "Utilisateur introuvable."
+
+msgid "error.user.email_required"
+msgstr "L'email est requis."
+
+msgid "error.user.email_invalid"
+msgstr "Email invalide."
+
+#: utils/exceptions.py - ErrorMessages
+msgid "error.generic.unauthorized"
+msgstr "Non autorisé."
+
+msgid "error.generic.not_found"
+msgstr "Ressource introuvable."
+
+msgid "error.generic.internal"
+msgstr "Erreur interne du serveur."
+
+#: interactions (future) - ErrorMessages
+msgid "error.interaction.qr_code.invalid"
+msgstr "QR code invalide."
+
+msgid "error.interaction.qr_code.already_scanned"
+msgstr "Ce QR code a déjà été scanné."
+
+#: apps verbose names
+msgid "app.interactions.name"
+msgstr "Interactions"
+
+msgid "app.locations.name"
+msgstr "Localisations"
+
+msgid "app.powers.name"
+msgstr "Pouvoirs"
+
+msgid "app.logs.name"
+msgstr "Journaux"

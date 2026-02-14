@@ -105,12 +105,15 @@ class _DeploymentContent extends StatelessWidget {
     return Consumer<DeploymentViewModel>(
       builder: (context, vm, _) {
         _scheduleNavigationIfNeeded(context, vm);
-        return Scaffold(
-          appBar: AppBar(
-            title: Text(AppLocalizations.of(context)!.deploymentTitle),
-            automaticallyImplyLeading: false,
+        return PopScope(
+          canPop: false,
+          child: Scaffold(
+            appBar: AppBar(
+              title: Text(AppLocalizations.of(context)!.deploymentTitle),
+              automaticallyImplyLeading: false,
+            ),
+            body: SafeArea(child: _buildBody(context, vm)),
           ),
-          body: SafeArea(child: _buildBody(context, vm)),
         );
       },
     );

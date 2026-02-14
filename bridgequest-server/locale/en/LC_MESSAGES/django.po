@@ -142,3 +142,176 @@ msgstr "This game is not active."
 
 msgid "error.position.coordinates_invalid"
 msgstr "Invalid coordinates."
+
+#: games/services/lifecycle_service.py - ErrorMessages (Sprint 3)
+msgid "error.game.not_enough_players"
+msgstr "Not enough players to start the game."
+
+msgid "error.game.not_deployment"
+msgstr "The game is not in deployment phase."
+
+msgid "error.game.not_in_progress"
+msgstr "The game is not in progress."
+
+#: games/views/game_views.py - ErrorMessages (Sprint 3)
+msgid "error.settings.not_found"
+msgstr "Game settings not found."
+
+msgid "error.settings.game_not_waiting"
+msgstr "Settings can only be modified during the waiting phase."
+
+#: games/models/game.py - ModelMessages (Sprint 3)
+msgid "model.game.deployment_ends_at"
+msgstr "Deployment ends at"
+
+msgid "model.game.game_ends_at"
+msgstr "Game ends at"
+
+#: games/models/player.py - ModelMessages (Sprint 3)
+msgid "model.player.converted_at"
+msgstr "Converted at"
+
+#: games/models/game_settings.py - ModelMessages (Sprint 3)
+msgid "Game Settings"
+msgstr "Game Settings"
+
+msgid "Settings for {game}"
+msgstr "Settings for {game}"
+
+msgid "model.settings.game"
+msgstr "Game"
+
+msgid "model.settings.game_duration"
+msgstr "Game duration"
+
+msgid "model.settings.deployment_duration"
+msgstr "Deployment duration"
+
+msgid "model.settings.spirit_percentage"
+msgstr "Spirit percentage"
+
+msgid "model.settings.points_per_minute"
+msgstr "Points per minute"
+
+msgid "model.settings.conversion_points_percentage"
+msgstr "Conversion points percentage"
+
+#: accounts/models/user.py - ModelMessages
+msgid "model.user.username"
+msgstr "Username"
+
+msgid "model.user.email"
+msgstr "Email"
+
+msgid "model.user.first_name"
+msgstr "First name"
+
+msgid "model.user.last_name"
+msgstr "Last name"
+
+msgid "model.user.avatar"
+msgstr "Avatar"
+
+msgid "model.user.created_at"
+msgstr "Created at"
+
+msgid "model.user.updated_at"
+msgstr "Updated at"
+
+#: accounts/admin.py - Messages
+msgid "admin.user.personal_info"
+msgstr "Personal info"
+
+msgid "admin.user.important_dates"
+msgstr "Important dates"
+
+#: accounts/views/auth_views.py - Messages
+msgid "auth.logout.success"
+msgstr "Successfully logged out."
+
+msgid "auth.sso.login.success"
+msgstr "Successfully logged in."
+
+#: accounts/serializers - Messages
+msgid "serializer.sso.provider.help_text"
+msgstr "SSO provider (google, apple)"
+
+msgid "serializer.sso.token.help_text"
+msgstr "SSO provider identification token"
+
+#: games/validators.py - Messages
+msgid "validation.game.code.alphanumeric"
+msgstr "Code must contain only letters and digits."
+
+msgid "validation.game.code.length"
+msgstr "Code must be exactly 6 characters."
+
+#: accounts/services - ErrorMessages
+msgid "error.auth.invalid_credentials"
+msgstr "Invalid credentials."
+
+msgid "error.auth.account_exists"
+msgstr "This account already exists."
+
+msgid "error.auth.account_not_found"
+msgstr "Account not found."
+
+msgid "error.auth.token_invalid"
+msgstr "Invalid token."
+
+msgid "error.auth.token_expired"
+msgstr "Token expired."
+
+msgid "error.auth.sso_failed"
+msgstr "SSO authentication failed."
+
+msgid "error.auth.sso.provider_invalid"
+msgstr "Invalid SSO provider."
+
+msgid "error.auth.sso.token_required"
+msgstr "SSO token required."
+
+msgid "error.auth.sso.token_validation_failed"
+msgstr "SSO token validation failed."
+
+msgid "error.auth.sso.config_error"
+msgstr "SSO configuration error."
+
+msgid "error.user.not_found"
+msgstr "User not found."
+
+msgid "error.user.email_required"
+msgstr "Email is required."
+
+msgid "error.user.email_invalid"
+msgstr "Invalid email."
+
+#: utils/exceptions.py - ErrorMessages
+msgid "error.generic.unauthorized"
+msgstr "Unauthorized."
+
+msgid "error.generic.not_found"
+msgstr "Resource not found."
+
+msgid "error.generic.internal"
+msgstr "Internal server error."
+
+#: interactions (future) - ErrorMessages
+msgid "error.interaction.qr_code.invalid"
+msgstr "Invalid QR code."
+
+msgid "error.interaction.qr_code.already_scanned"
+msgstr "This QR code has already been scanned."
+
+#: apps verbose names
+msgid "app.interactions.name"
+msgstr "Interactions"
+
+msgid "app.locations.name"
+msgstr "Locations"
+
+msgid "app.powers.name"
+msgstr "Powers"
+
+msgid "app.logs.name"
+msgstr "Logs"
