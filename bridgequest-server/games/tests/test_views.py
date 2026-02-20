@@ -110,6 +110,7 @@ class GameViewsTestCase(TestCase):
     def test_game_detail_authenticated_success(self):
         """Test de récupération des détails d'une partie."""
         game = Game.objects.create(code='GHI012')
+        GameSettings.objects.create(game=game)
         Player.objects.create(game=game, user=self.user, is_admin=True)
 
         self._authenticate_client()
@@ -117,6 +118,14 @@ class GameViewsTestCase(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['id'], game.id)
         self.assertEqual(response.data['code'], game.code)
+        # Vérifier que les settings sont inclus dans la réponse (pour reconnexion)
+        self.assertIn('settings', response.data)
+        self.assertIsInstance(response.data['settings'], dict)
+        self.assertIn('game_duration', response.data['settings'])
+        self.assertIn('deployment_duration', response.data['settings'])
+        self.assertIn('spirit_percentage', response.data['settings'])
+        self.assertIn('points_per_minute', response.data['settings'])
+        self.assertIn('conversion_points_percentage', response.data['settings'])
 
     def test_game_detail_not_found(self):
         """Test de récupération d'une partie inexistante."""

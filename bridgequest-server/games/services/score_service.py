@@ -22,6 +22,7 @@ import datetime
 from django.utils import timezone
 
 from games.models import Player, PlayerRole
+from games.services.game_service import get_game_settings
 from games.services.player_payload import build_player_websocket_payload
 
 
@@ -39,9 +40,9 @@ def apply_deployment_scores(game):
     valeur (le score de l'Humain converti inclut ses points de déploiement).
 
     Args:
-        game: La partie (doit avoir ``settings`` pré-chargé).
+        game: La partie.
     """
-    settings = game.settings
+    settings = get_game_settings(game)
     deployment_points = _compute_passive_score(
         settings.deployment_duration, settings.points_per_minute,
     )
@@ -175,18 +176,26 @@ def calculate_final_scores(game):
     comptabilisés dans ``player.score`` au moment de l'interaction
     et ne sont pas recalculés ici.
 
+    **Scoring déterministe** : Utilise ``game.game_ends_at`` comme borne
+    de fin pour éviter le sur-comptage si le worker traite la transition
+    en retard. Si le worker traite avant ``game_ends_at`` (peu probable),
+    utilise ``min(now, game.game_ends_at)`` pour éviter le sous-comptage.
+
     Args:
         game: La partie (state IN_PROGRESS, sur le point de passer FINISHED).
+            Doit avoir ``game_ends_at`` renseigné.
 
     Returns:
         list[dict]: Liste triée par score décroissant.
             Chaque dict contient : player_id, user_id, username, role, score.
     """
-    settings = game.settings
+    settings = get_game_settings(game)
     players = list(game.players.select_related("user").all())
 
     game_start = _compute_in_progress_start(game, settings)
-    game_end = timezone.now()
+    # Utiliser game_ends_at pour un scoring déterministe et cohérent
+    # avec la durée configurée, même si le worker traite en retard
+    game_end = min(timezone.now(), game.game_ends_at)
 
     _apply_passive_scores(
         players, game_start, game_end, settings.points_per_minute,

@@ -5,6 +5,7 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 
 import '../../core/config/api_config.dart';
 import '../../core/utils/logger.dart';
+import '../../core/utils/websocket_helper.dart';
 import '../models/game/game_settings.dart';
 import '../models/game/lobby_player.dart';
 
@@ -106,10 +107,10 @@ class LobbyWebSocketService {
   }) {
     disconnect();
 
-    final url = ApiConfig.lobbyWebSocketUrl(gameId, accessToken);
+    final url = ApiConfig.lobbyWebSocketUrl(gameId);
     AppLogger.debug('Lobby WebSocket connecting to game $gameId');
 
-    _channel = WebSocketChannel.connect(Uri.parse(url));
+    _channel = createWebSocketChannel(url: url, accessToken: accessToken);
     _subscription = _channel!.stream.listen(
       (data) => _handleMessage(data, onEvent),
       onError: (error) {

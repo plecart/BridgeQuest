@@ -5,6 +5,7 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 
 import '../../core/config/api_config.dart';
 import '../../core/utils/logger.dart';
+import '../../core/utils/websocket_helper.dart';
 import '../models/game/game_player_role.dart';
 import '../models/game/game_score_entry.dart';
 
@@ -117,10 +118,10 @@ class GameWebSocketService {
     disconnect();
     _onEvent = onEvent;
 
-    final url = ApiConfig.gameWebSocketUrl(gameId, accessToken);
+    final url = ApiConfig.gameWebSocketUrl(gameId);
     AppLogger.debug('Game WebSocket connecting to game $gameId');
 
-    _channel = WebSocketChannel.connect(Uri.parse(url));
+    _channel = createWebSocketChannel(url: url, accessToken: accessToken);
     _subscription = _channel!.stream.listen(
       _handleMessage,
       onError: _handleError,

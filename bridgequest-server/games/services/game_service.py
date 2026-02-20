@@ -118,17 +118,20 @@ def get_game_by_id(game_id):
     """
     Récupère une partie par son identifiant.
 
+    Charge automatiquement les settings via ``select_related`` pour éviter
+    les requêtes N+1 lors de la sérialisation (GameSerializer inclut settings).
+
     Args:
         game_id: Identifiant de la partie.
 
     Returns:
-        Game: La partie trouvée.
+        Game: La partie trouvée (avec settings pré-chargé).
 
     Raises:
         GameException: Si la partie n'existe pas.
     """
     try:
-        return Game.objects.get(pk=game_id)
+        return Game.objects.select_related("settings").get(pk=game_id)
     except Game.DoesNotExist:
         raise GameException(
             message_key=ErrorMessages.GAME_NOT_FOUND,

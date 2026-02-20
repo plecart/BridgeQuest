@@ -14,10 +14,24 @@ from django.utils import timezone
 
 from games.models import GameState
 from games.services import game_broadcast, lobby_broadcast
+from games.services.game_service import get_game_settings
 from utils.exceptions import GameException
 from utils.messages import ErrorMessages
 
 _MIN_PLAYERS_TO_START = 2
+
+
+def _compute_end_timestamp(minutes_from_now):
+    """
+    Calcule un timestamp de fin à partir de maintenant + durée en minutes.
+    
+    Args:
+        minutes_from_now: Durée en minutes à ajouter à maintenant.
+    
+    Returns:
+        datetime: Timestamp calculé (timezone-aware).
+    """
+    return timezone.now() + datetime.timedelta(minutes=minutes_from_now)
 
 
 def _require_enough_players(game):
@@ -59,11 +73,8 @@ def begin_deployment(game):
 
     _require_enough_players(game)
 
-    settings = game.settings
-    now = timezone.now()
-    deployment_ends_at = now + datetime.timedelta(
-        minutes=settings.deployment_duration,
-    )
+    settings = get_game_settings(game)
+    deployment_ends_at = _compute_end_timestamp(settings.deployment_duration)
 
     game.state = GameState.DEPLOYMENT
     game.deployment_ends_at = deployment_ends_at
@@ -97,9 +108,8 @@ def begin_in_progress(game):
     from games.services.role_service import assign_roles
     from games.services.score_service import apply_deployment_scores
 
-    settings = game.settings
-    now = timezone.now()
-    game_ends_at = now + datetime.timedelta(minutes=settings.game_duration)
+    settings = get_game_settings(game)
+    game_ends_at = _compute_end_timestamp(settings.game_duration)
 
     roles_data = assign_roles(game, settings.spirit_percentage)
     apply_deployment_scores(game)

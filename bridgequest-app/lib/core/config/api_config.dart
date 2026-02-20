@@ -70,16 +70,20 @@ class ApiConfig {
   /// URL WebSocket pour la salle d'attente (lobby).
   ///
   /// [gameId] : ID de la partie.
-  /// [token] : Token JWT pour l'authentification (passé en query ?token=xxx).
-  static String lobbyWebSocketUrl(int gameId, String token) {
-    return '$_wsBaseUrl/ws/lobby/$gameId/?token=${Uri.encodeQueryComponent(token)}';
+  ///
+  /// Note : Le token JWT doit être passé via le header Authorization: Bearer
+  /// pour éviter l'exposition dans les logs (voir les services WebSocket).
+  static String lobbyWebSocketUrl(int gameId) {
+    return '$_wsBaseUrl/ws/lobby/$gameId/';
   }
 
   /// URL WebSocket pour la partie en cours (game).
   ///
   /// [gameId] : ID de la partie.
-  /// [token] : Token JWT pour l'authentification (passé en query ?token=xxx).
-  static String gameWebSocketUrl(int gameId, String token) {
-    return '$_wsBaseUrl/ws/game/$gameId/?token=${Uri.encodeQueryComponent(token)}';
+  ///
+  /// Note : Le token JWT doit être passé via le header Authorization: Bearer
+  /// pour éviter l'exposition dans les logs (voir les services WebSocket).
+  static String gameWebSocketUrl(int gameId) {
+    return '$_wsBaseUrl/ws/game/$gameId/';
   }
 }

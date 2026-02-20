@@ -143,6 +143,13 @@ class ErrorMessages:
     # Settings errors
     SETTINGS_NOT_FOUND = "error.settings.not_found"
     SETTINGS_GAME_NOT_WAITING = "error.settings.game_not_waiting"
+    
+    # Settings validation errors
+    SETTINGS_GAME_DURATION_TOO_LOW = "validation.settings.game_duration.too_low"
+    SETTINGS_DEPLOYMENT_DURATION_TOO_LOW = "validation.settings.deployment_duration.too_low"
+    SETTINGS_SPIRIT_PERCENTAGE_OUT_OF_RANGE = "validation.settings.spirit_percentage.out_of_range"
+    SETTINGS_POINTS_PER_MINUTE_TOO_LOW = "validation.settings.points_per_minute.too_low"
+    SETTINGS_CONVERSION_PERCENTAGE_OUT_OF_RANGE = "validation.settings.conversion_points_percentage.out_of_range"
 
     # Lifecycle errors
     GAME_NOT_ENOUGH_PLAYERS = "error.game.not_enough_players"

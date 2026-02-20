@@ -16,6 +16,11 @@ Démarrage automatique :
 Démarrage manuel (production) :
     ``python manage.py process_lifecycle`` reste disponible pour les
     déploiements où le worker tourne dans un processus séparé.
+
+**Protection contre les races** : Les transitions sont protégées par
+verrouillage transactionnel (``select_for_update(skip_locked=True)``)
+pour éviter qu'un worker multi-processus traite la même transition
+en parallèle (double attribution de rôles, double incrément de scores).
 """
 import logging
 import os
@@ -23,6 +28,7 @@ import sys
 import threading
 import time
 
+from django.db import transaction
 from django.utils import timezone
 
 logger = logging.getLogger("bridgequest.lifecycle")
@@ -95,18 +101,20 @@ def tick():
     now = timezone.now()
 
     _process_transitions(
-        queryset=Game.objects.select_related("settings").filter(
-            state=GameState.DEPLOYMENT,
-            deployment_ends_at__lte=now,
-        ),
+        model=Game,
+        filters={
+            "state": GameState.DEPLOYMENT,
+            "deployment_ends_at__lte": now,
+        },
         transition_fn=begin_in_progress,
         label="DEPLOYMENT -> IN_PROGRESS",
     )
     _process_transitions(
-        queryset=Game.objects.select_related("settings").filter(
-            state=GameState.IN_PROGRESS,
-            game_ends_at__lte=now,
-        ),
+        model=Game,
+        filters={
+            "state": GameState.IN_PROGRESS,
+            "game_ends_at__lte": now,
+        },
         transition_fn=finish_game,
         label="IN_PROGRESS -> FINISHED",
     )
@@ -124,13 +132,47 @@ def _run_loop(interval):
         time.sleep(interval)
 
 
-def _process_transitions(*, queryset, transition_fn, label):
-    """Applique une transition à chaque partie du queryset."""
-    for game in queryset:
+def _process_transitions(*, model, filters, transition_fn, label):
+    """
+    Applique une transition à chaque partie correspondant aux filtres.
+
+    **Protection contre les races** : Utilise ``select_for_update(skip_locked=True)``
+    dans une transaction atomique pour éviter qu'un worker multi-processus traite
+    la même transition en parallèle. Si une partie est déjà verrouillée par un
+    autre worker, elle est ignorée (skip_locked=True).
+
+    Args:
+        model: Modèle Game.
+        filters: Dictionnaire de filtres pour le queryset (ex: {"state": DEPLOYMENT, ...}).
+        transition_fn: Fonction de transition (begin_in_progress ou finish_game).
+        label: Label pour le logging (ex: "DEPLOYMENT -> IN_PROGRESS").
+    """
+    # Récupérer les IDs pour éviter de charger les objets avant le verrouillage
+    game_ids = list(
+        model.objects.filter(**filters).values_list("id", flat=True)
+    )
+
+    for game_id in game_ids:
         try:
-            transition_fn(game)
-            logger.info("Game %s (%s) : %s", game.id, game.code, label)
+            with transaction.atomic():
+                # Verrouiller la ligne pour cette transition uniquement
+                # skip_locked=True : ignorer si déjà verrouillé par un autre worker
+                game = (
+                    model.objects
+                    .select_for_update(skip_locked=True)
+                    .select_related("settings")
+                    .filter(id=game_id, **filters)
+                    .first()
+                )
+
+                # Si la partie est déjà verrouillée par un autre worker, skip
+                # Ou si l'état a changé entre le filtrage initial et le verrouillage
+                if game is None:
+                    continue
+
+                transition_fn(game)
+                logger.info("Game %s (%s) : %s", game.id, game.code, label)
         except Exception:
             logger.exception(
-                "Game %s (%s) : erreur %s", game.id, game.code, label,
+                "Game %s : erreur %s", game_id, label,
             )
