@@ -45,6 +45,8 @@ EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
 
 DEBUG = False
 
+LIFECYCLE_AUTO_PROCESS = False
+
 # Password hashing rapide pour les tests uniquement
 # ATTENTION: Ne jamais utiliser MD5 en production !
 PASSWORD_HASHERS = [

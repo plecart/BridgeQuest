@@ -62,8 +62,8 @@ server-8001: ## Démarre le serveur sur le port 8001 (si 8000 est occupé)
 
 run: server ## Alias pour server (cohérence avec Flutter)
 
-lifecycle: ## Lance la boucle de traitement du cycle de vie des parties
-	$(call msg-start,Démarrage du process_lifecycle)
+lifecycle: ## Lance le lifecycle worker manuellement (auto-intégré au serveur par défaut)
+	$(call msg-start,Démarrage du process_lifecycle (standalone))
 	$(PYTHON) $(MANAGE) process_lifecycle
 
 # ============================================================================

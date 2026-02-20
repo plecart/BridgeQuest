@@ -131,6 +131,12 @@ MEDIA_ROOT = BASE_DIR / 'media'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# Lifecycle worker : démarre automatiquement un thread daemon
+# qui sonde la base pour les transitions d'état expirées.
+# Désactivé via testing.py ; peut être désactivé en production
+# si le worker tourne dans un processus séparé (manage.py process_lifecycle).
+LIFECYCLE_AUTO_PROCESS = True
+
 # Django REST Framework
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [

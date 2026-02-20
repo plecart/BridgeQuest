@@ -6,7 +6,14 @@ from utils.messages import Messages
 
 class GamesConfig(AppConfig):
     """Configuration de l'application Games."""
-    
+
     default_auto_field = "django.db.models.BigAutoField"
     name = "games"
     verbose_name = _(Messages.APP_GAMES)
+
+    def ready(self):
+        """Démarre le lifecycle worker si le processus est un serveur."""
+        from games.services.lifecycle_worker import should_auto_start, start
+
+        if should_auto_start():
+            start()

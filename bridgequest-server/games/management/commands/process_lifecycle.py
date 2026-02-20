@@ -1,10 +1,11 @@
 """
 Commande de management pour le traitement du cycle de vie des parties.
 
-Boucle de polling qui détecte les parties dont un timer a expiré
-et déclenche la transition d'état correspondante :
-- DEPLOYMENT -> IN_PROGRESS (deployment_ends_at atteint)
-- IN_PROGRESS -> FINISHED (game_ends_at atteint)
+Alternative au worker automatique (``LIFECYCLE_AUTO_PROCESS``) pour les
+déploiements où le worker tourne dans un processus séparé (supervisord,
+systemd, Docker Compose, etc.).
+
+La logique de polling est partagée avec ``lifecycle_worker``.
 
 Usage :
     python manage.py process_lifecycle
@@ -15,10 +16,8 @@ import logging
 import time
 
 from django.core.management.base import BaseCommand
-from django.utils import timezone
 
-from games.models import Game, GameState
-from games.services.lifecycle_service import begin_in_progress, finish_game
+from games.services.lifecycle_worker import tick
 
 logger = logging.getLogger("bridgequest.lifecycle")
 
@@ -57,7 +56,7 @@ class Command(BaseCommand):
         once = options["once"]
 
         if once:
-            self._tick()
+            tick()
             return
 
         self._run_loop(interval)
@@ -66,7 +65,7 @@ class Command(BaseCommand):
         """
         Boucle principale de polling.
 
-        Exécute ``_tick`` à chaque intervalle jusqu'à interruption (Ctrl+C).
+        Exécute ``tick`` à chaque intervalle jusqu'à interruption (Ctrl+C).
 
         Args:
             interval: Pause entre chaque cycle (en secondes).
@@ -81,74 +80,10 @@ class Command(BaseCommand):
 
         try:
             while True:
-                self._tick()
+                tick()
                 time.sleep(interval)
         except KeyboardInterrupt:
             logger.info("process_lifecycle arrêté (Ctrl+C)")
             self.stdout.write(self.style.WARNING(
                 "\nprocess_lifecycle arrêté."
             ))
-
-    def _tick(self):
-        """Exécute un cycle de polling : vérifie les timers expirés."""
-        now = timezone.now()
-        self._process_deployment_ended(now)
-        self._process_game_ended(now)
-
-    def _process_deployment_ended(self, now):
-        """
-        Transition DEPLOYMENT -> IN_PROGRESS.
-
-        Sélectionne les parties en déploiement dont le timer
-        ``deployment_ends_at`` est dépassé et appelle
-        ``begin_in_progress`` pour chacune.
-        """
-        games = Game.objects.select_related("settings").filter(
-            state=GameState.DEPLOYMENT,
-            deployment_ends_at__lte=now,
-        )
-        for game in games:
-            self._transition_game(
-                game,
-                begin_in_progress,
-                "DEPLOYMENT -> IN_PROGRESS",
-            )
-
-    def _process_game_ended(self, now):
-        """
-        Transition IN_PROGRESS -> FINISHED.
-
-        Sélectionne les parties en cours dont le timer
-        ``game_ends_at`` est dépassé et appelle
-        ``finish_game`` pour chacune.
-        """
-        games = Game.objects.select_related("settings").filter(
-            state=GameState.IN_PROGRESS,
-            game_ends_at__lte=now,
-        )
-        for game in games:
-            self._transition_game(
-                game,
-                finish_game,
-                "IN_PROGRESS -> FINISHED",
-            )
-
-    def _transition_game(self, game, transition_fn, label):
-        """
-        Applique une transition à une partie avec gestion d'erreur.
-
-        En cas d'exception, l'erreur est loguée et la boucle
-        continue avec les autres parties.
-
-        Args:
-            game: La partie à traiter.
-            transition_fn: Fonction de transition (begin_in_progress ou finish_game).
-            label: Libellé de la transition pour les logs.
-        """
-        try:
-            transition_fn(game)
-            logger.info("Game %s (%s): %s", game.id, game.code, label)
-        except Exception:
-            logger.exception(
-                "Game %s (%s): erreur %s", game.id, game.code, label,
-            )
