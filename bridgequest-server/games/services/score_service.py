@@ -8,11 +8,11 @@ Scoring en deux phases :
    de déploiement (avant l'attribution des rôles). Persistés en base
    à la transition DEPLOYMENT -> IN_PROGRESS via ``apply_deployment_scores``.
 
-2. **IN_PROGRESS** (Humains uniquement) :
-   Seuls les joueurs encore Humains à la fin de la partie reçoivent
-   des points passifs supplémentaires. Un Humain converti en Esprit
-   passe au système de scoring Esprit et ne reçoit plus de points
-   passifs pour la phase IN_PROGRESS.
+2. **IN_PROGRESS** (Humains et Humains convertis) :
+   Points passifs selon le temps passé en Humain :
+   - Humain non converti : durée complète.
+   - Humain converti (role=SPIRIT + converted_at) : jusqu'à converted_at.
+   - Esprit initial : 0 (scoring Esprit).
 
 Les points de conversion (Esprit convertit un Humain) sont appliqués
 en temps réel lors de l'interaction et ne sont pas recalculés ici.
@@ -76,13 +76,11 @@ def _compute_human_minutes(player, game_start, game_end):
     """
     Calcule le temps passé en tant qu'Humain pendant IN_PROGRESS (en minutes).
 
-    Seuls les joueurs encore Humains à la fin de la partie reçoivent
-    des points passifs pour la phase IN_PROGRESS. Un joueur converti
-    en Esprit passe au système de scoring Esprit (pas de points passifs).
-
-    Deux cas :
+    Trois cas :
     - Humain non converti (role=HUMAN) : durée complète de la phase IN_PROGRESS.
-    - Esprit (initial ou converti) : 0 minute (scoring Esprit).
+    - Humain converti en Esprit (role=SPIRIT + converted_at) : minutes de
+      game_start jusqu'à converted_at (arrêt du scoring à la conversion).
+    - Esprit initial (role=SPIRIT sans converted_at) : 0 minute (scoring Esprit).
 
     Args:
         player: Le joueur.
@@ -92,11 +90,19 @@ def _compute_human_minutes(player, game_start, game_end):
     Returns:
         float: Minutes passées en tant qu'Humain (>= 0).
     """
-    if player.role != PlayerRole.HUMAN:
-        return 0.0
+    if player.role == PlayerRole.HUMAN:
+        seconds = (game_end - game_start).total_seconds()
+        return max(seconds / 60, 0.0)
 
-    seconds = (game_end - game_start).total_seconds()
-    return max(seconds / 60, 0.0)
+    if player.role == PlayerRole.SPIRIT and player.converted_at:
+        # Converti pendant IN_PROGRESS : points passifs jusqu'à la conversion
+        effective_end = min(player.converted_at, game_end)
+        if effective_end <= game_start:
+            return 0.0
+        seconds = (effective_end - game_start).total_seconds()
+        return max(seconds / 60, 0.0)
+
+    return 0.0
 
 
 def _compute_passive_score(minutes, points_per_minute):

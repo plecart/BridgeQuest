@@ -278,6 +278,23 @@ class GameSettingsViewsTestCase(TestCase):
         # Assert
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
+    def test_patch_settings_validation_game_duration_rejected(self):
+        """Test PATCH settings avec game_duration invalide (min 1)."""
+        # Arrange
+        self._authenticate(self.admin)
+
+        # Act
+        response = self.client.patch(
+            f"/api/games/{self.game.id}/settings/",
+            {"game_duration": 0},
+            format="json",
+        )
+
+        # Assert : 400 et message de validation (clé ou traduit selon compilemessages)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("error", response.data)
+        self.assertIn("validation.settings.game_duration", response.data["error"])
+
     def test_patch_settings_game_not_waiting_forbidden(self):
         """Test PATCH settings sur une partie non-WAITING."""
         # Arrange

@@ -199,6 +199,22 @@ msgstr "Points par minute"
 msgid "model.settings.conversion_points_percentage"
 msgstr "Pourcentage de points de conversion"
 
+#: games/serializers/game_serializers.py - ErrorMessages (validation settings)
+msgid "validation.settings.game_duration.too_low"
+msgstr "La durée de la partie doit être d'au moins 1 minute."
+
+msgid "validation.settings.deployment_duration.too_low"
+msgstr "La durée du déploiement doit être d'au moins 1 minute."
+
+msgid "validation.settings.spirit_percentage.out_of_range"
+msgstr "Le pourcentage d'esprits doit être entre 0 et 100."
+
+msgid "validation.settings.points_per_minute.too_low"
+msgstr "Les points par minute doivent être d'au moins 1."
+
+msgid "validation.settings.conversion_points_percentage.out_of_range"
+msgstr "Le pourcentage de points de conversion doit être entre 0 et 100."
+
 #: accounts/models/user.py - ModelMessages
 msgid "model.user.username"
 msgstr "Nom d'utilisateur"

@@ -92,6 +92,9 @@ class GameErrorEvent extends GameEvent {
 /// Gère la connexion, la réception des événements et la fermeture.
 /// Utilisé pendant les phases DEPLOYMENT et IN_PROGRESS.
 ///
+/// Ne gère pas la reconnexion automatique en cas de déconnexion ; le ViewModel
+/// peut afficher [ErrorStateView] avec un bouton retry pour tenter de reconnecter.
+///
 /// Le callback [_onEvent] peut être remplacé sans reconnexion via
 /// [setEventHandler], permettant la transition DeploymentPage -> GamePage
 /// sur la même connexion WebSocket.

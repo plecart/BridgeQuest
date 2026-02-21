@@ -19,8 +19,8 @@ Démarrage manuel (production) :
 
 **Protection contre les races** : Les transitions sont protégées par
 verrouillage transactionnel (``select_for_update(skip_locked=True)``)
-pour éviter qu'un worker multi-processus traite la même transition
-en parallèle (double attribution de rôles, double incrément de scores).
+sur PostgreSQL/MySQL. SQLite (dev par défaut) ne supporte pas skip_locked :
+on utilise une requête sans verrou (transaction.atomic suffit pour l'isolation).
 """
 import logging
 import os
@@ -28,7 +28,7 @@ import sys
 import threading
 import time
 
-from django.db import transaction
+from django.db import connection, transaction
 from django.utils import timezone
 
 logger = logging.getLogger("bridgequest.lifecycle")
@@ -134,14 +134,40 @@ def _run_loop(interval):
         time.sleep(interval)
 
 
+def _try_acquire_and_transition(*, model, game_id, filters, use_row_lock,
+                                 transition_fn, label):
+    """
+    Tente d'acquérir une partie et d'exécuter la transition.
+
+    Sur Postgres/MySQL : verrouillage via select_for_update(skip_locked=True).
+    Sur SQLite : requête simple (transaction.atomic suffit).
+    """
+    with transaction.atomic():
+        qs = (
+            model.objects
+            .select_related("settings")
+            .filter(id=game_id, **filters)
+        )
+        if use_row_lock:
+            qs = qs.select_for_update(skip_locked=True)
+        game = qs.first()
+
+        if game is None:
+            return
+
+        transition_fn(game)
+        logger.info("Game %s (%s) : %s", game.id, game.code, label)
+
+
 def _process_transitions(*, model, filters, transition_fn, label):
     """
     Applique une transition à chaque partie correspondant aux filtres.
 
-    **Protection contre les races** : Utilise ``select_for_update(skip_locked=True)``
-    dans une transaction atomique pour éviter qu'un worker multi-processus traite
-    la même transition en parallèle. Si une partie est déjà verrouillée par un
-    autre worker, elle est ignorée (skip_locked=True).
+    **Protection contre les races** : Sur PostgreSQL/MySQL, utilise
+    ``select_for_update(skip_locked=True)`` pour éviter qu'un worker
+    multi-processus traite la même transition en parallèle. SQLite (dev)
+    ne supporte pas skip_locked : on utilise une requête simple dans
+    transaction.atomic (isolation suffisante pour un processus unique).
 
     Args:
         model: Modèle Game.
@@ -149,29 +175,20 @@ def _process_transitions(*, model, filters, transition_fn, label):
         transition_fn: Fonction de transition (begin_in_progress ou finish_game).
         label: Label pour le logging (ex: "DEPLOYMENT -> IN_PROGRESS").
     """
-    # Récupérer les IDs pour éviter de charger les objets avant le verrouillage
     game_ids = list(
         model.objects.filter(**filters).values_list("id", flat=True)
     )
+    use_row_lock = connection.features.has_select_for_update_skip_locked
 
     for game_id in game_ids:
         try:
-            with transaction.atomic():
-                # Verrouiller la ligne pour cette transition uniquement
-                # skip_locked=True : ignorer si déjà verrouillé par un autre worker
-                game = (
-                    model.objects
-                    .select_for_update(skip_locked=True)
-                    .select_related("settings")
-                    .filter(id=game_id, **filters)
-                    .first()
-                )
-
-                # Si la partie est déjà verrouillée ou l'état a changé, skip
-                if game is None:
-                    continue
-
-                transition_fn(game)
-                logger.info("Game %s (%s) : %s", game.id, game.code, label)
+            _try_acquire_and_transition(
+                model=model,
+                game_id=game_id,
+                filters=filters,
+                use_row_lock=use_row_lock,
+                transition_fn=transition_fn,
+                label=label,
+            )
         except Exception:
             logger.exception("Game %s : erreur %s", game_id, label)

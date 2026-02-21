@@ -10,7 +10,7 @@ from rest_framework import serializers
 
 from accounts.serializers.user_serializers import UserPublicSerializer
 from games.models import Game, GameSettings, Player
-from utils.messages import ModelMessages
+from utils.messages import ErrorMessages, ModelMessages
 from utils.validators import validate_game_code
 
 
@@ -55,32 +55,52 @@ class GameSettingsSerializer(serializers.ModelSerializer):
     """
 
     game_duration = serializers.IntegerField(
-        validators=[MinValueValidator(1)],
+        validators=[
+            MinValueValidator(1, message=_(ErrorMessages.SETTINGS_GAME_DURATION_TOO_LOW)),
+        ],
         help_text=_(ModelMessages.SETTINGS_GAME_DURATION),
     )
 
     deployment_duration = serializers.IntegerField(
-        validators=[MinValueValidator(1)],
+        validators=[
+            MinValueValidator(
+                1, message=_(ErrorMessages.SETTINGS_DEPLOYMENT_DURATION_TOO_LOW),
+            ),
+        ],
         help_text=_(ModelMessages.SETTINGS_DEPLOYMENT_DURATION),
     )
 
     spirit_percentage = serializers.IntegerField(
         validators=[
-            MinValueValidator(0),
-            MaxValueValidator(100),
+            MinValueValidator(
+                0, message=_(ErrorMessages.SETTINGS_SPIRIT_PERCENTAGE_OUT_OF_RANGE),
+            ),
+            MaxValueValidator(
+                100, message=_(ErrorMessages.SETTINGS_SPIRIT_PERCENTAGE_OUT_OF_RANGE),
+            ),
         ],
         help_text=_(ModelMessages.SETTINGS_SPIRIT_PERCENTAGE),
     )
 
     points_per_minute = serializers.IntegerField(
-        validators=[MinValueValidator(1)],
+        validators=[
+            MinValueValidator(
+                1, message=_(ErrorMessages.SETTINGS_POINTS_PER_MINUTE_TOO_LOW),
+            ),
+        ],
         help_text=_(ModelMessages.SETTINGS_POINTS_PER_MINUTE),
     )
 
     conversion_points_percentage = serializers.IntegerField(
         validators=[
-            MinValueValidator(0),
-            MaxValueValidator(100),
+            MinValueValidator(
+                0,
+                message=_(ErrorMessages.SETTINGS_CONVERSION_PERCENTAGE_OUT_OF_RANGE),
+            ),
+            MaxValueValidator(
+                100,
+                message=_(ErrorMessages.SETTINGS_CONVERSION_PERCENTAGE_OUT_OF_RANGE),
+            ),
         ],
         help_text=_(ModelMessages.SETTINGS_CONVERSION_POINTS_PERCENTAGE),
     )

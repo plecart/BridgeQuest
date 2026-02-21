@@ -156,7 +156,7 @@ class LobbyWebSocketService {
           _emitSettingsUpdated(decoded, onEvent);
           break;
         case 'echo':
-          // Ignorer les echo de test
+          // Ignorer les échos de test
           break;
         default:
           AppLogger.debug('Lobby WebSocket unknown event type: $type');

@@ -72,19 +72,20 @@ class ComputeHumanMinutesTestCase(TestCase):
         # Assert
         self.assertEqual(minutes, 0.0)
 
-    def test_converted_spirit_gets_zero(self):
-        """Un humain converti en esprit ne recoit aucune minute."""
-        # Arrange
+    def test_converted_spirit_gets_minutes_until_conversion(self):
+        """Un humain converti en esprit recoit des minutes jusqu'a converted_at."""
+        # Arrange : converti à la 10e minute, partie dure 30 min
+        converted_at = self.game_start + datetime.timedelta(minutes=10)
         player = Player.objects.create(
             game=self.game, user=self.user, role=PlayerRole.SPIRIT,
-            converted_at=self.game_start + datetime.timedelta(minutes=10),
+            converted_at=converted_at,
         )
 
         # Act
         minutes = _compute_human_minutes(player, self.game_start, self.game_end)
 
-        # Assert
-        self.assertEqual(minutes, 0.0)
+        # Assert : 10 minutes passées en Humain avant la conversion
+        self.assertAlmostEqual(minutes, 10.0, places=1)
 
 
 class ApplyDeploymentScoresTestCase(TestCase):
