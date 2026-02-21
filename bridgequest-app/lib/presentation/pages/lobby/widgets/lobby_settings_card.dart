@@ -211,14 +211,11 @@ class _SettingsEditableFieldState extends State<_SettingsEditableField> {
   /// - Points par minute (pointsPerMinute) : minimum 1
   /// - Pourcentages (percentage) : 0-100
   bool _isValidValue(int value) {
-    switch (widget.fieldType) {
-      case _SettingsFieldType.duration:
-        return value >= 1;
-      case _SettingsFieldType.pointsPerMinute:
-        return value >= 1;
-      case _SettingsFieldType.percentage:
-        return value >= 0 && value <= 100;
-    }
+    return switch (widget.fieldType) {
+      _SettingsFieldType.duration => value >= 1,
+      _SettingsFieldType.pointsPerMinute => value >= 1,
+      _SettingsFieldType.percentage => value >= 0 && value <= 100,
+    };
   }
 }
 

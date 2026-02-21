@@ -17,7 +17,7 @@ Scoring en deux phases :
 Les points de conversion (Esprit convertit un Humain) sont appliqués
 en temps réel lors de l'interaction et ne sont pas recalculés ici.
 """
-import datetime
+from datetime import timedelta
 
 from django.utils import timezone
 
@@ -69,9 +69,7 @@ def _compute_in_progress_start(game, settings):
     Returns:
         datetime: Début de la phase IN_PROGRESS.
     """
-    return game.game_ends_at - datetime.timedelta(
-        minutes=settings.game_duration,
-    )
+    return game.game_ends_at - timedelta(minutes=settings.game_duration)
 
 
 def _compute_human_minutes(player, game_start, game_end):

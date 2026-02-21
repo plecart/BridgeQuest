@@ -8,7 +8,7 @@ Chaque transition met à jour l'état, calcule les timestamps de fin
 de phase, délègue aux services spécialisés (rôles, scores) et
 diffuse l'événement correspondant via WebSocket.
 """
-import datetime
+from datetime import timedelta
 
 from django.utils import timezone
 
@@ -17,6 +17,9 @@ from games.services import game_broadcast, lobby_broadcast
 from games.services.game_service import get_game_settings
 from utils.exceptions import GameException
 from utils.messages import ErrorMessages
+
+# Imports conditionnels pour éviter les imports circulaires
+# Ces imports sont faits à l'intérieur des fonctions qui les utilisent
 
 _MIN_PLAYERS_TO_START = 2
 
@@ -31,7 +34,7 @@ def _compute_end_timestamp(minutes_from_now):
     Returns:
         datetime: Timestamp calculé (timezone-aware).
     """
-    return timezone.now() + datetime.timedelta(minutes=minutes_from_now)
+    return timezone.now() + timedelta(minutes=minutes_from_now)
 
 
 def _require_enough_players(game):
@@ -105,6 +108,7 @@ def begin_in_progress(game):
     if game.state != GameState.DEPLOYMENT:
         raise GameException(message_key=ErrorMessages.GAME_NOT_DEPLOYMENT)
 
+    # Imports locaux pour éviter les imports circulaires
     from games.services.role_service import assign_roles
     from games.services.score_service import apply_deployment_scores
 
@@ -141,6 +145,7 @@ def finish_game(game):
     if game.state != GameState.IN_PROGRESS:
         raise GameException(message_key=ErrorMessages.GAME_NOT_IN_PROGRESS)
 
+    # Import local pour éviter les imports circulaires
     from games.services.score_service import calculate_final_scores
 
     scores_data = calculate_final_scores(game)

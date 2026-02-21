@@ -100,8 +100,10 @@ class DeploymentViewModel extends ChangeNotifier {
     }
   }
 
-  /// Libère les ressources (timer). Ne déconnecte **pas** le WebSocket
-  /// si la navigation va vers GamePage (même connexion réutilisée).
+  /// Libère les ressources (timer).
+  ///
+  /// Ne déconnecte **pas** le WebSocket si la navigation va vers GamePage
+  /// (même connexion réutilisée).
   void disposeResources({bool keepConnection = false}) {
     _countdown.stop();
     if (!keepConnection) {
@@ -150,7 +152,7 @@ class DeploymentViewModel extends ChangeNotifier {
         break;
       case GameFinishedEvent _:
       case GamePositionUpdatedEvent _:
-        // Ignoré pendant le déploiement.
+        // Ignorés pendant le déploiement
         break;
       case GameErrorEvent _:
         _setError('deploymentErrorWebSocket');

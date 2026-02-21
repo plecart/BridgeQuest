@@ -253,29 +253,21 @@ class ResultsPage extends StatelessWidget {
 
   /// Couleur associée au rang (podium).
   Color _rankColor(int rank) {
-    switch (rank) {
-      case 1:
-        return Colors.amber;
-      case 2:
-        return Colors.grey;
-      case 3:
-        return Colors.brown;
-      default:
-        return Colors.black54;
-    }
+    return switch (rank) {
+      1 => Colors.amber,
+      2 => Colors.grey,
+      3 => Colors.brown,
+      _ => Colors.black54,
+    };
   }
 
   /// Icône associée au rang (podium).
   IconData _rankIcon(int rank) {
-    switch (rank) {
-      case 1:
-        return Icons.looks_one;
-      case 2:
-        return Icons.looks_two;
-      case 3:
-        return Icons.looks_3;
-      default:
-        return Icons.circle_outlined;
-    }
+    return switch (rank) {
+      1 => Icons.looks_one,
+      2 => Icons.looks_two,
+      3 => Icons.looks_3,
+      _ => Icons.circle_outlined,
+    };
   }
 }

@@ -193,7 +193,7 @@ def _handle_settings_update(game, player, settings, data):
         data: Données de la requête PATCH.
 
     Returns:
-        Response: Les paramètres mis à jour.
+        Response: Les paramètres mis à jour ou une erreur.
     """
     if not player.is_admin:
         raise PlayerException(

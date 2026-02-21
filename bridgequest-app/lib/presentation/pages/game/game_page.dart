@@ -86,7 +86,7 @@ class _GamePageState extends State<GamePage> {
 }
 
 // ---------------------------------------------------------------------------
-// Contenu de la page (séparé pour accéder au ViewModel via Consumer)
+// Contenu de la page
 // ---------------------------------------------------------------------------
 
 class _GameContent extends StatelessWidget {
@@ -261,14 +261,11 @@ class _GameContent extends StatelessWidget {
 
   /// Traduit la clé de rôle en nom localisé.
   String _localizedRoleName(String roleKey, AppLocalizations l10n) {
-    switch (roleKey) {
-      case 'human':
-        return l10n.gameRoleHuman;
-      case 'spirit':
-        return l10n.gameRoleSpirit;
-      default:
-        return l10n.gameRoleUnknown;
-    }
+    return switch (roleKey) {
+      'human' => l10n.gameRoleHuman,
+      'spirit' => l10n.gameRoleSpirit,
+      _ => l10n.gameRoleUnknown,
+    };
   }
 
   // ---------------------------------------------------------------------------

@@ -126,13 +126,13 @@ class GameViewModel extends ChangeNotifier {
       case GameConnectedEvent _:
       case GameRolesAssignedEvent _:
       case GameInProgressEvent _:
-        // Déjà traités pendant le déploiement, ignorés ici.
+        // Déjà traités pendant le déploiement, ignorés ici
         break;
       case GameFinishedEvent e:
         _handleGameFinished(e);
         break;
       case GamePositionUpdatedEvent _:
-        // TODO(Sprint futur): Mettre à jour les positions sur la carte.
+        // TODO(Sprint futur): Mettre à jour les positions sur la carte
         break;
       case GameErrorEvent _:
         _setError('gameErrorWebSocket');

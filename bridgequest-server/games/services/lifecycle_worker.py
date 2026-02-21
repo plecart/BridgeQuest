@@ -54,11 +54,13 @@ def should_auto_start():
     if not getattr(settings, "LIFECYCLE_AUTO_PROCESS", True):
         return False
 
+    # Détection pour runserver avec reload
     if len(sys.argv) >= 2 and sys.argv[1] == "runserver":
         if "--noreload" in sys.argv:
             return True
         return os.environ.get("RUN_MAIN") == "true"
 
+    # Exclure les commandes de gestion Django
     if len(sys.argv) >= 1 and sys.argv[0].endswith("manage.py"):
         return False
 
@@ -165,14 +167,11 @@ def _process_transitions(*, model, filters, transition_fn, label):
                     .first()
                 )
 
-                # Si la partie est déjà verrouillée par un autre worker, skip
-                # Ou si l'état a changé entre le filtrage initial et le verrouillage
+                # Si la partie est déjà verrouillée ou l'état a changé, skip
                 if game is None:
                     continue
 
                 transition_fn(game)
                 logger.info("Game %s (%s) : %s", game.id, game.code, label)
         except Exception:
-            logger.exception(
-                "Game %s : erreur %s", game_id, label,
-            )
+            logger.exception("Game %s : erreur %s", game_id, label)

@@ -155,9 +155,11 @@ class GameWebSocketService {
 
   void _handleMessage(dynamic data) {
     if (data is! String || _onEvent == null) return;
+
     try {
       final decoded = jsonDecode(data);
       if (decoded is! Map<String, dynamic>) return;
+
       final type = decoded['type'] as String?;
       if (type == null) return;
 
@@ -178,7 +180,7 @@ class GameWebSocketService {
           _emitPositionUpdated(decoded);
           break;
         case 'echo':
-          // Ignorer les echo de test
+          // Ignorer les échos de test
           break;
         default:
           AppLogger.debug('Game WebSocket unknown event type: $type');
@@ -203,7 +205,7 @@ class GameWebSocketService {
     final username = playerJson['username'] as String? ?? '';
     if (playerId == null || userId == null) return;
 
-    _onEvent!(
+    _onEvent?.call(
       GameConnectedEvent(
         gameId: gameId,
         playerId: playerId,
@@ -222,7 +224,7 @@ class GameWebSocketService {
         .map(GamePlayerRole.fromJson)
         .toList();
 
-    _onEvent!(GameRolesAssignedEvent(players: players));
+    _onEvent?.call(GameRolesAssignedEvent(players: players));
   }
 
   void _emitGameInProgress(Map<String, dynamic> decoded) {
@@ -230,7 +232,7 @@ class GameWebSocketService {
     final gameEndsAt = decoded['game_ends_at'] as String?;
     if (gameId == null || gameEndsAt == null) return;
 
-    _onEvent!(
+    _onEvent?.call(
       GameInProgressEvent(gameId: gameId, gameEndsAt: gameEndsAt),
     );
   }
@@ -245,7 +247,7 @@ class GameWebSocketService {
         .map(GameScoreEntry.fromJson)
         .toList();
 
-    _onEvent!(GameFinishedEvent(gameId: gameId, scores: scores));
+    _onEvent?.call(GameFinishedEvent(gameId: gameId, scores: scores));
   }
 
   void _emitPositionUpdated(Map<String, dynamic> decoded) {
@@ -262,7 +264,7 @@ class GameWebSocketService {
       return;
     }
 
-    _onEvent!(
+    _onEvent?.call(
       GamePositionUpdatedEvent(
         playerId: playerId,
         userId: userJson['id'] as int? ?? 0,

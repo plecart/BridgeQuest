@@ -47,7 +47,7 @@ class _DeploymentPageState extends State<DeploymentPage> {
 
   @override
   void dispose() {
-    // Garder la connexion WS si on navigue vers GamePage.
+    // Garder la connexion WS si on navigue vers GamePage
     _viewModel.disposeResources(keepConnection: _navigatedForward);
     super.dispose();
   }
@@ -88,7 +88,7 @@ class _DeploymentPageState extends State<DeploymentPage> {
 }
 
 // ---------------------------------------------------------------------------
-// Contenu de la page (séparé pour accéder au ViewModel via Consumer)
+// Contenu de la page
 // ---------------------------------------------------------------------------
 
 class _DeploymentContent extends StatelessWidget {
