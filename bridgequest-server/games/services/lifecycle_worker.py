@@ -60,10 +60,11 @@ def should_auto_start():
             return True
         return os.environ.get("RUN_MAIN") == "true"
 
-    # Exclure les commandes de gestion Django
-    if len(sys.argv) >= 1 and sys.argv[0].endswith("manage.py"):
+    # Exclure les commandes de gestion Django (migrate, test, shell, etc.)
+    if sys.argv[0].endswith("manage.py"):
         return False
 
+    # Daphne, Gunicorn, etc. : lancés directement (pas via manage.py) — démarrer le worker
     return True
 
 

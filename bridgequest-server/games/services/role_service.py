@@ -43,6 +43,8 @@ def _select_spirits(players, spirit_count):
     Returns:
         set[int]: Ensemble des player_id sélectionnés comme Esprits.
     """
+    if spirit_count == 0:
+        return set()
     chosen = random.sample(players, spirit_count)
     return {player.id for player in chosen}
 

@@ -153,6 +153,9 @@ msgstr "The game is not in deployment phase."
 msgid "error.game.not_in_progress"
 msgstr "The game is not in progress."
 
+msgid "error.game.game_ends_at_required"
+msgstr "Game end timestamp is required for score calculation."
+
 #: games/views/game_views.py - ErrorMessages (Sprint 3)
 msgid "error.settings.not_found"
 msgstr "Game settings not found."

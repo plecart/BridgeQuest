@@ -156,6 +156,9 @@ msgstr "La partie n'est pas en phase de déploiement."
 msgid "error.game.not_in_progress"
 msgstr "La partie n'est pas en cours."
 
+msgid "error.game.game_ends_at_required"
+msgstr "La date de fin de partie est requise pour le calcul des scores."
+
 #: games/views/game_views.py - ErrorMessages (Sprint 3)
 msgid "error.settings.not_found"
 msgstr "Paramètres de la partie introuvables."

@@ -24,6 +24,8 @@ from django.utils import timezone
 from games.models import Player, PlayerRole
 from games.services.game_service import get_game_settings
 from games.services.player_payload import build_player_websocket_payload
+from utils.exceptions import GameException
+from utils.messages import ErrorMessages
 
 
 def apply_deployment_scores(game):
@@ -193,6 +195,10 @@ def calculate_final_scores(game):
         list[dict]: Liste triée par score décroissant.
             Chaque dict contient : player_id, user_id, username, role, score.
     """
+    if game.game_ends_at is None:
+        raise GameException(
+            message_key=ErrorMessages.GAME_ENDS_AT_REQUIRED,
+        )
     settings = get_game_settings(game)
     players = list(game.players.select_related("user").all())
 

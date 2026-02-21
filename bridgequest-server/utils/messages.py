@@ -155,6 +155,7 @@ class ErrorMessages:
     GAME_NOT_ENOUGH_PLAYERS = "error.game.not_enough_players"
     GAME_NOT_DEPLOYMENT = "error.game.not_deployment"
     GAME_NOT_IN_PROGRESS = "error.game.not_in_progress"
+    GAME_ENDS_AT_REQUIRED = "error.game.game_ends_at_required"
 
     # Interaction errors
     QR_CODE_INVALID = "error.interaction.qr_code.invalid"
