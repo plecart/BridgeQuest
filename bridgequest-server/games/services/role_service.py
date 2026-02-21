@@ -105,8 +105,11 @@ def assign_roles(game, spirit_percentage):
     players = list(game.players.select_related("user").all())
     spirit_count = _compute_spirit_count(len(players), spirit_percentage)
 
-    if spirit_count > 0:
-        spirit_ids = _select_spirits(players, spirit_count)
-        _apply_roles(players, spirit_ids)
+    # Programmation défensive : si spirit_count est 0 (cas edge),
+    # _select_spirits retournera un set vide et tous les joueurs seront HUMAN.
+    # Ce cas ne devrait jamais arriver en production car begin_deployment
+    # valide MIN_PLAYERS_TO_START, mais c'est plus sûr de le gérer explicitement.
+    spirit_ids = _select_spirits(players, spirit_count)
+    _apply_roles(players, spirit_ids)
 
     return _build_roles_payload(players)

@@ -126,3 +126,21 @@ class AssignRolesTestCase(TestCase):
         roles = [r["role"] for r in roles_data]
         self.assertIn(PlayerRole.SPIRIT, roles)
         self.assertIn(PlayerRole.HUMAN, roles)
+
+    def test_assign_roles_zero_spirit_count_all_human(self):
+        """Programmation défensive : si spirit_count est 0, tous les joueurs sont HUMAN."""
+        # Arrange
+        # Cas edge : moins de 2 joueurs (ne devrait jamais arriver en production
+        # car begin_deployment valide MIN_PLAYERS_TO_START, mais test défensif)
+        game = self._create_game_with_players(1)
+
+        # Act
+        roles_data = assign_roles(game, spirit_percentage=50)
+
+        # Assert
+        # Tous les joueurs doivent avoir un rôle assigné (HUMAN)
+        self.assertEqual(len(roles_data), 1)
+        self.assertEqual(roles_data[0]["role"], PlayerRole.HUMAN)
+        # Vérifier que le rôle est persisté en base
+        player = Player.objects.get(id=roles_data[0]["player_id"])
+        self.assertEqual(player.role, PlayerRole.HUMAN)

@@ -45,30 +45,35 @@ class LobbySettingsCard extends StatelessWidget {
               label: l10n.lobbySettingsGameDuration,
               value: settings.gameDuration,
               jsonKey: 'game_duration',
+              fieldType: _SettingsFieldType.duration,
             ),
             _buildField(
               context,
               label: l10n.lobbySettingsDeploymentDuration,
               value: settings.deploymentDuration,
               jsonKey: 'deployment_duration',
+              fieldType: _SettingsFieldType.duration,
             ),
             _buildField(
               context,
               label: l10n.lobbySettingsSpiritPercentage,
               value: settings.spiritPercentage,
               jsonKey: 'spirit_percentage',
+              fieldType: _SettingsFieldType.percentage,
             ),
             _buildField(
               context,
               label: l10n.lobbySettingsPointsPerMinute,
               value: settings.pointsPerMinute,
               jsonKey: 'points_per_minute',
+              fieldType: _SettingsFieldType.pointsPerMinute,
             ),
             _buildField(
               context,
               label: l10n.lobbySettingsConversionPercentage,
               value: settings.conversionPointsPercentage,
               jsonKey: 'conversion_points_percentage',
+              fieldType: _SettingsFieldType.percentage,
             ),
           ],
         ),
@@ -81,17 +86,29 @@ class LobbySettingsCard extends StatelessWidget {
     required String label,
     required int value,
     required String jsonKey,
+    required _SettingsFieldType fieldType,
   }) {
     if (isAdmin) {
       return _SettingsEditableField(
         label: label,
         value: value,
         enabled: !isUpdating,
+        fieldType: fieldType,
         onSubmitted: (newValue) => onSettingChanged?.call(jsonKey, newValue),
       );
     }
     return _SettingsReadOnlyField(label: label, value: value);
   }
+}
+
+/// Type de champ pour appliquer la validation appropriée.
+enum _SettingsFieldType {
+  /// Durées (game_duration, deployment_duration) : minimum 1.
+  duration,
+  /// Points par minute : minimum 1.
+  pointsPerMinute,
+  /// Pourcentages (spirit_percentage, conversion_points_percentage) : 0-100.
+  percentage,
 }
 
 /// Champ éditable pour l'admin (TextFormField avec validation).
@@ -100,12 +117,14 @@ class _SettingsEditableField extends StatefulWidget {
     required this.label,
     required this.value,
     required this.enabled,
+    required this.fieldType,
     required this.onSubmitted,
   });
 
   final String label;
   final int value;
   final bool enabled;
+  final _SettingsFieldType fieldType;
   final void Function(int value) onSubmitted;
 
   @override
@@ -165,17 +184,40 @@ class _SettingsEditableFieldState extends State<_SettingsEditableField> {
   void _submitIfChanged() {
     final text = _controller.text.trim();
     if (text.isEmpty) {
-      // Restaure la valeur précédente si le champ est vidé.
-      _controller.text = widget.value.toString();
+      _restorePreviousValue();
       return;
     }
+
     final parsed = int.tryParse(text);
-    if (parsed == null || parsed < 0) {
-      _controller.text = widget.value.toString();
+    if (parsed == null || !_isValidValue(parsed)) {
+      _restorePreviousValue();
       return;
     }
+
     if (parsed != widget.value) {
       widget.onSubmitted(parsed);
+    }
+  }
+
+  /// Restaure la valeur précédente dans le champ.
+  void _restorePreviousValue() {
+    _controller.text = widget.value.toString();
+  }
+
+  /// Valide une valeur selon le type de champ pour correspondre aux contraintes backend.
+  ///
+  /// Retourne true si la valeur est valide selon les règles métier :
+  /// - Durées (duration) : minimum 1
+  /// - Points par minute (pointsPerMinute) : minimum 1
+  /// - Pourcentages (percentage) : 0-100
+  bool _isValidValue(int value) {
+    switch (widget.fieldType) {
+      case _SettingsFieldType.duration:
+        return value >= 1;
+      case _SettingsFieldType.pointsPerMinute:
+        return value >= 1;
+      case _SettingsFieldType.percentage:
+        return value >= 0 && value <= 100;
     }
   }
 }

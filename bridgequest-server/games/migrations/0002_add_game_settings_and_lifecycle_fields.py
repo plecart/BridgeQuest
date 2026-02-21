@@ -48,7 +48,6 @@ class Migration(migrations.Migration):
                     "game_duration",
                     models.PositiveIntegerField(
                         default=30,
-                        help_text="Durée totale de la partie en minutes.",
                         verbose_name="model.settings.game_duration",
                     ),
                 ),
@@ -56,7 +55,6 @@ class Migration(migrations.Migration):
                     "deployment_duration",
                     models.PositiveIntegerField(
                         default=5,
-                        help_text="Durée de la phase de déploiement en minutes.",
                         verbose_name="model.settings.deployment_duration",
                     ),
                 ),
@@ -64,7 +62,6 @@ class Migration(migrations.Migration):
                     "spirit_percentage",
                     models.PositiveIntegerField(
                         default=20,
-                        help_text="Pourcentage de joueurs convertis en Esprit au lancement.",
                         verbose_name="model.settings.spirit_percentage",
                     ),
                 ),
@@ -72,7 +69,6 @@ class Migration(migrations.Migration):
                     "points_per_minute",
                     models.PositiveIntegerField(
                         default=10,
-                        help_text="Points gagnés par minute par les Humains.",
                         verbose_name="model.settings.points_per_minute",
                     ),
                 ),
@@ -80,7 +76,6 @@ class Migration(migrations.Migration):
                     "conversion_points_percentage",
                     models.PositiveIntegerField(
                         default=50,
-                        help_text="Pourcentage des points récupérés lors d'une conversion.",
                         verbose_name="model.settings.conversion_points_percentage",
                     ),
                 ),
