@@ -1,11 +1,19 @@
 // Implémentation web. Pas d'import dart:io (non disponible sur web).
 //
-// Limitation navigateur : les WebSockets natifs ne permettent pas d'envoyer
-// des headers personnalisés. Le token doit être passé dans la query string,
-// ce qui l'expose dans les logs (risque d'usurpation si accès aux logs).
-// Mitigations : HTTPS obligatoire, backend redacte ?token=xxx, tokens courts,
-// reverse-proxy configuré pour ne pas logger les query strings.
-// Détails : CODING_STANDARDS_FLUTTER.md section "Authentification WebSocket sécurisée".
+// SÉCURITÉ — Token en query string :
+// Les WebSockets natifs des navigateurs ne permettent pas d'envoyer des headers
+// personnalisés (ex. Authorization). Le token JWT doit donc être passé en query
+// string (?token=xxx), ce qui l'expose dans les logs serveur/proxy et l'historique.
+// Toute personne ayant accès à ces traces peut rejouer le token et usurper la session.
+//
+// Mitigations OBLIGATOIRES :
+// - HTTPS en production (chiffrement bout en bout)
+// - Backend : AccessLogMiddleware redacte ?token=xxx → ?token=***
+// - Reverse-proxy (nginx, etc.) : ne jamais logger les query strings contenant token=
+// - Tokens à courte durée (ex. 15 min) pour limiter la fenêtre d'usurpation
+//
+// Alternative future : backend accepterait le token dans un message initial (requiert
+// des modifications serveur). Détails : CODING_STANDARDS_FLUTTER.md « Authentification WebSocket ».
 
 import 'package:web_socket_channel/web_socket_channel.dart';
 
