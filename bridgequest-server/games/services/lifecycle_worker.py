@@ -140,6 +140,10 @@ def _try_acquire_and_transition(*, model, game_id, filters, use_row_lock,
     """
     Tente d'acquérir une partie et d'exécuter la transition.
 
+    Applique à nouveau les filtres (state, timestamp) dans la requête atomique :
+    si la partie a été transitionnée entre le fetch des IDs et ici (autre worker),
+    elle ne matchera plus et on retourne sans traiter. Pas de travail inutile.
+
     Sur Postgres/MySQL : verrouillage via select_for_update(skip_locked=True).
     Sur SQLite : requête simple (transaction.atomic suffit).
     """
@@ -176,6 +180,9 @@ def _process_transitions(*, model, filters, transition_fn, label):
         transition_fn: Fonction de transition (begin_in_progress ou finish_game).
         label: Label pour le logging (ex: "DEPLOYMENT -> IN_PROGRESS").
     """
+    # Fetch des IDs sans verrou ; _try_acquire_and_transition re-vérifie
+    # les filtres (state, timestamp) dans son bloc atomique, donc on ne
+    # traite pas les parties déjà transitionnées par un autre worker.
     game_ids = list(
         model.objects.filter(**filters).values_list("id", flat=True)
     )

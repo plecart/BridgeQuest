@@ -36,6 +36,11 @@ def _select_spirits(players, spirit_count):
     """
     Sélectionne aléatoirement les joueurs qui deviendront Esprits.
 
+    L'attribution est volontairement non déterministe (random.sample sans seed)
+    pour garantir l'équité du jeu. Elle n'est pas reproductible pour le debug —
+    les tests vérifient les invariants (≥1 Esprit, ≥1 Humain, etc.), pas une
+    répartition particulière.
+
     Args:
         players: Liste de tous les joueurs.
         spirit_count: Nombre d'Esprits à choisir.
@@ -93,6 +98,7 @@ def assign_roles(game, spirit_percentage):
 
     Sélectionne aléatoirement un pourcentage de joueurs comme Esprits
     (minimum 1, maximum N-1). Les autres restent Humains.
+    L'attribution est non déterministe et non reproductible pour l'équité.
     Sauvegarde en base via ``bulk_update`` et retourne le payload
     pour le broadcast ``roles_assigned``.
 

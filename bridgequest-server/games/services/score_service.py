@@ -19,8 +19,6 @@ en temps réel lors de l'interaction et ne sont pas recalculés ici.
 """
 from datetime import timedelta
 
-from django.utils import timezone
-
 from games.models import Player, PlayerRole
 from games.services.game_service import get_game_settings
 from games.services.player_payload import build_player_websocket_payload
@@ -87,7 +85,7 @@ def _compute_human_minutes(player, game_start, game_end):
     Args:
         player: Le joueur.
         game_start: Début de la phase IN_PROGRESS.
-        game_end: Fin de la partie (now ou game_ends_at).
+        game_end: Fin de la partie (game.game_ends_at).
 
     Returns:
         float: Minutes passées en tant qu'Humain (>= 0).
@@ -182,10 +180,10 @@ def calculate_final_scores(game):
     comptabilisés dans ``player.score`` au moment de l'interaction
     et ne sont pas recalculés ici.
 
-    **Scoring déterministe** : Utilise ``game.game_ends_at`` comme borne
-    de fin pour éviter le sur-comptage si le worker traite la transition
-    en retard. Si le worker traite avant ``game_ends_at`` (peu probable),
-    utilise ``min(now, game.game_ends_at)`` pour éviter le sous-comptage.
+    **Scoring déterministe** : Utilise ``game.game_ends_at`` directement.
+    Le lifecycle worker ne déclenche ``finish_game`` que lorsque
+    ``game_ends_at <= now`` (filtre ``game_ends_at__lte``). Le scoring
+    est donc indépendant du moment exact d'exécution du worker.
 
     Args:
         game: La partie (state IN_PROGRESS, sur le point de passer FINISHED).
@@ -203,9 +201,7 @@ def calculate_final_scores(game):
     players = list(game.players.select_related("user").all())
 
     game_start = _compute_in_progress_start(game, settings)
-    # Utiliser game_ends_at pour un scoring déterministe et cohérent
-    # avec la durée configurée, même si le worker traite en retard
-    game_end = min(timezone.now(), game.game_ends_at)
+    game_end = game.game_ends_at
 
     _apply_passive_scores(
         players, game_start, game_end, settings.points_per_minute,
