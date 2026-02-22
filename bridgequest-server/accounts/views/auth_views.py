@@ -18,7 +18,7 @@ from accounts.services.google_auth_service import validate_google_token
 from accounts.services.jwt_service import generate_tokens_for_user
 from utils.exceptions import BridgeQuestException
 from utils.messages import ErrorMessages, Messages
-from utils.responses import error_response
+from utils.responses import error_response, validation_error_response
 
 User = get_user_model()
 
@@ -96,7 +96,7 @@ def sso_login_view(request):
     serializer = SSOLoginSerializer(data=request.data)
     
     if not serializer.is_valid():
-        return _build_validation_error_response(serializer.errors)
+        return validation_error_response(serializer)
     
     provider = serializer.validated_data['provider']
     token = serializer.validated_data['token']
@@ -118,22 +118,6 @@ def sso_login_view(request):
             _(ErrorMessages.AUTH_SSO_FAILED),
             status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
-
-
-def _build_validation_error_response(errors):
-    """
-    Construit une réponse d'erreur de validation.
-    
-    Args:
-        errors: Les erreurs de validation du serializer
-        
-    Returns:
-        Response: Réponse d'erreur de validation formatée
-    """
-    return Response(
-        errors,
-        status=status.HTTP_400_BAD_REQUEST
-    )
 
 
 @api_view(['GET'])

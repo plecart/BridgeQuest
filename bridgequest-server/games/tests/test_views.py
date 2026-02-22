@@ -96,7 +96,7 @@ class GameViewsTestCase(TestCase):
         """Test que les codes non alphanumériques sont rejetés par le serializer."""
         response = self._post_join_game('AB-123')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn('error', response.data)
+        self.assertIn('code', response.data)
 
     def test_join_game_already_in_game(self):
         """Test de jonction quand l'utilisateur est déjà dans la partie."""
@@ -290,10 +290,12 @@ class GameSettingsViewsTestCase(TestCase):
             format="json",
         )
 
-        # Assert : 400 et message de validation (clé ou traduit selon compilemessages)
+        # Assert : 400 et erreurs par champ (format DRF)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("error", response.data)
-        self.assertIn("validation.settings.game_duration", response.data["error"])
+        self.assertIn("game_duration", response.data)
+        errors = response.data["game_duration"]
+        self.assertIsInstance(errors, list)
+        self.assertGreater(len(errors), 0)
 
     def test_patch_settings_game_not_waiting_forbidden(self):
         """Test PATCH settings sur une partie non-WAITING."""

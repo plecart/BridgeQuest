@@ -28,7 +28,7 @@ from locations.serializers import PositionWithPlayerSerializer
 from locations.services.position_service import get_latest_positions_for_game
 from utils.exceptions import GameException, PlayerException
 from utils.messages import ErrorMessages
-from utils.responses import error_response
+from utils.responses import error_response, validation_error_response
 
 
 def _game_detail_response(game):
@@ -75,8 +75,7 @@ def join_game_view(request):
     """
     serializer = JoinGameSerializer(data=request.data)
     if not serializer.is_valid():
-        first_error = next(iter(serializer.errors.values()))[0]
-        return error_response(first_error, status.HTTP_400_BAD_REQUEST)
+        return validation_error_response(serializer)
 
     try:
         player = join_game(serializer.validated_data["code"], request.user)
@@ -208,8 +207,7 @@ def _handle_settings_update(game, player, settings, data):
 
     serializer = GameSettingsSerializer(settings, data=data, partial=True)
     if not serializer.is_valid():
-        first_error = next(iter(serializer.errors.values()))[0]
-        return error_response(first_error, status.HTTP_400_BAD_REQUEST)
+        return validation_error_response(serializer)
 
     serializer.save()
     lobby_broadcast.broadcast_settings_updated(game.id, serializer.data)
