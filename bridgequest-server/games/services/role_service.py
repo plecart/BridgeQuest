@@ -50,6 +50,10 @@ def _select_spirits(players, spirit_count):
     """
     if spirit_count == 0:
         return set()
+    assert spirit_count <= len(players), (
+        "spirit_count cannot exceed player count "
+        "(invariant: _compute_spirit_count caps at total_players - 1)"
+    )
     chosen = random.sample(players, spirit_count)
     return {player.id for player in chosen}
 

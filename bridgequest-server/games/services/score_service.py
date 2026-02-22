@@ -82,6 +82,10 @@ def _compute_human_minutes(player, game_start, game_end):
       game_start jusqu'à converted_at (arrêt du scoring à la conversion).
     - Esprit initial (role=SPIRIT sans converted_at) : 0 minute (scoring Esprit).
 
+    Invariant : converted_at >= game_start en flux normal (les conversions
+    n'ont lieu que pendant IN_PROGRESS). Si converted_at < game_start, 0
+    est retourné (programmation défensive pour données incohérentes).
+
     Args:
         player: Le joueur.
         game_start: Début de la phase IN_PROGRESS.
@@ -95,7 +99,8 @@ def _compute_human_minutes(player, game_start, game_end):
         return max(seconds / 60, 0.0)
 
     if player.role == PlayerRole.SPIRIT and player.converted_at:
-        # Converti pendant IN_PROGRESS : points passifs jusqu'à la conversion
+        # Humain converti : points passifs jusqu'à converted_at. Cas edge
+        # converted_at < game_start (données incohérentes) : 0, cf. docstring.
         effective_end = min(player.converted_at, game_end)
         if effective_end <= game_start:
             return 0.0
