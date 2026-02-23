@@ -337,3 +337,13 @@ msgstr "Pouvoirs"
 
 msgid "app.logs.name"
 msgstr "Journaux"
+
+#: locations/serializers - ModelMessages
+msgid "serializer.position.game_id.help_text"
+msgstr "ID de la partie dans laquelle mettre à jour la position"
+
+msgid "serializer.position.latitude.help_text"
+msgstr "Latitude WGS84 (-90 à 90)"
+
+msgid "serializer.position.longitude.help_text"
+msgstr "Longitude WGS84 (-180 à 180)"

@@ -334,3 +334,13 @@ msgstr "Powers"
 
 msgid "app.logs.name"
 msgstr "Logs"
+
+#: locations/serializers - ModelMessages
+msgid "serializer.position.game_id.help_text"
+msgstr "Game ID to update position in"
+
+msgid "serializer.position.latitude.help_text"
+msgstr "WGS84 latitude (-90 to 90)"
+
+msgid "serializer.position.longitude.help_text"
+msgstr "WGS84 longitude (-180 to 180)"

@@ -108,6 +108,9 @@ class ModelMessages:
     POSITION_RECORDED_AT = "model.position.recorded_at"
     POSITION_VERBOSE_NAME = "Position"
     POSITION_VERBOSE_NAME_PLURAL = "Positions"
+    POSITION_GAME_ID_HELP = "serializer.position.game_id.help_text"
+    POSITION_LATITUDE_HELP = "serializer.position.latitude.help_text"
+    POSITION_LONGITUDE_HELP = "serializer.position.longitude.help_text"
 
 
 class ErrorMessages:
