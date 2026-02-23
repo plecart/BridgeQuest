@@ -142,6 +142,19 @@ Pré-conditions lancement : minimum 2 joueurs, demandeur = admin.
 
 Scoring : points passifs déploiement (tous) + points passifs IN_PROGRESS (Humains, arrêt à `converted_at`).
 
+## Règles Métier — Visibilité
+
+- Tout le monde voit tous les participants sur la carte.
+- Seuls les Esprits connaissent les rôles de chaque joueur.
+- Les Humains ne voient pas les rôles.
+- Exception future (module Powers) : les Esprits pourront activer l'invisibilité pour masquer leur position aux Humains.
+
+## Modules en Préparation
+
+- **`interactions`** : conversion Humain → Esprit (QR Code). Infrastructure vide (modèles, services, vues à créer).
+- **`powers`** : pouvoirs spéciaux (ex: invisibilité Esprit). Infrastructure vide.
+- **`logs`** : référencé dans les URLs mais module absent.
+
 ## Checklist Nouvelle Fonctionnalité
 
 - [ ] Clés dans `utils/messages.py`

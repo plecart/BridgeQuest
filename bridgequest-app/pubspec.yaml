@@ -35,6 +35,10 @@ dependencies:
   geolocator: ^10.1.0
   permission_handler: ^11.1.0
   
+  # Carte
+  flutter_map: ^7.0.2
+  latlong2: ^0.9.1
+  
   # QR Code
   qr_flutter: ^4.1.0
   mobile_scanner: ^5.0.0

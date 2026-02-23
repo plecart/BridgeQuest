@@ -31,7 +31,7 @@ lib/
 │   │   ├── menu/main_menu_page + view_model
 │   │   ├── lobby/lobby_page + view_model + widgets/
 │   │   ├── deployment/deployment_page + view_model
-│   │   ├── game/game_page + game_view_model
+│   │   ├── game/game_page + game_view_model + widgets/ (GameMapWidget, PlayerMarkerWidget)
 │   │   └── results/results_page (StatelessWidget, pas de VM)
 │   ├── widgets/              # ConnectingIndicator, ErrorStateView
 │   └── theme/
@@ -100,8 +100,29 @@ LoginPage → HomePage → LobbyPage → DeploymentPage → GamePage → Results
 | `GameSettings` | `data/models/game/game_settings.dart` | Immutable, `fromJson`, `copyWith`, `==`, `hashCode` |
 | `GamePlayerRole` | `data/models/game/game_player_role.dart` | playerId, userId, username, role. Getters `isSpirit`/`isHuman` |
 | `GameScoreEntry` | `data/models/game/game_score_entry.dart` | playerId, userId, username, role, score. Triée par score desc. |
+| `PlayerPosition` | `data/models/game/player_position.dart` | playerId, userId, username, lat/lng, recordedAt. Factories `fromWebSocketEvent` et `fromJson` |
 
 Constantes : `GameState` (waiting, deployment, inProgress, finished), `PlayerRole` (human, spirit) dans `core/constants/game_constants.dart`.
+
+## Carte & Géolocalisation
+
+**Bibliothèque** : `flutter_map` + OpenStreetMap (gratuit, markers = widgets Flutter natifs).
+
+**Architecture** :
+- `LocationService` : encapsule `geolocator`, gère permissions et stream GPS
+- `PositionRepository` : envoi position (`POST /api/locations/`), chargement initial (`GET /api/games/{id}/positions/`)
+- `GameViewModel` : maintient `Map<int, PlayerPosition>`, orchestre GPS + WS + REST
+- `GameMapWidget` : carte flutter_map avec markers joueurs
+- `PlayerMarkerWidget` : avatar + nom, avec visibilité rôle conditionnelle
+
+**Envoi silencieux** : `PositionRepository.sendPosition` ne propage pas les erreurs (logge seulement). Le tracking GPS continue indépendamment des échecs d'envoi.
+
+### Règles de visibilité sur la carte
+
+- Tout le monde voit tous les participants.
+- Seuls les Esprits voient les rôles de chaque joueur (code couleur).
+- Les Humains voient des markers neutres (pas de distinction de rôle).
+- Exception future (module Powers) : les Esprits pourront activer l'invisibilité.
 
 ## Widgets Réutilisables
 

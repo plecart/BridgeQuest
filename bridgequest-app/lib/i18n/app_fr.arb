@@ -319,5 +319,33 @@
   "resultsNoScores": "Aucun score disponible",
   "@resultsNoScores": {
     "description": "Message quand la liste des scores est vide"
+  },
+  "gameMapLoading": "Chargement de la carte...",
+  "@gameMapLoading": {
+    "description": "Message pendant le chargement de la carte"
+  },
+  "gameMapError": "Impossible de charger la carte",
+  "@gameMapError": {
+    "description": "Erreur chargement carte"
+  },
+  "errorLocationPermissionDenied": "Permission de localisation refusée",
+  "@errorLocationPermissionDenied": {
+    "description": "Erreur quand la permission GPS est refusée"
+  },
+  "errorLocationServiceDisabled": "Service de localisation désactivé",
+  "@errorLocationServiceDisabled": {
+    "description": "Erreur quand le GPS est désactivé"
+  },
+  "errorLocationUnavailable": "Position indisponible",
+  "@errorLocationUnavailable": {
+    "description": "Erreur quand la position est indisponible"
+  },
+  "errorLocationSendFailed": "Impossible d'envoyer la position",
+  "@errorLocationSendFailed": {
+    "description": "Erreur envoi position au serveur"
+  },
+  "gameMapPlayerYou": "Vous",
+  "@gameMapPlayerYou": {
+    "description": "Label du marker du joueur courant"
   }
 }

@@ -7,6 +7,8 @@ import '../../data/services/lobby_websocket_service.dart';
 import '../../data/services/token_manager.dart';
 import '../../data/repositories/auth_repository.dart';
 import '../../data/repositories/game_repository.dart';
+import '../../data/services/location_service.dart';
+import '../../data/repositories/position_repository.dart';
 import '../../providers/auth_provider.dart';
 
 /// Configuration des providers de l'application
@@ -30,6 +32,8 @@ class AppProviders {
     final gameRepository = GameRepository(
       apiService: apiService,
     );
+    final locationService = LocationService();
+    final positionRepository = PositionRepository(apiService: apiService);
     final lobbyWebSocketService = LobbyWebSocketService();
     final gameWebSocketService = GameWebSocketService();
 
@@ -40,6 +44,8 @@ class AppProviders {
       Provider<ApiService>.value(value: apiService),
       Provider<AuthRepository>.value(value: authRepository),
       Provider<GameRepository>.value(value: gameRepository),
+      Provider<LocationService>.value(value: locationService),
+      Provider<PositionRepository>.value(value: positionRepository),
       ChangeNotifierProvider(
         create: (context) => AuthProvider(
           authRepository: context.read<AuthRepository>(),
