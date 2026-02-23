@@ -89,8 +89,7 @@ class AuthProvider extends ChangeNotifier {
   /// la traduction dans la couche de présentation selon la locale.
   void _setErrorFromException(dynamic exception) {
     if (exception is AppException) {
-      // Stocker le code de traduction si disponible, sinon le message
-      _errorMessage = exception.code ?? exception.message;
+      _errorMessage = exception.code ?? 'error.generic';
     } else {
       _errorMessage = 'error.generic';
     }
