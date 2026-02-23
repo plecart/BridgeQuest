@@ -10,7 +10,6 @@ import '../services/api_service.dart';
 /// initiales de tous les joueurs d'une partie.
 class PositionRepository {
   static const _codeGeneric = 'error.generic';
-  static const _codeSendFailed = 'errorLocationSendFailed';
 
   final ApiService _apiService;
 
@@ -62,7 +61,7 @@ class PositionRepository {
       AppLogger.error('Unexpected error fetching positions', e);
       throw GameException(
         'Unexpected error fetching positions',
-        code: _codeSendFailed,
+        code: _codeGeneric,
       );
     }
   }

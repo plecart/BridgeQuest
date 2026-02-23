@@ -21,25 +21,29 @@ void main() {
     await dotenv.load(fileName: '.env');
   });
 
-  testWidgets('BridgeQuestApp se construit correctement',
-      (WidgetTester tester) async {
-    // Act : Construire l'application avec les providers
-    await tester.pumpWidget(
-      MultiProvider(
-        providers: AppProviders.buildProviders(),
-        child: const BridgeQuestApp(),
-      ),
-    );
+  testWidgets(
+    'BridgeQuestApp se construit correctement',
+    (WidgetTester tester) async {
+      // Act : Construire l'application avec les providers
+      await tester.pumpWidget(
+        MultiProvider(
+          providers: AppProviders.buildProviders(),
+          child: const BridgeQuestApp(),
+        ),
+      );
 
-    // Attendre que les localisations soient chargées
-    await tester.pumpAndSettle();
+      // Attendre que les localisations soient chargées
+      await tester.pumpAndSettle();
 
-    // Assert : Vérifier que l'application se construit sans erreur
-    expect(find.byType(MaterialApp), findsOneWidget);
+      // Assert : Vérifier que l'application se construit sans erreur
+      expect(find.byType(MaterialApp), findsOneWidget);
 
-    // Vérifier que le titre de connexion est affiché (via les localisations)
-    final l10n = AppLocalizations.of(tester.element(find.byType(MaterialApp)));
-    expect(l10n, isNotNull);
-    expect(find.text(l10n!.authLoginTitle), findsOneWidget);
-  }, tags: ['widget'],);
+      // Vérifier que le titre de connexion est affiché (via les localisations)
+      final l10n =
+          AppLocalizations.of(tester.element(find.byType(MaterialApp)));
+      expect(l10n, isNotNull);
+      expect(find.text(l10n!.authLoginTitle), findsOneWidget);
+    },
+    tags: ['widget'],
+  );
 }

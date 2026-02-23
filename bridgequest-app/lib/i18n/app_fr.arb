@@ -324,10 +324,6 @@
   "@gameMapLoading": {
     "description": "Message pendant le chargement de la carte"
   },
-  "gameMapError": "Impossible de charger la carte",
-  "@gameMapError": {
-    "description": "Erreur chargement carte"
-  },
   "errorLocationPermissionDenied": "Permission de localisation refusée",
   "@errorLocationPermissionDenied": {
     "description": "Erreur quand la permission GPS est refusée"

@@ -78,7 +78,6 @@ class GameViewModel extends ChangeNotifier {
   String? _errorKey;
   String? _locationErrorKey;
   GameNavigationResult? _navigationResult;
-  bool _isLoadingPositions = true;
 
   // ---------------------------------------------------------------------------
   // Getters
@@ -92,7 +91,6 @@ class GameViewModel extends ChangeNotifier {
   GameNavigationResult? get navigationResult => _navigationResult;
   Duration get remainingTime => _countdown.remainingTime;
   String get countdownText => _countdown.countdownText;
-  bool get isLoadingPositions => _isLoadingPositions;
 
   /// Positions de tous les joueurs, indexées par playerId.
   Map<int, PlayerPosition> get positions => Map.unmodifiable(_positions);
@@ -160,7 +158,6 @@ class GameViewModel extends ChangeNotifier {
     } catch (e) {
       AppLogger.error('Failed to load initial positions', e);
     } finally {
-      _isLoadingPositions = false;
       notifyListeners();
     }
   }
@@ -170,9 +167,11 @@ class GameViewModel extends ChangeNotifier {
   // ---------------------------------------------------------------------------
 
   Future<void> _startLocationTracking() async {
-    final hasPermission = await _locationService.ensurePermission();
-    if (!hasPermission) {
-      _locationErrorKey = 'errorLocationPermissionDenied';
+    final result = await _locationService.ensurePermission();
+    if (result != LocationPermissionResult.granted) {
+      _locationErrorKey = result == LocationPermissionResult.serviceDisabled
+          ? 'errorLocationServiceDisabled'
+          : 'errorLocationPermissionDenied';
       notifyListeners();
       return;
     }

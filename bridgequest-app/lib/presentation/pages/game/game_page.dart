@@ -5,6 +5,7 @@ import '../../../data/models/game/game_player_role.dart';
 import '../../../data/repositories/position_repository.dart';
 import '../../../data/services/game_websocket_service.dart';
 import '../../../data/services/location_service.dart';
+import '../../../core/utils/error_translator.dart';
 import '../../../i18n/app_localizations.dart';
 import '../../widgets/error_state_view.dart';
 import '../menu/home_page.dart';
@@ -283,7 +284,7 @@ class _GameContent extends StatelessWidget {
     AppLocalizations l10n,
   ) {
     final theme = Theme.of(context);
-    final message = _translateLocationError(errorKey, l10n);
+    final message = ErrorTranslator.translate(errorKey, l10n);
 
     return Positioned(
       bottom: 16,
@@ -322,14 +323,5 @@ class _GameContent extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  String _translateLocationError(String key, AppLocalizations l10n) {
-    return switch (key) {
-      'errorLocationPermissionDenied' => l10n.errorLocationPermissionDenied,
-      'errorLocationServiceDisabled' => l10n.errorLocationServiceDisabled,
-      'errorLocationUnavailable' => l10n.errorLocationUnavailable,
-      _ => l10n.errorLocationUnavailable,
-    };
   }
 }

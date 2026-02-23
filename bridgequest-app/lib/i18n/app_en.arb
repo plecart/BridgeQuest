@@ -324,10 +324,6 @@
   "@gameMapLoading": {
     "description": "Map loading message"
   },
-  "gameMapError": "Unable to load map",
-  "@gameMapError": {
-    "description": "Map loading error"
-  },
   "errorLocationPermissionDenied": "Location permission denied",
   "@errorLocationPermissionDenied": {
     "description": "Error when GPS permission is denied"

@@ -4,11 +4,17 @@ import 'package:geolocator/geolocator.dart';
 
 import '../../core/utils/logger.dart';
 
+/// Résultat de la vérification des permissions de localisation.
+enum LocationPermissionResult {
+  granted,
+  serviceDisabled,
+  permissionDenied,
+}
+
 /// Service de géolocalisation encapsulant [Geolocator].
 ///
-/// Gère les permissions, la récupération de position unique et le
-/// streaming continu de positions. Cycle de vie explicite :
-/// [startTracking] pour démarrer, [stopTracking] pour arrêter.
+/// Gère les permissions et le streaming continu de positions.
+/// Cycle de vie explicite : [startTracking] / [stopTracking].
 class LocationService {
   StreamSubscription<Position>? _positionSubscription;
   void Function(double latitude, double longitude)? _onPositionChanged;
@@ -20,12 +26,12 @@ class LocationService {
 
   /// Vérifie et demande les permissions de localisation.
   ///
-  /// Retourne `true` si la permission est accordée, `false` sinon.
+  /// Retourne un [LocationPermissionResult] indiquant le résultat précis.
   /// Ne lance pas d'exception : le ViewModel décide de l'action à mener.
-  Future<bool> ensurePermission() async {
+  Future<LocationPermissionResult> ensurePermission() async {
     if (!await Geolocator.isLocationServiceEnabled()) {
       AppLogger.warning('Location services are disabled');
-      return false;
+      return LocationPermissionResult.serviceDisabled;
     }
 
     var permission = await Geolocator.checkPermission();
@@ -36,26 +42,10 @@ class LocationService {
     if (permission == LocationPermission.denied ||
         permission == LocationPermission.deniedForever) {
       AppLogger.warning('Location permission denied: $permission');
-      return false;
+      return LocationPermissionResult.permissionDenied;
     }
 
-    return true;
-  }
-
-  /// Récupère la position actuelle une seule fois.
-  ///
-  /// Retourne `null` si la position est inaccessible.
-  Future<Position?> getCurrentPosition() async {
-    try {
-      // ignore: deprecated_member_use
-      return await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
-        timeLimit: const Duration(seconds: 10),
-      );
-    } catch (e) {
-      AppLogger.error('Failed to get current position', e);
-      return null;
-    }
+    return LocationPermissionResult.granted;
   }
 
   /// Démarre le tracking continu de la position.
