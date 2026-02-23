@@ -6,7 +6,7 @@ from django.test import TestCase
 from rest_framework import status
 from rest_framework.test import APIClient
 
-from games.models import Game, GameState, Player
+from games.models import Game, GameSettings, GameState, Player
 
 User = get_user_model()
 
@@ -96,7 +96,7 @@ class GameViewsTestCase(TestCase):
         """Test que les codes non alphanumériques sont rejetés par le serializer."""
         response = self._post_join_game('AB-123')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn('error', response.data)
+        self.assertIn('code', response.data)
 
     def test_join_game_already_in_game(self):
         """Test de jonction quand l'utilisateur est déjà dans la partie."""
@@ -110,6 +110,7 @@ class GameViewsTestCase(TestCase):
     def test_game_detail_authenticated_success(self):
         """Test de récupération des détails d'une partie."""
         game = Game.objects.create(code='GHI012')
+        GameSettings.objects.create(game=game)
         Player.objects.create(game=game, user=self.user, is_admin=True)
 
         self._authenticate_client()
@@ -117,6 +118,14 @@ class GameViewsTestCase(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['id'], game.id)
         self.assertEqual(response.data['code'], game.code)
+        # Vérifier que les settings sont inclus dans la réponse (pour reconnexion)
+        self.assertIn('settings', response.data)
+        self.assertIsInstance(response.data['settings'], dict)
+        self.assertIn('game_duration', response.data['settings'])
+        self.assertIn('deployment_duration', response.data['settings'])
+        self.assertIn('spirit_percentage', response.data['settings'])
+        self.assertIn('points_per_minute', response.data['settings'])
+        self.assertIn('conversion_points_percentage', response.data['settings'])
 
     def test_game_detail_not_found(self):
         """Test de récupération d'une partie inexistante."""
@@ -136,9 +145,11 @@ class GameViewsTestCase(TestCase):
         self.assertEqual(len(response.data), 2)
 
     def test_game_start_admin_success(self):
-        """Test de lancement de partie par l'administrateur."""
+        """Test de lancement de partie par l'administrateur (min 2 joueurs)."""
         game = Game.objects.create(code='MNO678')
+        GameSettings.objects.create(game=game)
         Player.objects.create(game=game, user=self.user, is_admin=True)
+        Player.objects.create(game=game, user=self.other_user, is_admin=False)
 
         self._authenticate_client()
         response = self.client.post(f'/api/games/{game.id}/start/')
@@ -192,6 +203,123 @@ class GameViewsTestCase(TestCase):
         Player.objects.create(game=game, user=self.user, is_admin=True)
 
         response = self.client.post(f'/api/games/{game.id}/start/')
+        self.assertIn(
+            response.status_code,
+            [status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN],
+        )
+
+
+class GameSettingsViewsTestCase(TestCase):
+    """Tests pour les vues API des parametres de partie."""
+
+    def setUp(self):
+        """Configuration initiale."""
+        self.client = APIClient()
+        self.admin = User.objects.create_user(
+            username="settingsadmin", email="sadmin@test.com",
+        )
+        self.player = User.objects.create_user(
+            username="settingsplayer", email="splayer@test.com",
+        )
+        self.game = Game.objects.create(code="SETT01")
+        GameSettings.objects.create(game=self.game)
+        Player.objects.create(
+            game=self.game, user=self.admin, is_admin=True,
+        )
+        Player.objects.create(
+            game=self.game, user=self.player, is_admin=False,
+        )
+
+    def _authenticate(self, user=None):
+        """Authentifie le client."""
+        self.client.force_authenticate(user=user or self.admin)
+
+    def test_get_settings_success(self):
+        """Test GET settings par un joueur de la partie."""
+        # Arrange
+        self._authenticate(self.player)
+
+        # Act
+        response = self.client.get(f"/api/games/{self.game.id}/settings/")
+
+        # Assert
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn("game_duration", response.data)
+        self.assertIn("points_per_minute", response.data)
+
+    def test_patch_settings_admin_success(self):
+        """Test PATCH settings par l'admin."""
+        # Arrange
+        self._authenticate(self.admin)
+
+        # Act
+        response = self.client.patch(
+            f"/api/games/{self.game.id}/settings/",
+            {"game_duration": 60},
+            format="json",
+        )
+
+        # Assert
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["game_duration"], 60)
+
+    def test_patch_settings_non_admin_forbidden(self):
+        """Test PATCH settings par un joueur non-admin."""
+        # Arrange
+        self._authenticate(self.player)
+
+        # Act
+        response = self.client.patch(
+            f"/api/games/{self.game.id}/settings/",
+            {"game_duration": 60},
+            format="json",
+        )
+
+        # Assert
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_patch_settings_validation_game_duration_rejected(self):
+        """Test PATCH settings avec game_duration invalide (min 1)."""
+        # Arrange
+        self._authenticate(self.admin)
+
+        # Act
+        response = self.client.patch(
+            f"/api/games/{self.game.id}/settings/",
+            {"game_duration": 0},
+            format="json",
+        )
+
+        # Assert : 400 et erreurs par champ (format DRF)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("game_duration", response.data)
+        errors = response.data["game_duration"]
+        self.assertIsInstance(errors, list)
+        self.assertGreater(len(errors), 0)
+
+    def test_patch_settings_game_not_waiting_forbidden(self):
+        """Test PATCH settings sur une partie non-WAITING."""
+        # Arrange
+        self.game.state = GameState.IN_PROGRESS
+        self.game.save()
+        self._authenticate(self.admin)
+
+        # Act
+        response = self.client.patch(
+            f"/api/games/{self.game.id}/settings/",
+            {"game_duration": 60},
+            format="json",
+        )
+
+        # Assert
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_get_settings_unauthenticated_forbidden(self):
+        """Test GET settings sans authentification."""
+        # Act
+        response = self.client.get(f"/api/games/{self.game.id}/settings/")
+
+        # Assert
         self.assertIn(
             response.status_code,
             [status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN],

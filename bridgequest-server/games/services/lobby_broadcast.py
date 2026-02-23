@@ -2,8 +2,8 @@
 Service de diffusion WebSocket pour la salle d'attente.
 
 Diffuse les événements (joueur rejoint, joueur quitte, partie lancée,
-exclusion, transfert admin) aux clients connectés au canal lobby.
-Canal réservé à la phase WAITING.
+exclusion, transfert admin, paramètres modifiés) aux clients connectés
+au canal lobby. Canal réservé à la phase WAITING.
 """
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
@@ -32,7 +32,7 @@ def _send_to_lobby(group_game_id, event_type, **event_payload):
     )
 
 
-def broadcast_game_started(game_id):
+def broadcast_game_started(game_id, *, deployment_ends_at):
     """
     Diffuse l'événement « partie lancée » aux clients de la salle d'attente.
 
@@ -42,8 +42,15 @@ def broadcast_game_started(game_id):
 
     Args:
         game_id: Identifiant de la partie.
+        deployment_ends_at: ISO 8601 datetime de fin du déploiement.
     """
-    _send_to_lobby(game_id, "game_started", game_id=game_id, state=GameState.DEPLOYMENT)
+    _send_to_lobby(
+        game_id,
+        "game_started",
+        game_id=game_id,
+        state=GameState.DEPLOYMENT,
+        deployment_ends_at=deployment_ends_at,
+    )
 
 
 def broadcast_player_excluded(game_id, player_payload):
@@ -85,3 +92,18 @@ def broadcast_game_deleted(game_id):
         game_id: Identifiant de la partie supprimée.
     """
     _send_to_lobby(game_id, "game_deleted", game_id=game_id)
+
+
+def broadcast_settings_updated(game_id, settings_data):
+    """
+    Diffuse l'événement « paramètres modifiés » aux clients du lobby.
+
+    Appelé lorsque l'admin modifie les paramètres de la partie
+    en salle d'attente. Permet aux autres joueurs de voir les
+    changements en temps réel.
+
+    Args:
+        game_id: Identifiant de la partie.
+        settings_data: dict des paramètres sérialisés (GameSettingsSerializer).
+    """
+    _send_to_lobby(game_id, "settings_updated", settings=settings_data)

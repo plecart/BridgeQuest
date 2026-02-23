@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/exceptions/app_exceptions.dart';
+import '../../../core/utils/error_translator.dart';
 import '../../../data/models/game/game.dart';
 import '../../../data/models/user.dart';
 import '../../../data/repositories/game_repository.dart';
@@ -80,7 +81,9 @@ class HomePage extends StatelessWidget {
       _navigateToLobby(context, game);
     } on AppException catch (e) {
       if (!context.mounted) return;
-      _showErrorSnackBar(context, e.serverMessage ?? l10n.errorGeneric);
+      final errorText = e.serverMessage ??
+          ErrorTranslator.translate(e.code ?? 'error.generic', l10n);
+      _showErrorSnackBar(context, errorText);
     } catch (_) {
       if (!context.mounted) return;
       _showErrorSnackBar(context, l10n.errorGeneric);

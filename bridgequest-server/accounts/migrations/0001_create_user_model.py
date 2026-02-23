@@ -101,7 +101,6 @@ class Migration(migrations.Migration):
                     "avatar",
                     models.URLField(
                         blank=True,
-                        help_text="URL de l'avatar de l'utilisateur",
                         max_length=500,
                         null=True,
                         verbose_name="model.user.avatar",

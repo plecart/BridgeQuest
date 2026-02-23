@@ -69,6 +69,8 @@ class ModelMessages:
     GAME_STATE_DEPLOYMENT = "model.game.state.deployment"
     GAME_STATE_IN_PROGRESS = "model.game.state.in_progress"
     GAME_STATE_FINISHED = "model.game.state.finished"
+    GAME_DEPLOYMENT_ENDS_AT = "model.game.deployment_ends_at"
+    GAME_GAME_ENDS_AT = "model.game.game_ends_at"
     GAME_CREATED_AT = "model.game.created_at"
     GAME_UPDATED_AT = "model.game.updated_at"
     GAME_VERBOSE_NAME = "Game"
@@ -80,12 +82,24 @@ class ModelMessages:
     PLAYER_IS_ADMIN = "model.player.is_admin"
     PLAYER_ROLE = "model.player.role"
     PLAYER_SCORE = "model.player.score"
+    PLAYER_CONVERTED_AT = "model.player.converted_at"
     PLAYER_JOINED_AT = "model.player.joined_at"
     PLAYER_VERBOSE_NAME = "Player"
     PLAYER_VERBOSE_NAME_PLURAL = "Players"
     PLAYER_STR_DISPLAY = "{user} in {game}"
     PLAYER_ROLE_HUMAN = "model.player.role.human"
     PLAYER_ROLE_SPIRIT = "model.player.role.spirit"
+
+    # GameSettings
+    SETTINGS_VERBOSE_NAME = "Game Settings"
+    SETTINGS_VERBOSE_NAME_PLURAL = "Game Settings"
+    SETTINGS_STR_DISPLAY = "Settings for {game}"
+    SETTINGS_GAME = "model.settings.game"
+    SETTINGS_GAME_DURATION = "model.settings.game_duration"
+    SETTINGS_DEPLOYMENT_DURATION = "model.settings.deployment_duration"
+    SETTINGS_SPIRIT_PERCENTAGE = "model.settings.spirit_percentage"
+    SETTINGS_POINTS_PER_MINUTE = "model.settings.points_per_minute"
+    SETTINGS_CONVERSION_POINTS_PERCENTAGE = "model.settings.conversion_points_percentage"
 
     # Position
     POSITION_PLAYER = "model.position.player"
@@ -94,6 +108,9 @@ class ModelMessages:
     POSITION_RECORDED_AT = "model.position.recorded_at"
     POSITION_VERBOSE_NAME = "Position"
     POSITION_VERBOSE_NAME_PLURAL = "Positions"
+    POSITION_GAME_ID_HELP = "serializer.position.game_id.help_text"
+    POSITION_LATITUDE_HELP = "serializer.position.latitude.help_text"
+    POSITION_LONGITUDE_HELP = "serializer.position.longitude.help_text"
 
 
 class ErrorMessages:
@@ -126,6 +143,23 @@ class ErrorMessages:
     PLAYER_ALREADY_IN_GAME = "error.player.already_in_game"
     PLAYER_NOT_ADMIN = "error.player.not_admin"
     
+    # Settings errors
+    SETTINGS_NOT_FOUND = "error.settings.not_found"
+    SETTINGS_GAME_NOT_WAITING = "error.settings.game_not_waiting"
+    
+    # Settings validation errors
+    SETTINGS_GAME_DURATION_TOO_LOW = "validation.settings.game_duration.too_low"
+    SETTINGS_DEPLOYMENT_DURATION_TOO_LOW = "validation.settings.deployment_duration.too_low"
+    SETTINGS_SPIRIT_PERCENTAGE_OUT_OF_RANGE = "validation.settings.spirit_percentage.out_of_range"
+    SETTINGS_POINTS_PER_MINUTE_TOO_LOW = "validation.settings.points_per_minute.too_low"
+    SETTINGS_CONVERSION_PERCENTAGE_OUT_OF_RANGE = "validation.settings.conversion_points_percentage.out_of_range"
+
+    # Lifecycle errors
+    GAME_NOT_ENOUGH_PLAYERS = "error.game.not_enough_players"
+    GAME_NOT_DEPLOYMENT = "error.game.not_deployment"
+    GAME_NOT_IN_PROGRESS = "error.game.not_in_progress"
+    GAME_ENDS_AT_REQUIRED = "error.game.game_ends_at_required"
+
     # Interaction errors
     QR_CODE_INVALID = "error.interaction.qr_code.invalid"
     QR_CODE_ALREADY_SCANNED = "error.interaction.qr_code.already_scanned"

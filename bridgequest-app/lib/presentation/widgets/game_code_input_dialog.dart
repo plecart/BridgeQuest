@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../core/exceptions/app_exceptions.dart';
+import '../../core/utils/error_translator.dart';
 import '../../i18n/app_localizations.dart';
 
 String _identity(String value) => value;
@@ -101,7 +102,9 @@ class _GameCodeInputDialogState<T> extends State<GameCodeInputDialog<T>> {
       if (!mounted) return;
       Navigator.of(context).pop(result);
     } on AppException catch (e) {
-      _safeSetError(e.displayMessage);
+      final errorText = e.serverMessage ??
+          ErrorTranslator.translate(e.code ?? 'error.generic', l10n);
+      _safeSetError(errorText);
     } catch (_) {
       _safeSetError(l10n.errorGeneric);
     }

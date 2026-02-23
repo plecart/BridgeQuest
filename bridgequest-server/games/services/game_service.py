@@ -1,7 +1,7 @@
 """
 Service de gestion des parties pour Bridge Quest.
 
-Contient la logique métier : création, jonction, récupération.
+Contient la logique métier : création, jonction, récupération, paramétrage.
 """
 import random
 import string
@@ -9,8 +9,7 @@ import string
 from django.db import IntegrityError
 from rest_framework import status
 
-from games.models import Game, GameState, Player, PlayerRole
-from games.services import lobby_broadcast
+from games.models import Game, GameSettings, GameState, Player, PlayerRole
 from utils.exceptions import GameException, PlayerException
 from utils.messages import ErrorMessages
 
@@ -73,6 +72,8 @@ def _try_create_game_with_code(code, admin_user):
     """
     Tente de créer une partie avec le code donné.
 
+    Crée automatiquement les settings par défaut (OneToOne).
+
     Returns:
         Game: La partie créée.
 
@@ -80,6 +81,7 @@ def _try_create_game_with_code(code, admin_user):
         IntegrityError: Si le code existe déjà (race).
     """
     game = Game.objects.create(code=code)
+    GameSettings.objects.create(game=game)
     _add_player_to_game(game, admin_user, is_admin=True)
     return game
 
@@ -116,17 +118,20 @@ def get_game_by_id(game_id):
     """
     Récupère une partie par son identifiant.
 
+    Charge automatiquement les settings via ``select_related`` pour éviter
+    les requêtes N+1 lors de la sérialisation (GameSerializer inclut settings).
+
     Args:
         game_id: Identifiant de la partie.
 
     Returns:
-        Game: La partie trouvée.
+        Game: La partie trouvée (avec settings pré-chargé).
 
     Raises:
         GameException: Si la partie n'existe pas.
     """
     try:
-        return Game.objects.get(pk=game_id)
+        return Game.objects.select_related("settings").get(pk=game_id)
     except Game.DoesNotExist:
         raise GameException(
             message_key=ErrorMessages.GAME_NOT_FOUND,
@@ -230,11 +235,51 @@ def join_game(code, user):
     return _add_player_to_game(game, user, is_admin=False)
 
 
+def _require_admin(player):
+    """
+    Vérifie que le joueur est administrateur de la partie.
+
+    Args:
+        player: Le joueur à vérifier.
+
+    Raises:
+        PlayerException: Si le joueur n'est pas admin.
+    """
+    if not player.is_admin:
+        raise PlayerException(
+            message_key=ErrorMessages.PLAYER_NOT_ADMIN,
+            status_code=status.HTTP_403_FORBIDDEN,
+        )
+
+
+def get_game_settings(game):
+    """
+    Récupère les paramètres d'une partie.
+
+    Args:
+        game: La partie.
+
+    Returns:
+        GameSettings: Les paramètres de la partie.
+
+    Raises:
+        GameException: Si les settings n'existent pas.
+    """
+    try:
+        return game.settings
+    except GameSettings.DoesNotExist:
+        raise GameException(
+            message_key=ErrorMessages.SETTINGS_NOT_FOUND,
+            status_code=status.HTTP_404_NOT_FOUND,
+        )
+
+
 def start_game(game_id, user):
     """
     Lance une partie (passe de WAITING à DEPLOYMENT).
 
-    Seul l'administrateur de la partie peut lancer.
+    Vérifie les droits d'administration, puis délègue la
+    transition d'état à ``lifecycle_service.begin_deployment``.
 
     Args:
         game_id: Identifiant de la partie.
@@ -248,16 +293,10 @@ def start_game(game_id, user):
         PlayerException: Si l'utilisateur n'est pas dans la partie ou n'est pas admin.
     """
     game = get_game_by_id(game_id)
-    _require_game_waiting(game)
-
     player = get_player_in_game(game, user)
-    if not player.is_admin:
-        raise PlayerException(
-            message_key=ErrorMessages.PLAYER_NOT_ADMIN,
-            status_code=status.HTTP_403_FORBIDDEN,
-        )
+    _require_admin(player)
 
-    game.state = GameState.DEPLOYMENT
-    game.save(update_fields=["state", "updated_at"])
-    lobby_broadcast.broadcast_game_started(game.id)
+    from games.services.lifecycle_service import begin_deployment
+
+    begin_deployment(game)
     return game

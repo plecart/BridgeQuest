@@ -193,5 +193,131 @@
   "errorGameInvalidCode": "Code de partie invalide",
   "@errorGameInvalidCode": {
     "description": "Erreur code invalide"
+  },
+  "lobbySettingsTitle": "Paramètres de la partie",
+  "@lobbySettingsTitle": {
+    "description": "Titre section paramètres lobby"
+  },
+  "lobbySettingsGameDuration": "Durée de la partie (min)",
+  "@lobbySettingsGameDuration": {
+    "description": "Label durée de la partie"
+  },
+  "lobbySettingsDeploymentDuration": "Durée du déploiement (min)",
+  "@lobbySettingsDeploymentDuration": {
+    "description": "Label durée du déploiement"
+  },
+  "lobbySettingsSpiritPercentage": "Pourcentage d'Esprits (%)",
+  "@lobbySettingsSpiritPercentage": {
+    "description": "Label pourcentage esprits"
+  },
+  "lobbySettingsPointsPerMinute": "Points par minute",
+  "@lobbySettingsPointsPerMinute": {
+    "description": "Label points passifs par minute"
+  },
+  "lobbySettingsConversionPercentage": "Bonus de conversion (%)",
+  "@lobbySettingsConversionPercentage": {
+    "description": "Label pourcentage de points de conversion"
+  },
+  "lobbySettingsUpdateError": "Impossible de modifier les paramètres",
+  "@lobbySettingsUpdateError": {
+    "description": "Erreur mise à jour paramètres"
+  },
+  "deploymentTitle": "Déploiement",
+  "@deploymentTitle": {
+    "description": "Titre page déploiement"
+  },
+  "deploymentSubtitle": "Positionnez-vous sur le terrain !",
+  "@deploymentSubtitle": {
+    "description": "Sous-titre page déploiement"
+  },
+  "deploymentCountdown": "Début dans",
+  "@deploymentCountdown": {
+    "description": "Label au-dessus du compte à rebours"
+  },
+  "deploymentConnecting": "Connexion à la partie...",
+  "@deploymentConnecting": {
+    "description": "État connexion déploiement"
+  },
+  "deploymentErrorWebSocket": "Erreur de connexion à la partie",
+  "@deploymentErrorWebSocket": {
+    "description": "Erreur WebSocket déploiement"
+  },
+  "deploymentRetry": "Réessayer",
+  "@deploymentRetry": {
+    "description": "Bouton réessayer déploiement"
+  },
+  "deploymentRolesAssigned": "Rôles attribués !",
+  "@deploymentRolesAssigned": {
+    "description": "Message quand les rôles sont attribués"
+  },
+  "gameTitle": "Partie en cours",
+  "@gameTitle": {
+    "description": "Titre page de jeu"
+  },
+  "gameCountdownLabel": "Temps restant",
+  "@gameCountdownLabel": {
+    "description": "Label au-dessus du compte à rebours"
+  },
+  "gameYourRole": "Votre rôle",
+  "@gameYourRole": {
+    "description": "Label section rôle du joueur"
+  },
+  "gameRoleHuman": "Humain",
+  "@gameRoleHuman": {
+    "description": "Nom du rôle humain"
+  },
+  "gameRoleSpirit": "Esprit",
+  "@gameRoleSpirit": {
+    "description": "Nom du rôle esprit"
+  },
+  "gameRoleUnknown": "Inconnu",
+  "@gameRoleUnknown": {
+    "description": "Rôle inconnu (fallback)"
+  },
+  "gamePlayersTitle": "Joueurs ({count})",
+  "@gamePlayersTitle": {
+    "description": "Titre liste joueurs avec nombre",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "gameConnecting": "Connexion à la partie...",
+  "@gameConnecting": {
+    "description": "État connexion page de jeu"
+  },
+  "gameErrorWebSocket": "Erreur de connexion au jeu",
+  "@gameErrorWebSocket": {
+    "description": "Erreur WebSocket jeu"
+  },
+  "gameRetry": "Réessayer",
+  "@gameRetry": {
+    "description": "Bouton réessayer page de jeu"
+  },
+  "resultsTitle": "Résultats",
+  "@resultsTitle": {
+    "description": "Titre page résultats"
+  },
+  "resultsSubtitle": "Partie terminée !",
+  "@resultsSubtitle": {
+    "description": "Sous-titre page résultats"
+  },
+  "resultsBackToMenu": "Retour au menu",
+  "@resultsBackToMenu": {
+    "description": "Bouton retour au menu depuis les résultats"
+  },
+  "resultsScorePoints": "{score} pts",
+  "@resultsScorePoints": {
+    "description": "Score affiché en points",
+    "placeholders": {
+      "score": {
+        "type": "int"
+      }
+    }
+  },
+  "resultsNoScores": "Aucun score disponible",
+  "@resultsNoScores": {
+    "description": "Message quand la liste des scores est vide"
   }
 }

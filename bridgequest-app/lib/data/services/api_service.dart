@@ -311,11 +311,27 @@ class ApiService {
     );
   }
 
-  /// Extrait le message d'erreur du body de réponse API (format {"error": "..."}).
+  /// Extrait le message d'erreur du body de réponse API.
+  ///
+  /// Formats supportés :
+  /// - {"error": "message"} : erreur unique (exceptions métier)
+  /// - {"field": ["msg"], ...} : format DRF validation (toutes les erreurs
+  ///   par champ) — on extrait le premier message pour l'affichage.
   String? _extractServerErrorMessage(dynamic data) {
-    if (data is Map && data.containsKey('error')) {
+    if (data is! Map) return null;
+
+    if (data.containsKey('error')) {
       final error = data['error'];
       if (error is String && error.isNotEmpty) return error;
+    }
+
+    // Format DRF validation : {"field": ["msg1", ...], ...}
+    for (final entry in data.entries) {
+      final value = entry.value;
+      if (value is List && value.isNotEmpty) {
+        final first = value.first;
+        if (first is String && first.isNotEmpty) return first;
+      }
     }
     return null;
   }

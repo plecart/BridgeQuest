@@ -28,7 +28,7 @@ _WS_CLOSE_UNAUTHORIZED = 4001
 _WS_CLOSE_NOT_IN_GAME = 4002
 _WS_CLOSE_WRONG_CHANNEL = 4003
 
-# Message client : sortie volontaire → exclusion immédiate (sans délai 30 s)
+# Message client : sortie volontaire -> exclusion immédiate (sans délai 30 s)
 _WS_MESSAGE_LEAVE = "leave"
 
 _CLOSE_CODES_SKIP_EXCLUSION = (
@@ -86,7 +86,7 @@ class LobbyConsumer(_BaseGameConsumerMixin, AsyncJsonWebsocketConsumer):
     Groupe : lobby_{game_id}
     Phase : WAITING uniquement.
     Événements : player_joined, player_left, player_excluded, admin_transferred,
-                 game_deleted, game_started.
+                 game_deleted, game_started, settings_updated.
     Codes de fermeture : 4001 (non authentifié), 4002 (non dans la partie),
                         4003 (partie déjà commencée, utiliser ws/game/).
     """
@@ -220,6 +220,7 @@ class LobbyConsumer(_BaseGameConsumerMixin, AsyncJsonWebsocketConsumer):
         await self._forward_to_client("game_started", {
             "game_id": event["game_id"],
             "state": event["state"],
+            "deployment_ends_at": event["deployment_ends_at"],
         })
 
     async def player_excluded(self, event):
@@ -238,6 +239,12 @@ class LobbyConsumer(_BaseGameConsumerMixin, AsyncJsonWebsocketConsumer):
             "game_id": event["game_id"],
         })
 
+    async def settings_updated(self, event):
+        """Reçoit settings_updated du groupe et transmet au client."""
+        await self._forward_to_client("settings_updated", {
+            "settings": event["settings"],
+        })
+
 
 class GameConsumer(_BaseGameConsumerMixin, AsyncJsonWebsocketConsumer):
     """
@@ -246,7 +253,7 @@ class GameConsumer(_BaseGameConsumerMixin, AsyncJsonWebsocketConsumer):
     Canal : ws/game/{game_id}/
     Groupe : game_{game_id}
     Phases : DEPLOYMENT, IN_PROGRESS uniquement.
-    Événements : position_updated (et futurs : conversion, score, etc.).
+    Événements : roles_assigned, game_in_progress, game_finished, position_updated.
     Codes de fermeture : 4001 (non authentifié), 4002 (non dans la partie),
                         4003 (partie en attente ou terminée).
     """
@@ -293,6 +300,26 @@ class GameConsumer(_BaseGameConsumerMixin, AsyncJsonWebsocketConsumer):
                 self.room_group_name,
                 self.channel_name,
             )
+
+    async def roles_assigned(self, event):
+        """Reçoit roles_assigned du groupe et transmet au client."""
+        await self._forward_to_client("roles_assigned", {
+            "players": event["players"],
+        })
+
+    async def game_in_progress(self, event):
+        """Reçoit game_in_progress du groupe et transmet au client."""
+        await self._forward_to_client("game_in_progress", {
+            "game_id": event["game_id"],
+            "game_ends_at": event["game_ends_at"],
+        })
+
+    async def game_finished(self, event):
+        """Reçoit game_finished du groupe et transmet au client."""
+        await self._forward_to_client("game_finished", {
+            "game_id": event["game_id"],
+            "scores": event["scores"],
+        })
 
     async def position_updated(self, event):
         """Reçoit position_updated du groupe et transmet au client."""

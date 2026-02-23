@@ -8,6 +8,7 @@ from .game_views import (
     game_detail_view,
     game_players_view,
     game_positions_view,
+    game_settings_view,
     game_start_view,
     join_game_view,
 )

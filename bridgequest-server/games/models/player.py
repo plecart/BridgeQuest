@@ -55,6 +55,12 @@ class Player(models.Model):
         verbose_name=_(ModelMessages.PLAYER_SCORE),
     )
 
+    converted_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name=_(ModelMessages.PLAYER_CONVERTED_AT),
+    )
+
     joined_at = models.DateTimeField(
         auto_now_add=True,
         verbose_name=_(ModelMessages.PLAYER_JOINED_AT),

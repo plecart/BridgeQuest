@@ -8,22 +8,27 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
+from games.models import GameState
 from games.serializers import (
     GameSerializer,
+    GameSettingsSerializer,
     JoinGameSerializer,
     PlayerSerializer,
 )
 from games.services import (
     create_game,
     get_game_by_id,
+    get_game_settings,
     get_player_in_game,
     join_game,
     start_game,
 )
+from games.services import lobby_broadcast
 from locations.serializers import PositionWithPlayerSerializer
 from locations.services.position_service import get_latest_positions_for_game
 from utils.exceptions import GameException, PlayerException
-from utils.responses import error_response
+from utils.messages import ErrorMessages
+from utils.responses import error_response, validation_error_response
 
 
 def _game_detail_response(game):
@@ -70,8 +75,7 @@ def join_game_view(request):
     """
     serializer = JoinGameSerializer(data=request.data)
     if not serializer.is_valid():
-        first_error = next(iter(serializer.errors.values()))[0]
-        return error_response(first_error, status.HTTP_400_BAD_REQUEST)
+        return validation_error_response(serializer)
 
     try:
         player = join_game(serializer.validated_data["code"], request.user)
@@ -147,3 +151,64 @@ def game_positions_view(request, pk):
         return Response(data, status=status.HTTP_200_OK)
     except (GameException, PlayerException) as e:
         return error_response(e, e.status_code)
+
+
+@api_view(["GET", "PATCH"])
+@permission_classes([IsAuthenticated])
+def game_settings_view(request, pk):
+    """
+    Consulte ou met à jour les paramètres d'une partie.
+
+    GET  /api/games/{id}/settings/ — tout joueur de la partie.
+    PATCH /api/games/{id}/settings/ — admin uniquement, state=WAITING.
+    Diffuse settings_updated via le lobby WebSocket après modification.
+    """
+    try:
+        game = get_game_by_id(pk)
+        player = get_player_in_game(game, request.user)
+        settings = get_game_settings(game)
+
+        if request.method == "GET":
+            return Response(
+                GameSettingsSerializer(settings).data,
+                status=status.HTTP_200_OK,
+            )
+
+        return _handle_settings_update(game, player, settings, request.data)
+    except (GameException, PlayerException) as e:
+        return error_response(e, e.status_code)
+
+
+def _handle_settings_update(game, player, settings, data):
+    """
+    Traite la mise à jour des paramètres (PATCH).
+
+    Vérifie les permissions, valide, sauvegarde et diffuse.
+
+    Args:
+        game: La partie.
+        player: Le joueur qui fait la requête.
+        settings: Les paramètres actuels.
+        data: Données de la requête PATCH.
+
+    Returns:
+        Response: Les paramètres mis à jour ou une erreur.
+    """
+    if not player.is_admin:
+        raise PlayerException(
+            message_key=ErrorMessages.PLAYER_NOT_ADMIN,
+            status_code=status.HTTP_403_FORBIDDEN,
+        )
+
+    if game.state != GameState.WAITING:
+        raise GameException(
+            message_key=ErrorMessages.SETTINGS_GAME_NOT_WAITING,
+        )
+
+    serializer = GameSettingsSerializer(settings, data=data, partial=True)
+    if not serializer.is_valid():
+        return validation_error_response(serializer)
+
+    serializer.save()
+    lobby_broadcast.broadcast_settings_updated(game.id, serializer.data)
+    return Response(serializer.data, status=status.HTTP_200_OK)

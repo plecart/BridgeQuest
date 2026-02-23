@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 import '../../../data/models/game/game.dart';
+import '../../../data/models/game/game_settings.dart';
 import '../../../data/models/game/lobby_player.dart';
 import '../../../data/repositories/game_repository.dart';
 import '../../../data/services/lobby_websocket_service.dart';
@@ -11,21 +12,26 @@ sealed class LobbyNavigationResult {
   const LobbyNavigationResult();
 }
 
-/// La partie a été lancée → naviguer vers la carte de jeu.
+/// La partie a été lancée -> naviguer vers la page de déploiement.
 class LobbyNavigateToGame extends LobbyNavigationResult {
-  const LobbyNavigateToGame({required this.gameId});
+  const LobbyNavigateToGame({
+    required this.gameId,
+    required this.deploymentEndsAt,
+  });
   final int gameId;
+  final String deploymentEndsAt;
 }
 
-/// La partie a été supprimée → naviguer vers le menu.
+/// La partie a été supprimée -> naviguer vers le menu.
 class LobbyNavigateToMenu extends LobbyNavigationResult {
   const LobbyNavigateToMenu();
 }
 
 /// ViewModel pour la page salle d'attente (lobby).
 ///
-/// Gère la connexion WebSocket, la liste des joueurs en temps réel,
-/// le lancement de la partie (admin) et les événements (game_deleted, game_started).
+/// Gère la connexion WebSocket, la liste des joueurs et les paramètres
+/// en temps réel, le lancement de la partie (admin) et les événements
+/// (game_deleted, game_started, settings_updated).
 class LobbyViewModel extends ChangeNotifier {
   LobbyViewModel({
     required Game game,
@@ -43,15 +49,19 @@ class LobbyViewModel extends ChangeNotifier {
   final TokenManager _tokenManager;
 
   List<LobbyPlayer> _players = [];
+  GameSettings? _settings;
   bool _isConnecting = true;
   String? _errorKey;
   bool _isStarting = false;
+  bool _isUpdatingSettings = false;
   LobbyNavigationResult? _navigationResult;
 
   List<LobbyPlayer> get players => List.unmodifiable(_players);
+  GameSettings? get settings => _settings;
   bool get isConnecting => _isConnecting;
   String? get errorKey => _errorKey;
   bool get isStarting => _isStarting;
+  bool get isUpdatingSettings => _isUpdatingSettings;
   Game get game => _game;
   LobbyNavigationResult? get navigationResult => _navigationResult;
 
@@ -69,6 +79,7 @@ class LobbyViewModel extends ChangeNotifier {
 
     try {
       await _loadPlayers();
+      await _loadSettings();
       await _connectWebSocket();
     } catch (e) {
       _setError('lobbyErrorWebSocket');
@@ -89,6 +100,11 @@ class LobbyViewModel extends ChangeNotifier {
           ),
         )
         .toList();
+    notifyListeners();
+  }
+
+  Future<void> _loadSettings() async {
+    _settings = await _gameRepository.getSettings(_game.id);
     notifyListeners();
   }
 
@@ -128,7 +144,16 @@ class LobbyViewModel extends ChangeNotifier {
         _setNavigationResult(const LobbyNavigateToMenu());
         break;
       case LobbyGameStartedEvent e:
-        _setNavigationResult(LobbyNavigateToGame(gameId: e.gameId));
+        _setNavigationResult(
+          LobbyNavigateToGame(
+            gameId: e.gameId,
+            deploymentEndsAt: e.deploymentEndsAt,
+          ),
+        );
+        break;
+      case LobbySettingsUpdatedEvent e:
+        _settings = e.settings;
+        notifyListeners();
         break;
       case LobbyErrorEvent _:
         _setError('lobbyErrorWebSocket');
@@ -190,7 +215,35 @@ class LobbyViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Met à jour un paramètre de la partie (admin uniquement).
+  ///
+  /// Envoie un PATCH avec le champ modifié. Le serveur diffuse
+  /// l'événement `settings_updated` à tous les clients du lobby
+  /// (y compris l'admin). La mise à jour locale est faite via le WS.
+  Future<void> updateSetting(String key, int value) async {
+    if (!isAdmin || _isUpdatingSettings) return;
+    _isUpdatingSettings = true;
+    _clearError();
+    notifyListeners();
+
+    try {
+      await _gameRepository.updateSettings(_game.id, data: {key: value});
+      // La mise à jour locale est reçue via l'événement WS settings_updated.
+    } catch (e) {
+      _setError('lobbySettingsUpdateError');
+    } finally {
+      _isUpdatingSettings = false;
+      notifyListeners();
+    }
+  }
+
   /// Lance la partie (admin uniquement).
+  ///
+  /// Le REST POST /start/ déclenche la transition WAITING -> DEPLOYMENT
+  /// côté serveur. La navigation n'est **pas** faite ici : c'est
+  /// l'événement WebSocket `game_started` (reçu par tous les joueurs,
+  /// admin inclus) qui transporte `deploymentEndsAt` et déclenche
+  /// la navigation vers la page de déploiement.
   Future<void> startGame() async {
     if (!isAdmin) return;
     _isStarting = true;
@@ -199,7 +252,7 @@ class LobbyViewModel extends ChangeNotifier {
 
     try {
       await _gameRepository.startGame(_game.id);
-      _setNavigationResult(LobbyNavigateToGame(gameId: _game.id));
+      // Navigation déclenchée par l'événement WS game_started.
     } catch (e) {
       _setError('lobbyStartGameError');
     } finally {

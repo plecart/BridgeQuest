@@ -58,7 +58,7 @@ CHANNEL_LAYERS = {
 }
 
 # Cache partagé requis pour lobby_service (exclusions en attente)
-# Sans CACHES explicite : LocMemCache par process → incohérences multi-workers
+# Sans CACHES explicite : LocMemCache par process -> incohérences multi-workers
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.redis.RedisCache',

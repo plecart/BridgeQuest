@@ -2,6 +2,7 @@ import '../../core/config/api_config.dart';
 import '../../core/exceptions/app_exceptions.dart';
 import '../../core/utils/logger.dart';
 import '../models/game/game.dart';
+import '../models/game/game_settings.dart';
 import '../models/game/player.dart';
 import '../services/api_service.dart';
 
@@ -80,6 +81,36 @@ class GameRepository {
     );
   }
 
+  /// Récupère les paramètres d'une partie.
+  ///
+  /// Throws [GameException] si la partie n'existe pas ou si l'utilisateur
+  /// n'est pas dans la partie.
+  Future<GameSettings> getSettings(int gameId) async {
+    return _executeApiCall(
+      () => _requestSettings(
+        () => _apiService.get(ApiConfig.gameSettings(gameId)),
+      ),
+      'get settings',
+    );
+  }
+
+  /// Met à jour les paramètres d'une partie (admin uniquement, état WAITING).
+  ///
+  /// Seuls les champs fournis dans [data] sont modifiés (PATCH).
+  /// Throws [GameException] si l'utilisateur n'est pas admin,
+  /// si la partie n'est pas en WAITING, ou si les données sont invalides.
+  Future<GameSettings> updateSettings(
+    int gameId, {
+    required Map<String, dynamic> data,
+  }) async {
+    return _executeApiCall(
+      () => _requestSettings(
+        () => _apiService.patch(ApiConfig.gameSettings(gameId), data: data),
+      ),
+      'update settings',
+    );
+  }
+
   /// Effectue une requête API et parse la réponse en [Game].
   Future<Game> _requestGame(Future<dynamic> Function() request) async {
     final response = await request();
@@ -96,6 +127,15 @@ class GameRepository {
   ) async {
     final response = await request();
     return _parsePlayersList(response.data);
+  }
+
+  /// Effectue une requête API et parse la réponse en [GameSettings].
+  Future<GameSettings> _requestSettings(
+    Future<dynamic> Function() request,
+  ) async {
+    final response = await request();
+    final data = _normalizeResponseData(response.data);
+    return _parseSettings(data);
   }
 
   /// Exécute un appel API avec gestion d'erreur standardisée.
@@ -161,5 +201,18 @@ class GameRepository {
     return data
         .map((e) => GamePlayer.fromJson(e as Map<String, dynamic>))
         .toList();
+  }
+
+  /// Parse les paramètres de partie depuis les données JSON.
+  GameSettings _parseSettings(Map<String, dynamic> data) {
+    try {
+      return GameSettings.fromJson(data);
+    } catch (e) {
+      AppLogger.error('Error parsing game settings', e);
+      throw GameException(
+        'Invalid settings response format',
+        code: _codeInvalidFormat,
+      );
+    }
   }
 }

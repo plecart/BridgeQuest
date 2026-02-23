@@ -42,6 +42,18 @@ class Game(models.Model):
         verbose_name=_(ModelMessages.GAME_STATE),
     )
 
+    deployment_ends_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name=_(ModelMessages.GAME_DEPLOYMENT_ENDS_AT),
+    )
+
+    game_ends_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name=_(ModelMessages.GAME_GAME_ENDS_AT),
+    )
+
     created_at = models.DateTimeField(
         auto_now_add=True,
         verbose_name=_(ModelMessages.GAME_CREATED_AT),
