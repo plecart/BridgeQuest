@@ -71,11 +71,11 @@ class Command(BaseCommand):
             interval: Pause entre chaque cycle (en secondes).
         """
         logger.info(
-            "process_lifecycle démarré (intervalle : %ss)", interval,
+            "process_lifecycle started (interval: %ss)", interval,
         )
         self.stdout.write(self.style.SUCCESS(
-            f"process_lifecycle démarré (intervalle : {interval}s). "
-            "Ctrl+C pour arrêter."
+            f"process_lifecycle started (interval: {interval}s). "
+            "Ctrl+C to stop."
         ))
 
         try:
@@ -83,7 +83,7 @@ class Command(BaseCommand):
                 tick()
                 time.sleep(interval)
         except KeyboardInterrupt:
-            logger.info("process_lifecycle arrêté (Ctrl+C)")
+            logger.info("process_lifecycle stopped (Ctrl+C)")
             self.stdout.write(self.style.WARNING(
-                "\nprocess_lifecycle arrêté."
+                "\nprocess_lifecycle stopped."
             ))

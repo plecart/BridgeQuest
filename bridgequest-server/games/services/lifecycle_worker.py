@@ -88,7 +88,7 @@ def start(interval=_DEFAULT_INTERVAL):
         name="lifecycle-worker",
     )
     thread.start()
-    logger.info("Lifecycle worker démarré (intervalle : %ss)", interval)
+    logger.info("Lifecycle worker started (interval: %ss)", interval)
 
 
 # ── Shared tick logic (réutilisé par la management command) ──────────
@@ -131,7 +131,7 @@ def _run_loop(interval):
         try:
             tick()
         except Exception:
-            logger.exception("Lifecycle worker : erreur pendant le tick")
+            logger.exception("Lifecycle worker: error during tick")
         time.sleep(interval)
 
 
@@ -199,4 +199,4 @@ def _process_transitions(*, model, filters, transition_fn, label):
                 label=label,
             )
         except Exception:
-            logger.exception("Game %s : erreur %s", game_id, label)
+            logger.exception("Game %s: error during %s", game_id, label)
