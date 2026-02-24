@@ -111,6 +111,63 @@ Retourner **toutes** les erreurs de validation (`validation_error_response(seria
 | `responses.py` | `validation_error_response` |
 | `middleware.py` | `AccessLogMiddleware` (redaction tokens) |
 
+## Standard de Logging
+
+**Format unifié** : Tous les logs du serveur utilisent le même format pour une cohérence visuelle.
+
+### Format standard
+
+```
+{levelname:8} {asctime} [{module:15}] {message}
+```
+
+Exemples :
+- `INFO     08:07:10 [lifecycle_worker] Lifecycle worker started`
+- `INFO     08:07:14 [bridgequest.access] 127.0.0.1 - - "GET /admin" 404 3123`
+
+### Configuration par environnement
+
+**Développement** (`settings/development.py`) :
+- Formatter `standard` avec `datefmt='%H:%M:%S'` (heure uniquement)
+- Handler `console` uniquement
+- Access logs HTTP via `AccessLogMiddleware` (logger `bridgequest.access`)
+- Access logs natifs Twisted désactivés (loggers `twisted.web.http` et `twisted.web` sans handlers)
+
+**Production** (`settings/production.py`) :
+- Formatter `standard` avec `datefmt='%Y-%m-%d %H:%M:%S'` (date complète)
+- Handlers `file` et `console`
+- Même configuration d'access logs que développement
+
+**Tests** (`settings/testing.py`) :
+- Format simplifié sans timestamp
+- Tous les loggers désactivés sauf erreurs (`disable_existing_loggers=True`)
+
+### Règles importantes
+
+1. **Access logs HTTP** : Utiliser `AccessLogMiddleware` (logger `bridgequest.access`), pas les logs natifs de Daphne/Twisted
+2. **Format cohérent** : Tous les nouveaux loggers doivent utiliser le formatter `standard`
+3. **Sécurité** : Le middleware redacte automatiquement les paramètres sensibles (JWT, tokens) dans les URLs
+4. **Niveaux de log** :
+   - `DEBUG` : uniquement pour `bridgequest` en développement
+   - `INFO` : logs normaux (daphne, bridgequest.access, bridgequest)
+   - `ERROR` : erreurs Django uniquement
+   - `WARNING` : root logger en production
+
+### Ajouter un nouveau logger
+
+```python
+# Dans settings/development.py ou production.py
+'loggers': {
+    'mon_module': {
+        'handlers': ['console'],  # ou ['file', 'console'] en production
+        'level': 'INFO',
+        'propagate': False,
+    },
+}
+```
+
+Le logger utilisera automatiquement le formatter `standard` défini dans `formatters`.
+
 ## Configuration Production
 
 **Fail-fast** : si `REDIS_URL` manque en production, lever `ValueError` (pas de fallback vers InMemoryChannelLayer).

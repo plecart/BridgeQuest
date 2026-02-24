@@ -25,11 +25,13 @@ REST_FRAMEWORK.update({
 CORS_ALLOW_ALL_ORIGINS = True
 
 # Logging pour le développement
+# Format standardisé : {levelname:8} {asctime} [{module:15}] {message}
+# Tous les logs (Django, Daphne, Twisted, bridgequest) utilisent ce format unifié
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'formatters': {
-        'verbose': {
+        'standard': {
             'format': '{levelname:8} {asctime} [{module:15}] {message}',
             'style': '{',
             'datefmt': '%H:%M:%S',
@@ -38,7 +40,7 @@ LOGGING = {
     'handlers': {
         'console': {
             'class': 'logging.StreamHandler',
-            'formatter': 'verbose',
+            'formatter': 'standard',
         },
     },
     'root': {
@@ -64,6 +66,18 @@ LOGGING = {
         'daphne': {
             'handlers': ['console'],
             'level': 'INFO',
+            'propagate': False,
+        },
+        # Désactiver les access logs natifs de Twisted (remplacés par AccessLogMiddleware)
+        # Configuration identique pour twisted.web.http et twisted.web pour éviter tout log
+        'twisted.web.http': {
+            'handlers': [],
+            'level': 'WARNING',
+            'propagate': False,
+        },
+        'twisted.web': {
+            'handlers': [],
+            'level': 'WARNING',
             'propagate': False,
         },
         'bridgequest': {

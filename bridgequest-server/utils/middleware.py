@@ -9,7 +9,7 @@ from urllib.parse import parse_qs, urlencode, urlparse
 
 logger = logging.getLogger('bridgequest.access')
 
-# Format NCSA-like pour alignement avec le formatter 'verbose' Django
+# Format NCSA-like pour alignement avec le formatter 'standard' Django
 _LOG_FORMAT = '{client} - - "{method} {path}" {status} {size}'
 
 # Paramètres de query string à ne jamais logger en clair (JWT, tokens, clés API)
@@ -74,7 +74,7 @@ def _get_safe_log_path(request):
 
 
 def _format_access_log_message(client, method, path, status, size):
-    """Construit le message de log au format NCSA pour cohérence avec le formatter verbose."""
+    """Construit le message de log au format NCSA pour cohérence avec le formatter standard."""
     return _LOG_FORMAT.format(
         client=client,
         method=method,
@@ -88,8 +88,11 @@ class AccessLogMiddleware:
     """
     Middleware qui enregistre les requêtes HTTP avec le format unifié du projet.
 
-    Remplace les access logs Daphne en console par un format cohérent avec
-    les autres logs ({levelname} {asctime} [{module}] {message}).
+    Remplace les access logs natifs de Daphne/Twisted par un format cohérent avec
+    le standard de logging du projet ({levelname:8} {asctime} [{module:15}] {message}).
+    
+    Les access logs natifs de Twisted sont désactivés dans la configuration LOGGING
+    pour éviter les doublons et garantir un format uniforme.
     """
 
     def __init__(self, get_response):
