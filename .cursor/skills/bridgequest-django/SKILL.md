@@ -109,7 +109,7 @@ Retourner **toutes** les erreurs de validation (`validation_error_response(seria
 | `validators.py` | Validateurs réutilisables avec `gettext_lazy` |
 | `permissions.py` | Permissions DRF personnalisées |
 | `responses.py` | `validation_error_response` |
-| `middleware.py` | `AccessLogMiddleware` (redaction tokens) |
+| `middleware.py` | `AccessLogMiddleware` (redaction tokens, placé AVANT WhiteNoise pour capturer les fichiers statiques) |
 
 ## Standard de Logging
 
@@ -131,12 +131,12 @@ Exemples :
 - Formatter `standard` avec `datefmt='%H:%M:%S'` (heure uniquement)
 - Handler `console` uniquement
 - Access logs HTTP via `AccessLogMiddleware` (logger `bridgequest.access`)
-- Access logs natifs Twisted désactivés (loggers `twisted.web.http` et `twisted.web` sans handlers)
+- Access logs natifs Twisted désactivés : `--access-log=/dev/null` (Makefile) + loggers sans handlers
 
 **Production** (`settings/production.py`) :
 - Formatter `standard` avec `datefmt='%Y-%m-%d %H:%M:%S'` (date complète)
 - Handlers `file` et `console`
-- Même configuration d'access logs que développement
+- Même désactivation des access logs Twisted que développement
 
 **Tests** (`settings/testing.py`) :
 - Format simplifié sans timestamp
@@ -147,11 +147,23 @@ Exemples :
 1. **Access logs HTTP** : Utiliser `AccessLogMiddleware` (logger `bridgequest.access`), pas les logs natifs de Daphne/Twisted
 2. **Format cohérent** : Tous les nouveaux loggers doivent utiliser le formatter `standard`
 3. **Sécurité** : Le middleware redacte automatiquement les paramètres sensibles (JWT, tokens) dans les URLs
-4. **Niveaux de log** :
+4. **Ordre des middlewares** : `AccessLogMiddleware` doit être placé AVANT `WhiteNoiseMiddleware` pour capturer les fichiers statiques
+5. **Niveaux de log** :
    - `DEBUG` : uniquement pour `bridgequest` en développement
    - `INFO` : logs normaux (daphne, bridgequest.access, bridgequest)
    - `ERROR` : erreurs Django uniquement
    - `WARNING` : root logger en production
+
+### Configuration optionnelle
+
+**Filtrer les fichiers statiques** : Pour réduire le bruit dans les logs, ajouter dans `settings/development.py` ou `production.py` :
+
+```python
+# Exclure les fichiers statiques des access logs
+ACCESS_LOG_EXCLUDE_STATIC = True
+```
+
+Par défaut (`False`), tous les types de requêtes sont loggés, y compris les fichiers statiques.
 
 ### Ajouter un nouveau logger
 

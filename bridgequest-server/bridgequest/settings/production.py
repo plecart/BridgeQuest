@@ -116,7 +116,7 @@ LOGGING = {
             'propagate': False,
         },
         # Désactiver les access logs natifs de Twisted (remplacés par AccessLogMiddleware)
-        # Configuration identique pour twisted.web.http et twisted.web pour éviter tout log
+        # Les access logs Twisted sont également désactivés via --access-log=/dev/null dans le Makefile
         'twisted.web.http': {
             'handlers': [],
             'level': 'WARNING',

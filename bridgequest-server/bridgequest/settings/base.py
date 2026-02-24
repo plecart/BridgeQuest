@@ -44,6 +44,7 @@ AUTH_USER_MODEL = 'accounts.User'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'utils.middleware.AccessLogMiddleware',  # Logs HTTP unifiés - AVANT WhiteNoise pour capturer les fichiers statiques
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',  # CORS middleware (avant CommonMiddleware)
@@ -52,7 +53,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'utils.middleware.AccessLogMiddleware',  # Logs HTTP unifiés (format cohérent avec Daphne)
 ]
 
 ROOT_URLCONF = 'bridgequest.urls'
