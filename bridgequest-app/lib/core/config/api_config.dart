@@ -53,6 +53,8 @@ class ApiConfig {
   static String gamePlayers(int id) => '/api/games/$id/players/';
   static String gameStart(int id) => '/api/games/$id/start/';
   static String gameSettings(int id) => '/api/games/$id/settings/';
+  static String gamePositions(int id) => '/api/games/$id/positions/';
+  static const String locationUpdate = '/api/locations/';
 
   // ---------------------------------------------------------------------------
   // WebSocket URLs

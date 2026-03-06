@@ -67,24 +67,27 @@ CACHES = {
 }
 
 # Logging pour la production
+# Format standardisé : {levelname:8} {asctime} [{module:15}] {message}
+# Tous les logs (Django, Daphne, Twisted, bridgequest) utilisent ce format unifié
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'formatters': {
-        'verbose': {
-            'format': '{levelname} {asctime} {module} {message}',
+        'standard': {
+            'format': '{levelname:8} {asctime} [{module:15}] {message}',
             'style': '{',
+            'datefmt': '%Y-%m-%d %H:%M:%S',
         },
     },
     'handlers': {
         'file': {
             'class': 'logging.FileHandler',
             'filename': BASE_DIR / 'logs' / 'django.log',
-            'formatter': 'verbose',
+            'formatter': 'standard',
         },
         'console': {
             'class': 'logging.StreamHandler',
-            'formatter': 'verbose',
+            'formatter': 'standard',
         },
     },
     'root': {
@@ -97,7 +100,39 @@ LOGGING = {
             'level': 'ERROR',
             'propagate': False,
         },
+        'django.request': {
+            'handlers': ['file', 'console'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
+        'django.server': {
+            'handlers': ['file', 'console'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
+        'daphne': {
+            'handlers': ['file', 'console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        # Désactiver les access logs natifs de Twisted (remplacés par AccessLogMiddleware)
+        # Les access logs Twisted sont également désactivés via --access-log=/dev/null dans le Makefile
+        'twisted.web.http': {
+            'handlers': [],
+            'level': 'WARNING',
+            'propagate': False,
+        },
+        'twisted.web': {
+            'handlers': [],
+            'level': 'WARNING',
+            'propagate': False,
+        },
         'bridgequest': {
+            'handlers': ['file', 'console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'bridgequest.access': {
             'handlers': ['file', 'console'],
             'level': 'INFO',
             'propagate': False,

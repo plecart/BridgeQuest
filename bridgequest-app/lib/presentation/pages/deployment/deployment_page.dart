@@ -205,10 +205,10 @@ class _DeploymentContent extends StatelessWidget {
     return Text(
       vm.countdownText,
       style: Theme.of(context).textTheme.displayMedium?.copyWith(
-            fontWeight: FontWeight.bold,
-            color: Theme.of(context).colorScheme.primary,
-            fontFeatures: const [FontFeature.tabularFigures()],
-          ),
+        fontWeight: FontWeight.bold,
+        color: Theme.of(context).colorScheme.primary,
+        fontFeatures: const [FontFeature.tabularFigures()],
+      ),
     );
   }
 

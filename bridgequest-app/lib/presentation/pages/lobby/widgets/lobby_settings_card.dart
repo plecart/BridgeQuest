@@ -105,8 +105,10 @@ class LobbySettingsCard extends StatelessWidget {
 enum _SettingsFieldType {
   /// Durées (game_duration, deployment_duration) : minimum 1.
   duration,
+
   /// Points par minute : minimum 1.
   pointsPerMinute,
+
   /// Pourcentages (spirit_percentage, conversion_points_percentage) : 0-100.
   percentage,
 }

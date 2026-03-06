@@ -1,5 +1,5 @@
 ---
-description: Mise à jour automatique des skills lors de l'établissement de nouveaux standards ou patterns de code.
+description: Mise à jour automatique des skills avec les standards de code ET les connaissances projet acquises au fil des échanges.
 globs:
 alwaysApply: true
 ---
@@ -8,7 +8,11 @@ alwaysApply: true
 
 ## Quand mettre à jour
 
+### Standards et patterns de code
 Lorsqu'un nouveau pattern, convention ou standard est établi pendant le développement (nouveau sujet abordé, leçon apprise, correction d'un anti-pattern), mettre à jour le skill approprié.
+
+### Connaissances projet
+Lorsque de nouvelles informations sur le projet sont communiquées ou décidées pendant un échange (règles métier, mécaniques de jeu, décisions d'architecture, règles de visibilité, choix techniques), les documenter dans le skill approprié. Ces connaissances constituent la mémoire persistante du projet entre les conversations.
 
 ## Où mettre à jour
 
@@ -32,3 +36,4 @@ Lorsqu'un nouveau pattern, convention ou standard est établi pendant le dévelo
 - Détails d'implémentation spécifiques à une feature (pas un standard)
 - Informations temporaires ou spécifiques à un sprint
 - Code qui parle de lui-même sans convention particulière
+- Informations déjà documentées ailleurs (éviter la duplication)

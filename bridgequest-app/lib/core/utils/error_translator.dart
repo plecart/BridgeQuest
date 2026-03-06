@@ -66,6 +66,14 @@ class ErrorTranslator {
         return l10n.errorApiGeneric;
       case 'error.config.googleClientIdMissing':
         return l10n.errorConfigGoogleClientIdMissing;
+      case 'errorLocationPermissionDenied':
+        return l10n.errorLocationPermissionDenied;
+      case 'errorLocationServiceDisabled':
+        return l10n.errorLocationServiceDisabled;
+      case 'errorLocationUnavailable':
+        return l10n.errorLocationUnavailable;
+      case 'errorLocationSendFailed':
+        return l10n.errorLocationSendFailed;
       default:
         // Si le code n'est pas reconnu, retourner un message générique
         return errorCode.startsWith('error.') ? l10n.errorGeneric : errorCode;

@@ -319,5 +319,29 @@
   "resultsNoScores": "No scores available",
   "@resultsNoScores": {
     "description": "Message when scores list is empty"
+  },
+  "gameMapLoading": "Loading map...",
+  "@gameMapLoading": {
+    "description": "Map loading message"
+  },
+  "errorLocationPermissionDenied": "Location permission denied",
+  "@errorLocationPermissionDenied": {
+    "description": "Error when GPS permission is denied"
+  },
+  "errorLocationServiceDisabled": "Location service disabled",
+  "@errorLocationServiceDisabled": {
+    "description": "Error when GPS is disabled"
+  },
+  "errorLocationUnavailable": "Location unavailable",
+  "@errorLocationUnavailable": {
+    "description": "Error when location is unavailable"
+  },
+  "errorLocationSendFailed": "Unable to send location",
+  "@errorLocationSendFailed": {
+    "description": "Error sending position to server"
+  },
+  "gameMapPlayerYou": "You",
+  "@gameMapPlayerYou": {
+    "description": "Current player marker label"
   }
 }

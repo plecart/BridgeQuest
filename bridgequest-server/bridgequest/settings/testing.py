@@ -99,5 +99,7 @@ LOGGING = {
             'level': 'ERROR',  # Pas d'access logs pendant les tests
             'propagate': False,
         },
+        # Note: Les loggers Twisted sont automatiquement désactivés par disable_existing_loggers=True
+        # Pas besoin de les configurer explicitement pour les tests
     },
 }

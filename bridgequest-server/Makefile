@@ -46,9 +46,10 @@ help: ## Affiche cette aide
 
 DAPHNE_PORT = 8000
 DAPHNE_APP = bridgequest.asgi:application
-# Pas de --access-log Daphne : la ligne complète (incluant ?token=...) expose les JWT.
-# Le middleware AccessLogMiddleware enregistre en console avec chemins redactés.
-DAPHNE_OPTS = -b 0.0.0.0
+# Désactiver les access logs natifs de Daphne/Twisted (format NCSA incompatible)
+# Les access logs HTTP sont gérés par AccessLogMiddleware avec format standardisé
+# Rediriger vers /dev/null (Linux/WSL) pour désactiver complètement les access logs Twisted
+DAPHNE_OPTS = -b 0.0.0.0 --access-log=/dev/null
 
 server: ## Démarre le serveur (Daphne : HTTP + WebSocket)
 	$(call msg-start,Démarrage du serveur Daphne)

@@ -2,17 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../data/models/game/game_player_role.dart';
+import '../../../data/repositories/position_repository.dart';
 import '../../../data/services/game_websocket_service.dart';
+import '../../../data/services/location_service.dart';
+import '../../../core/utils/error_translator.dart';
 import '../../../i18n/app_localizations.dart';
 import '../../widgets/error_state_view.dart';
 import '../menu/home_page.dart';
 import '../results/results_page.dart';
 import 'game_view_model.dart';
+import 'widgets/game_map_widget.dart';
 
 /// Page principale de jeu affichée pendant la phase IN_PROGRESS.
 ///
-/// Affiche le compte à rebours, le rôle du joueur, la liste des joueurs
-/// et leurs rôles. Navigue vers ResultsPage quand `game_finished` est reçu.
+/// Layout : carte plein écran avec overlays pour le countdown,
+/// le rôle du joueur et les alertes GPS.
 class GamePage extends StatefulWidget {
   const GamePage({
     super.key,
@@ -43,6 +47,8 @@ class _GamePageState extends State<GamePage> {
       roles: widget.roles,
       currentPlayerId: widget.currentPlayerId,
       gameWebSocketService: context.read<GameWebSocketService>(),
+      locationService: context.read<LocationService>(),
+      positionRepository: context.read<PositionRepository>(),
     );
     _viewModel.initialize();
   }
@@ -106,20 +112,12 @@ class _GameContent extends StatelessWidget {
         return PopScope(
           canPop: false,
           child: Scaffold(
-            appBar: AppBar(
-              title: Text(AppLocalizations.of(context)!.gameTitle),
-              automaticallyImplyLeading: false,
-            ),
             body: SafeArea(child: _buildBody(context, vm)),
           ),
         );
       },
     );
   }
-
-  // ---------------------------------------------------------------------------
-  // Navigation
-  // ---------------------------------------------------------------------------
 
   void _scheduleNavigationIfNeeded(BuildContext context, GameViewModel vm) {
     final result = vm.navigationResult;
@@ -138,10 +136,6 @@ class _GameContent extends StatelessWidget {
     });
   }
 
-  // ---------------------------------------------------------------------------
-  // Corps de la page
-  // ---------------------------------------------------------------------------
-
   Widget _buildBody(BuildContext context, GameViewModel vm) {
     final l10n = AppLocalizations.of(context)!;
     if (vm.errorKey != null) {
@@ -151,192 +145,182 @@ class _GameContent extends StatelessWidget {
         onRetry: () => vm.initialize(),
       );
     }
-    return _buildGameContent(context, vm, l10n);
+    return _buildMapLayout(context, vm, l10n);
   }
 
-  Widget _buildGameContent(
+  Widget _buildMapLayout(
     BuildContext context,
     GameViewModel vm,
     AppLocalizations l10n,
   ) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+    return Stack(
+      children: [
+        GameMapWidget(
+          positions: vm.positions,
+          roles: vm.roles,
+          currentPlayerId: vm.currentPlayerId,
+          showRoles: vm.isCurrentPlayerSpirit,
+        ),
+        _buildTopOverlay(context, vm, l10n),
+        if (vm.locationErrorKey != null)
+          _buildLocationWarning(context, vm.locationErrorKey!, l10n),
+      ],
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // Overlay supérieur : countdown + rôle
+  // ---------------------------------------------------------------------------
+
+  Widget _buildTopOverlay(
+    BuildContext context,
+    GameViewModel vm,
+    AppLocalizations l10n,
+  ) {
+    final theme = Theme.of(context);
+    final isSpirit = vm.isCurrentPlayerSpirit;
+
+    return Positioned(
+      top: 12,
+      left: 12,
+      right: 12,
+      child: Row(
         children: [
-          _buildCountdownSection(context, vm, l10n),
-          const SizedBox(height: 24),
-          _buildRoleCard(context, vm, l10n),
-          const SizedBox(height: 24),
-          _buildPlayersSection(context, vm, l10n),
+          _buildCountdownChip(theme, vm),
+          const SizedBox(width: 8),
+          _buildRoleChip(theme, vm, l10n, isSpirit),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCountdownChip(ThemeData theme, GameViewModel vm) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surface.withValues(alpha: 0.9),
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.15),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.timer, size: 18, color: theme.colorScheme.primary),
+          const SizedBox(width: 6),
+          Text(
+            vm.countdownText,
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.bold,
+              color: theme.colorScheme.primary,
+              fontFeatures: const [FontFeature.tabularFigures()],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRoleChip(
+    ThemeData theme,
+    GameViewModel vm,
+    AppLocalizations l10n,
+    bool isSpirit,
+  ) {
+    final roleName = isSpirit ? l10n.gameRoleSpirit : l10n.gameRoleHuman;
+    final bgColor = isSpirit
+        ? theme.colorScheme.errorContainer
+        : theme.colorScheme.primaryContainer;
+    final textColor = isSpirit
+        ? theme.colorScheme.onErrorContainer
+        : theme.colorScheme.onPrimaryContainer;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: bgColor.withValues(alpha: 0.9),
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.15),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            isSpirit ? Icons.visibility_off : Icons.person,
+            size: 18,
+            color: textColor,
+          ),
+          const SizedBox(width: 6),
+          Text(
+            roleName,
+            style: theme.textTheme.titleSmall?.copyWith(
+              fontWeight: FontWeight.bold,
+              color: textColor,
+            ),
+          ),
         ],
       ),
     );
   }
 
   // ---------------------------------------------------------------------------
-  // Section : Compte à rebours
+  // Avertissement GPS
   // ---------------------------------------------------------------------------
 
-  Widget _buildCountdownSection(
+  Widget _buildLocationWarning(
     BuildContext context,
-    GameViewModel vm,
+    String errorKey,
     AppLocalizations l10n,
   ) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
-        child: Column(
-          children: [
-            Text(
-              l10n.gameCountdownLabel,
-              style: Theme.of(context).textTheme.bodyLarge,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              vm.countdownText,
-              style: Theme.of(context).textTheme.displayMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: Theme.of(context).colorScheme.primary,
-                    fontFeatures: const [FontFeature.tabularFigures()],
-                  ),
+    final theme = Theme.of(context);
+    final message = ErrorTranslator.translate(errorKey, l10n);
+
+    return Positioned(
+      bottom: 16,
+      left: 16,
+      right: 16,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          color: theme.colorScheme.errorContainer.withValues(alpha: 0.95),
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.15),
+              blurRadius: 4,
+              offset: const Offset(0, 2),
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  // ---------------------------------------------------------------------------
-  // Section : Rôle du joueur
-  // ---------------------------------------------------------------------------
-
-  Widget _buildRoleCard(
-    BuildContext context,
-    GameViewModel vm,
-    AppLocalizations l10n,
-  ) {
-    final role = vm.currentPlayerRole;
-    final isSpirit = role?.isSpirit ?? false;
-
-    return Card(
-      color: isSpirit
-          ? Theme.of(context).colorScheme.errorContainer
-          : Theme.of(context).colorScheme.primaryContainer,
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
+        child: Row(
           children: [
-            Text(
-              l10n.gameYourRole,
-              style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                    color: isSpirit
-                        ? Theme.of(context).colorScheme.onErrorContainer
-                        : Theme.of(context).colorScheme.onPrimaryContainer,
-                  ),
-            ),
-            const SizedBox(height: 8),
             Icon(
-              isSpirit ? Icons.visibility_off : Icons.person,
-              size: 48,
-              color: isSpirit
-                  ? Theme.of(context).colorScheme.onErrorContainer
-                  : Theme.of(context).colorScheme.onPrimaryContainer,
+              Icons.location_off,
+              color: theme.colorScheme.onErrorContainer,
+              size: 20,
             ),
-            const SizedBox(height: 8),
-            Text(
-              _localizedRoleName(vm.currentRoleKey, l10n),
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: isSpirit
-                        ? Theme.of(context).colorScheme.onErrorContainer
-                        : Theme.of(context).colorScheme.onPrimaryContainer,
-                  ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                message,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.onErrorContainer,
+                ),
+              ),
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  /// Traduit la clé de rôle en nom localisé.
-  String _localizedRoleName(String roleKey, AppLocalizations l10n) {
-    return switch (roleKey) {
-      'human' => l10n.gameRoleHuman,
-      'spirit' => l10n.gameRoleSpirit,
-      _ => l10n.gameRoleUnknown,
-    };
-  }
-
-  // ---------------------------------------------------------------------------
-  // Section : Liste des joueurs
-  // ---------------------------------------------------------------------------
-
-  Widget _buildPlayersSection(
-    BuildContext context,
-    GameViewModel vm,
-    AppLocalizations l10n,
-  ) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          l10n.gamePlayersTitle(vm.roles.length),
-          style: Theme.of(context).textTheme.titleMedium,
-        ),
-        const SizedBox(height: 12),
-        ListView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: vm.roles.length,
-          itemBuilder: (context, index) =>
-              _buildPlayerTile(context, vm.roles[index], vm, l10n),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildPlayerTile(
-    BuildContext context,
-    GamePlayerRole player,
-    GameViewModel vm,
-    AppLocalizations l10n,
-  ) {
-    final isCurrentPlayer = player.playerId == vm.currentPlayerRole?.playerId;
-    final initial =
-        (player.username.isNotEmpty ? player.username[0] : '?').toUpperCase();
-    final displayName = player.username.isNotEmpty
-        ? player.username
-        : l10n.lobbyPlayerFallbackName(player.playerId);
-
-    return ListTile(
-      leading: CircleAvatar(
-        backgroundColor: player.isSpirit
-            ? Theme.of(context).colorScheme.errorContainer
-            : Theme.of(context).colorScheme.primaryContainer,
-        child: Text(
-          initial,
-          style: TextStyle(
-            color: player.isSpirit
-                ? Theme.of(context).colorScheme.onErrorContainer
-                : Theme.of(context).colorScheme.onPrimaryContainer,
-          ),
-        ),
-      ),
-      title: Text(
-        displayName,
-        style: isCurrentPlayer
-            ? const TextStyle(fontWeight: FontWeight.bold)
-            : null,
-      ),
-      trailing: Chip(
-        label: Text(
-          player.isSpirit ? l10n.gameRoleSpirit : l10n.gameRoleHuman,
-        ),
-        backgroundColor: player.isSpirit
-            ? Theme.of(context).colorScheme.errorContainer
-            : Theme.of(context).colorScheme.primaryContainer,
-        side: BorderSide.none,
       ),
     );
   }

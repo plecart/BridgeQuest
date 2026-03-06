@@ -109,7 +109,76 @@ Retourner **toutes** les erreurs de validation (`validation_error_response(seria
 | `validators.py` | Validateurs réutilisables avec `gettext_lazy` |
 | `permissions.py` | Permissions DRF personnalisées |
 | `responses.py` | `validation_error_response` |
-| `middleware.py` | `AccessLogMiddleware` (redaction tokens) |
+| `middleware.py` | `AccessLogMiddleware` (redaction tokens, placé AVANT WhiteNoise pour capturer les fichiers statiques) |
+
+## Standard de Logging
+
+**Format unifié** : Tous les logs du serveur utilisent le même format pour une cohérence visuelle.
+
+### Format standard
+
+```
+{levelname:8} {asctime} [{module:15}] {message}
+```
+
+Exemples :
+- `INFO     08:07:10 [lifecycle_worker] Lifecycle worker started`
+- `INFO     08:07:14 [bridgequest.access] 127.0.0.1 - - "GET /admin" 404 3123`
+
+### Configuration par environnement
+
+**Développement** (`settings/development.py`) :
+- Formatter `standard` avec `datefmt='%H:%M:%S'` (heure uniquement)
+- Handler `console` uniquement
+- Access logs HTTP via `AccessLogMiddleware` (logger `bridgequest.access`)
+- Access logs natifs Twisted désactivés : `--access-log=/dev/null` (Makefile) + loggers sans handlers
+
+**Production** (`settings/production.py`) :
+- Formatter `standard` avec `datefmt='%Y-%m-%d %H:%M:%S'` (date complète)
+- Handlers `file` et `console`
+- Même désactivation des access logs Twisted que développement
+
+**Tests** (`settings/testing.py`) :
+- Format simplifié sans timestamp
+- Tous les loggers désactivés sauf erreurs (`disable_existing_loggers=True`)
+
+### Règles importantes
+
+1. **Access logs HTTP** : Utiliser `AccessLogMiddleware` (logger `bridgequest.access`), pas les logs natifs de Daphne/Twisted
+2. **Format cohérent** : Tous les nouveaux loggers doivent utiliser le formatter `standard`
+3. **Sécurité** : Le middleware redacte automatiquement les paramètres sensibles (JWT, tokens) dans les URLs
+4. **Ordre des middlewares** : `AccessLogMiddleware` doit être placé AVANT `WhiteNoiseMiddleware` pour capturer les fichiers statiques
+5. **Niveaux de log** :
+   - `DEBUG` : uniquement pour `bridgequest` en développement
+   - `INFO` : logs normaux (daphne, bridgequest.access, bridgequest)
+   - `ERROR` : erreurs Django uniquement
+   - `WARNING` : root logger en production
+
+### Configuration optionnelle
+
+**Filtrer les fichiers statiques** : Pour réduire le bruit dans les logs, ajouter dans `settings/development.py` ou `production.py` :
+
+```python
+# Exclure les fichiers statiques des access logs
+ACCESS_LOG_EXCLUDE_STATIC = True
+```
+
+Par défaut (`False`), tous les types de requêtes sont loggés, y compris les fichiers statiques.
+
+### Ajouter un nouveau logger
+
+```python
+# Dans settings/development.py ou production.py
+'loggers': {
+    'mon_module': {
+        'handlers': ['console'],  # ou ['file', 'console'] en production
+        'level': 'INFO',
+        'propagate': False,
+    },
+}
+```
+
+Le logger utilisera automatiquement le formatter `standard` défini dans `formatters`.
 
 ## Configuration Production
 
@@ -141,6 +210,19 @@ Machine à états et scoring deux phases. Voir [references/lifecycle-scoring.md]
 Pré-conditions lancement : minimum 2 joueurs, demandeur = admin.
 
 Scoring : points passifs déploiement (tous) + points passifs IN_PROGRESS (Humains, arrêt à `converted_at`).
+
+## Règles Métier — Visibilité
+
+- Tout le monde voit tous les participants sur la carte.
+- Seuls les Esprits connaissent les rôles de chaque joueur.
+- Les Humains ne voient pas les rôles.
+- Exception future (module Powers) : les Esprits pourront activer l'invisibilité pour masquer leur position aux Humains.
+
+## Modules en Préparation
+
+- **`interactions`** : conversion Humain → Esprit (QR Code). Infrastructure vide (modèles, services, vues à créer).
+- **`powers`** : pouvoirs spéciaux (ex: invisibilité Esprit). Infrastructure vide.
+- **`logs`** : référencé dans les URLs mais module absent.
 
 ## Checklist Nouvelle Fonctionnalité
 
